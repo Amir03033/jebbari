@@ -1,9 +1,11 @@
 @php
+    use App\Content\Site;
     use App\Support\Locale;
 
     $current = Locale::page();
-    $links = ['work', 'services', 'about', 'contact'];
-    $other = collect(Locale::all())->first(fn ($l) => $l !== app()->getLocale());
+    $links = Site::navigation('header');
+    $other = Locale::other();
+    $home = Locale::url('home');
 @endphp
 
 <header
@@ -15,27 +17,28 @@
     class="site-header fixed inset-x-0 top-0 z-40 border-b border-line bg-paper"
 >
     <div class="page flex h-16 items-center gap-6 md:h-20">
-        <a href="{{ $current ? Locale::url('home') : url('/') }}" class="text-2xl" aria-label="{{ config('site.name') }}, {{ __('site.nav.home') }}">
+        <a href="{{ $home }}" class="flex items-baseline gap-3 text-2xl" aria-label="{{ config('site.name') }}, {{ __('site.nav.home') }}">
             <x-wordmark />
+            <span class="t-label hidden text-muted md:inline">{{ __('site.descriptor') }}</span>
         </a>
 
-        <x-status class="hidden text-muted lg:flex" />
+        <x-status class="hidden text-muted xl:flex" />
 
         <nav aria-label="{{ __('site.nav.label') }}" class="ml-auto hidden items-center gap-8 md:flex">
-            @foreach ($links as $page)
+            @foreach ($links as $item)
                 <a
-                    href="{{ Locale::url($page) }}"
+                    href="{{ $item['url'] }}"
                     class="link link-bare relative text-base"
-                    @if ($current === $page) aria-current="page" @endif
+                    @if ($item['key'] && $current === $item['key']) aria-current="page" @endif
                 >
-                    @if ($current === $page)
+                    @if ($item['key'] && $current === $item['key'])
                         <span class="dot-in absolute -left-3.5 top-1/2 size-1.5 -translate-y-1/2 rounded-full bg-signal" aria-hidden="true"></span>
                     @endif
-                    {{ __('site.nav.'.$page) }}
+                    {{ $item['label'] }}
                 </a>
             @endforeach
 
-            <a href="{{ Locale::switchUrl($other) }}" hreflang="{{ $other }}" lang="{{ $other }}" class="link link-bare t-label" aria-label="{{ __('site.nav.language') }}: {{ strtoupper($other) }}">
+            <a href="{{ $switchUrl }}" hreflang="{{ $other }}" lang="{{ $other }}" class="link link-bare t-label" aria-label="{{ __('site.nav.language') }}: {{ strtoupper($other) }}">
                 <span class="text-muted">{{ strtoupper(app()->getLocale()) }}</span> / {{ strtoupper($other) }}
             </a>
         </nav>
@@ -59,16 +62,16 @@
     <div id="mobile-menu" :data-open="expanded" class="menu-panel fixed inset-x-0 bottom-0 top-16 overflow-y-auto bg-paper md:hidden">
         <nav aria-label="{{ __('site.nav.label') }}" class="page flex min-h-full flex-col justify-between pb-10 pt-8">
             <ul class="flex flex-col border-t border-line">
-                @foreach ($links as $page)
+                @foreach ($links as $item)
                     <li class="menu-item">
                         <a
-                            href="{{ Locale::url($page) }}"
+                            href="{{ $item['url'] }}"
                             @if ($loop->first) x-ref="firstLink" @endif
                             class="t-h2 flex items-center gap-4 py-5"
-                            @if ($current === $page) aria-current="page" @endif
+                            @if ($item['key'] && $current === $item['key']) aria-current="page" @endif
                         >
-                            @if ($current === $page)<span class="size-2 rounded-full bg-signal" aria-hidden="true"></span>@endif
-                            {{ __('site.nav.'.$page) }}
+                            @if ($item['key'] && $current === $item['key'])<span class="size-2 rounded-full bg-signal" aria-hidden="true"></span>@endif
+                            {{ $item['label'] }}
                         </a>
                     </li>
                 @endforeach
@@ -76,7 +79,7 @@
 
             <div class="mt-10 flex items-center justify-between">
                 <x-status class="text-muted" />
-                <a href="{{ Locale::switchUrl($other) }}" hreflang="{{ $other }}" lang="{{ $other }}" class="link link-bare t-label" aria-label="{{ __('site.nav.language') }}: {{ strtoupper($other) }}">
+                <a href="{{ $switchUrl }}" hreflang="{{ $other }}" lang="{{ $other }}" class="link link-bare t-label" aria-label="{{ __('site.nav.language') }}: {{ strtoupper($other) }}">
                     <span class="text-muted">{{ strtoupper(app()->getLocale()) }}</span> / {{ strtoupper($other) }}
                 </a>
             </div>

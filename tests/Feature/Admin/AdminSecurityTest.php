@@ -10,9 +10,12 @@ use Livewire\Features\SupportAutoInjectedAssets\SupportAutoInjectedAssets;
 use Livewire\Livewire;
 use Spatie\Activitylog\Models\Activity;
 use Tests\Support\AdminTestCase;
+use Tests\Support\PublishesSite;
 
 class AdminSecurityTest extends AdminTestCase
 {
+    use PublishesSite;
+
     public function test_guests_are_sent_to_the_admin_login(): void
     {
         foreach (['/admin', '/admin/services', '/admin/inquiries', '/admin/logboek'] as $url) {
@@ -131,6 +134,7 @@ class AdminSecurityTest extends AdminTestCase
         $this->assertStringContainsString('no-store', $admin->headers->get('Cache-Control'));
 
         auth()->logout();
+        $this->publishSite(['home', 'work']);
         $public = $this->get('/en/work');
         $csp = $public->headers->get('Content-Security-Policy');
         $this->assertStringNotContainsString('unsafe-eval', $csp);
@@ -142,10 +146,11 @@ class AdminSecurityTest extends AdminTestCase
 
     public function test_robots_txt_hides_the_admin_and_previews(): void
     {
-        $robots = file_get_contents(public_path('robots.txt'));
+        $robots = $this->get('/robots.txt')->assertOk()->getContent();
 
         $this->assertStringContainsString('Disallow: /admin', $robots);
         $this->assertStringContainsString('Disallow: /preview', $robots);
+        $this->assertStringContainsString('Sitemap: '.url('/sitemap.xml'), $robots);
     }
 
     public function test_public_pages_load_no_filament_or_livewire_assets(): void
@@ -154,6 +159,7 @@ class AdminSecurityTest extends AdminTestCase
         // tests in this process; in production every request is a fresh process.
         SupportAutoInjectedAssets::$hasRenderedAComponentThisRequest = false;
 
+        $this->publishSite(['home']);
         $html = $this->get('/nl')->assertOk()->getContent();
 
         $this->assertStringNotContainsString('livewire', strtolower($html));

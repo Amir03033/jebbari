@@ -233,7 +233,7 @@ class PublishingTest extends AdminTestCase
         // Valid link shows the DRAFT, marked, not indexable.
         $response = $this->get($service->previewUrl('nl'))->assertOk()
             ->assertSee('Nog niet live')
-            ->assertSee('Gepubliceerd met niet-gepubliceerde wijzigingen');
+            ->assertSee('Gepubliceerd, met niet-gepubliceerde wijzigingen');
         $this->assertStringContainsString('noindex', $response->headers->get('X-Robots-Tag'));
         $this->assertStringContainsString('noindex', $response->getContent());
 

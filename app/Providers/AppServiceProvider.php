@@ -21,8 +21,11 @@ use App\Policies\OwnerOnlyPolicy;
 use App\Policies\PagePolicy;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\MediaLibrary\MediaCollections\Events\MediaHasBeenAddedEvent;
@@ -51,6 +54,12 @@ class AppServiceProvider extends ServiceProvider
         ] as $model => $policy) {
             Gate::policy($model, $policy);
         }
+
+        // Contact form: 3 a minute and 10 an hour per address.
+        RateLimiter::for('contact', fn (Request $request) => [
+            Limit::perMinute(3)->by($request->ip()),
+            Limit::perHour(10)->by($request->ip()),
+        ]);
 
         Event::listen(MediaHasBeenAddedEvent::class, SanitizeUploadedImage::class);
 

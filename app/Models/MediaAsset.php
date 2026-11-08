@@ -68,6 +68,63 @@ class MediaAsset extends Model implements HasMedia
         return $media?->hasGeneratedConversion('thumb') ? $media->getUrl('thumb') : $media?->getUrl();
     }
 
+    /** @return array{0: int, 1: int}|null pixel width and height of the original */
+    public function dimensions(): ?array
+    {
+        $media = $this->file();
+        $w = $media?->getCustomProperty('width');
+        $h = $media?->getCustomProperty('height');
+
+        return $w && $h ? [(int) $w, (int) $h] : null;
+    }
+
+    /**
+     * Generated responsive files that exist, per format: ['avif' => [480 => url, ...], 'webp' => [...]].
+     *
+     * @return array<string, array<int, string>>
+     */
+    public function sources(): array
+    {
+        $media = $this->file();
+        $out = [];
+
+        if (! $media) {
+            return $out;
+        }
+
+        foreach (MediaSizes::formats() as $format) {
+            foreach (MediaSizes::WIDTHS as $width) {
+                if ($media->hasGeneratedConversion("{$format}-{$width}")) {
+                    $out[$format][$width] = $media->getUrl("{$format}-{$width}");
+                }
+            }
+        }
+
+        return $out;
+    }
+
+    public function originalUrl(): ?string
+    {
+        return $this->file()?->getUrl();
+    }
+
+    /** A good size for link previews: the 1200px WebP when it exists, else the original. */
+    public function shareUrl(): ?string
+    {
+        $media = $this->file();
+
+        if (! $media) {
+            return null;
+        }
+
+        return $media->hasGeneratedConversion('webp-1200') ? $media->getUrl('webp-1200') : $media->getUrl();
+    }
+
+    public function altFor(?string $locale = null): string
+    {
+        return $this->is_decorative ? '' : (string) (loc($this->alt, $locale) ?? '');
+    }
+
     /** @return list<string> locales ("NL", "EN") that lack alt text */
     public function missingAlt(): array
     {

@@ -122,6 +122,29 @@ function initProcess() {
     update();
 }
 
+/* Copy the email address, with a quiet confirmation read out by screen readers. */
+function initCopy() {
+    document.addEventListener('click', async (event) => {
+        const button = event.target.closest('[data-copy]');
+
+        if (!button) {
+            return;
+        }
+
+        const status = button.parentElement.querySelector('[data-copy-status]');
+
+        try {
+            await navigator.clipboard.writeText(button.dataset.copy);
+            if (status) {
+                status.textContent = button.dataset.copied;
+                setTimeout(() => (status.textContent = ''), 2000);
+            }
+        } catch {
+            // Clipboard unavailable: the address stays selectable and linked.
+        }
+    });
+}
+
 function initStatus() {
     const write = () =>
         document.querySelectorAll('[data-motion-status]').forEach((el) => {
@@ -137,5 +160,6 @@ export function initMotion() {
     initReplay();
     initCursorLabel();
     initProcess();
+    initCopy();
     initStatus();
 }

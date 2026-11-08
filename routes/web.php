@@ -1,7 +1,9 @@
 <?php
 
-use App\Http\Controllers\PageController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PreviewController;
+use App\Http\Controllers\SiteController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\StyleController;
 use App\Http\Middleware\SetLocale;
 use App\Support\Locale;
@@ -15,13 +17,29 @@ Route::get('/', function (Request $request) {
     return redirect()->route($locale.'.home')->header('Vary', 'Accept-Language');
 })->name('root');
 
+Route::get('/sitemap.xml', [SitemapController::class, 'sitemap'])->name('sitemap');
+Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
+
 foreach (Locale::all() as $locale) {
     Route::prefix($locale)->middleware(SetLocale::class.':'.$locale)->group(function () use ($locale) {
+        // System pages (content comes from the CMS).
         foreach (Locale::PAGES as $page => $slugs) {
-            Route::get($slugs[$locale], PageController::class)
-                ->defaults('page', $page)
+            Route::get($slugs[$locale], [SiteController::class, 'page'])
+                ->defaults('key', $page)
                 ->name($locale.'.'.$page);
         }
+
+        // Contact form: validated, honeypot + minimum time, rate limited.
+        Route::post(Locale::slug('contact', $locale), [ContactController::class, 'store'])->middleware('throttle:contact')->name($locale.'.contact.send');
+
+        // Details with translated slugs.
+        Route::get(Locale::slug('work', $locale).'/{slug}', [SiteController::class, 'project'])->name($locale.'.work.show');
+        Route::get(Locale::slug('services', $locale).'/{slug}', [SiteController::class, 'service'])->name($locale.'.services.show');
+        Route::get(Locale::slug('blog', $locale).'/'.Locale::CATEGORY_SEGMENT[$locale].'/{slug}', [SiteController::class, 'category'])->name($locale.'.blog.category');
+        Route::get(Locale::slug('blog', $locale).'/{slug}', [SiteController::class, 'post'])->name($locale.'.blog.show');
+
+        // Legal pages (privacy, terms) live at the slug the owner gives them. Must stay last.
+        Route::get('{slug}', [SiteController::class, 'legal'])->where('slug', '[a-z0-9\-]+')->name($locale.'.legal');
     });
 }
 

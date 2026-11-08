@@ -1,0 +1,161 @@
+/*
+ * Public-site components built on the design tokens: editor text, the hero's
+ * column hairlines, service rows. Colours come only from tokens; motion follows
+ * docs/MOTION.md (and is switched off in the reduced-motion block below).
+ */
+@layer components {
+    /* Text written in the CMS (biography, articles, legal pages). Only the
+       tags the sanitiser allows are styled; editors cannot change the look. */
+    .prose-jebbari {
+        max-width: 62ch;
+    }
+
+    .prose-jebbari > * + * {
+        margin-top: 1.25em;
+    }
+
+    .prose-jebbari h2 {
+        margin-top: 2.25em;
+        font-size: clamp(1.5rem, 2.6vw, 2rem);
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        font-weight: 500;
+    }
+
+    .prose-jebbari h3 {
+        margin-top: 1.75em;
+        font-size: 1.25rem;
+        line-height: 1.25;
+        letter-spacing: -0.015em;
+        font-weight: 500;
+    }
+
+    .prose-jebbari :is(h2, h3):first-child {
+        margin-top: 0;
+    }
+
+    .prose-jebbari strong {
+        font-weight: 500;
+    }
+
+    .prose-jebbari a {
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 0.2em;
+        text-decoration-color: var(--line);
+        transition: text-decoration-color var(--dur-fast) var(--ease);
+    }
+
+    .prose-jebbari a:hover,
+    .prose-jebbari a:focus-visible {
+        text-decoration-color: var(--signal);
+    }
+
+    .prose-jebbari ul,
+    .prose-jebbari ol {
+        padding-left: 1.25rem;
+    }
+
+    .prose-jebbari ul {
+        list-style: disc;
+    }
+
+    .prose-jebbari ol {
+        list-style: decimal;
+    }
+
+    .prose-jebbari li + li {
+        margin-top: 0.4em;
+    }
+
+    .prose-jebbari blockquote {
+        padding-left: 1.25rem;
+        border-left: 1px solid var(--fg);
+        font-size: 1.375rem;
+        line-height: 1.35;
+        letter-spacing: -0.015em;
+    }
+
+    /* Hairlines at four column starts behind the hero: print-like structure, not decoration. */
+    .hero-grid {
+        position: absolute;
+        inset-block: 0;
+        inset-inline: 0;
+        pointer-events: none;
+    }
+
+    .hero-grid span {
+        border-left: 1px solid var(--line);
+    }
+
+    /* A single divider at the start of the right-hand column. */
+    .hero-grid span {
+        grid-column: 7;
+    }
+
+    /* Projects without an image get a shorter typographic tile. */
+    .plate[data-tile] .plate-frame {
+        aspect-ratio: 2 / 1;
+    }
+
+    /* Service rows: the name steps right and the arrow nudges on hover or focus. */
+    .service-row {
+        color: inherit;
+    }
+
+    .service-name {
+        display: block;
+        transition: transform var(--dur-base) var(--ease);
+    }
+
+    .service-more .arrow {
+        display: inline-block;
+        transition: transform var(--dur-fast) var(--ease);
+    }
+
+    .service-row:focus-visible .service-name {
+        transform: translateX(8px);
+    }
+
+    .service-row:focus-visible .service-more .arrow {
+        transform: translateX(4px);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        .service-row:hover .service-name {
+            transform: translateX(8px);
+        }
+
+        .service-row:hover .service-more .arrow {
+            transform: translateX(4px);
+        }
+    }
+
+    .btn .arrow {
+        display: inline-block;
+        transition: transform var(--dur-fast) var(--ease);
+    }
+
+    .btn:hover .arrow,
+    .btn:focus-visible .arrow {
+        transform: translateX(4px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .service-name,
+    .service-more .arrow,
+    .btn .arrow {
+        transform: none;
+        transition: none;
+    }
+
+    .service-row:hover .service-name,
+    .service-row:focus-visible .service-name,
+    .service-row:hover .service-more .arrow,
+    .service-row:focus-visible .service-more .arrow,
+    .btn:hover .arrow,
+    .btn:focus-visible .arrow {
+        transform: none;
+    }
+}

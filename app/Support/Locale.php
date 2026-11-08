@@ -6,8 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /**
- * Locale-prefixed routing helpers. Every page has one route per locale,
- * named "{locale}.{page}", with a translated slug where sensible.
+ * Locale-prefixed routing helpers. Every page has one route per locale, named
+ * "{locale}.{page}", with a translated slug where sensible.
  */
 class Locale
 {
@@ -17,8 +17,12 @@ class Locale
         'work' => ['nl' => 'werk', 'en' => 'work'],
         'services' => ['nl' => 'diensten', 'en' => 'services'],
         'about' => ['nl' => 'over-ons', 'en' => 'about'],
+        'blog' => ['nl' => 'blog', 'en' => 'blog'],
         'contact' => ['nl' => 'contact', 'en' => 'contact'],
     ];
+
+    /** URL segment that precedes a blog category slug. */
+    public const CATEGORY_SEGMENT = ['nl' => 'categorie', 'en' => 'category'];
 
     /** @return list<string> */
     public static function all(): array
@@ -29,6 +33,13 @@ class Locale
     public static function current(): string
     {
         return app()->getLocale();
+    }
+
+    public static function other(?string $locale = null): string
+    {
+        $locale ??= self::current();
+
+        return collect(self::all())->first(fn ($l) => $l !== $locale);
     }
 
     /** First supported language in Accept-Language order, else the default. */
@@ -60,7 +71,16 @@ class Locale
         return route(($locale ?? self::current()).'.'.$page);
     }
 
-    /** Name of the page the current request is on, or null (e.g. /_style). */
+    /** A named route in a locale, e.g. route('work.show', ['slug' => ...], 'en'). */
+    public static function route(string $name, array $params = [], ?string $locale = null): string
+    {
+        return route(($locale ?? self::current()).'.'.$name, $params);
+    }
+
+    /**
+     * Key of the page the current request belongs to ("work" for both the work
+     * index and a project), or null (e.g. /_style, legal pages).
+     */
     public static function page(): ?string
     {
         $name = Route::currentRouteName();
@@ -69,7 +89,8 @@ class Locale
             return null;
         }
 
-        [$locale, $page] = explode('.', $name, 2);
+        [$locale, $rest] = explode('.', $name, 2);
+        $page = explode('.', $rest, 2)[0];
 
         return in_array($locale, self::all(), true) && isset(self::PAGES[$page]) ? $page : null;
     }

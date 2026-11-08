@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Content\Renderer;
 use App\Models\Page;
 use App\Models\Post;
 use App\Models\Project;
@@ -37,14 +38,28 @@ class PreviewController extends Controller
         app()->setLocale($locale);
 
         $other = $locale === 'nl' ? 'en' : 'nl';
-
-        return view('pages.preview', [
-            'record' => $record->withDraft(),
+        $draft = $record->withDraft();
+        $preview = [
             'state' => $record->workflowState(),
-            'locale' => $locale,
             'switchUrl' => $record->previewUrl($other),
             'other' => $other,
-            'type' => $type,
-        ]);
+        ];
+
+        // The real page, with the unpublished changes applied.
+        return match ($type) {
+            'page' => Renderer::page($draft, $preview),
+            'service' => Renderer::service($draft, $preview),
+            'project' => Renderer::project($draft, $preview),
+            'post' => Renderer::post($draft, $preview),
+            // Testimonials have no page of their own: show their content.
+            default => view('pages.preview', [
+                'record' => $draft,
+                'state' => $preview['state'],
+                'locale' => $locale,
+                'switchUrl' => $preview['switchUrl'],
+                'other' => $other,
+                'type' => $type,
+            ]),
+        };
     }
 }

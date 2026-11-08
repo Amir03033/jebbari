@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import './fonts.css';
 @import './motion.css';
+@import './site.css';
 
 @source '../../storage/framework/views/*.php';
 

@@ -86,12 +86,12 @@ class PreviewData
 
             return $text !== strip_tags($text)
                 ? '<div class="t-body">'.HtmlSanitizer::clean($text).'</div>'
-                : '<span style="white-space: pre-line">'.e($text).'</span>';
+                : '<span class="whitespace-pre-line">'.e($text).'</span>';
         }
 
         if (is_array($value)) {
             if (array_is_list($value)) {
-                return '<ol class="grid gap-3 pl-5" style="list-style: decimal">'.collect($value)->map(fn ($v) => '<li>'.self::render($v, $key, $locale).'</li>')->implode('').'</ol>';
+                return '<ol class="grid list-decimal gap-3 pl-5">'.collect($value)->map(fn ($v) => '<li>'.self::render($v, $key, $locale).'</li>')->implode('').'</ol>';
             }
 
             $out = '<dl class="grid gap-2">';

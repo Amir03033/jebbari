@@ -2,12 +2,17 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\PublishesSite;
 use Tests\TestCase;
 
 class MotionFoundationTest extends TestCase
 {
+    use PublishesSite, RefreshDatabase;
+
     public function test_pages_load_the_js_flag_script_before_the_bundle(): void
     {
+        $this->publishSite();
         $html = $this->get('/en/work')->assertOk()->getContent();
 
         $this->assertStringContainsString('js/motion-flag.js', $html);
