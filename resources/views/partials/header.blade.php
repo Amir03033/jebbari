@@ -29,7 +29,7 @@
                     @if ($current === $page) aria-current="page" @endif
                 >
                     @if ($current === $page)
-                        <span class="absolute -left-3.5 top-1/2 size-1.5 -translate-y-1/2 rounded-full bg-signal" aria-hidden="true"></span>
+                        <span class="dot-in absolute -left-3.5 top-1/2 size-1.5 -translate-y-1/2 rounded-full bg-signal" aria-hidden="true"></span>
                     @endif
                     {{ __('site.nav.'.$page) }}
                 </a>
@@ -48,17 +48,19 @@
             aria-controls="mobile-menu"
             class="t-label ml-auto min-h-11 px-1 md:hidden"
         >
-            <span x-show="!open">{{ __('site.nav.menu') }}</span>
-            <span x-show="open" x-cloak>{{ __('site.nav.close') }}</span>
+            <span class="grid" :data-open="expanded">
+                <span class="menu-label" data-state="closed">{{ __('site.nav.menu') }}</span>
+                <span class="menu-label" data-state="open">{{ __('site.nav.close') }}</span>
+            </span>
         </button>
     </div>
 
     {{-- Full-screen menu. Same links at display size. --}}
-    <div id="mobile-menu" x-show="open" x-cloak class="fixed inset-x-0 bottom-0 top-16 overflow-y-auto bg-paper md:hidden">
+    <div id="mobile-menu" :data-open="expanded" class="menu-panel fixed inset-x-0 bottom-0 top-16 overflow-y-auto bg-paper md:hidden">
         <nav aria-label="{{ __('site.nav.label') }}" class="page flex min-h-full flex-col justify-between pb-10 pt-8">
-            <ul class="flex flex-col">
+            <ul class="flex flex-col border-t border-line">
                 @foreach ($links as $page)
-                    <li class="border-b border-line first:border-t">
+                    <li class="menu-item">
                         <a
                             href="{{ Locale::url($page) }}"
                             @if ($loop->first) x-ref="firstLink" @endif

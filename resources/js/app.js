@@ -1,4 +1,5 @@
 import Alpine from '@alpinejs/csp';
+import { initMotion } from './motion';
 
 /*
  * Header: hides on scroll down, returns on scroll up (300ms, see app.css).
@@ -16,7 +17,7 @@ Alpine.data('siteHeader', () => ({
     onScroll() {
         const y = window.scrollY;
 
-        if (this.open) {
+        if (this.open || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
             return;
         }
 
@@ -81,3 +82,4 @@ Alpine.data('clock', (initial) => ({
 
 window.Alpine = Alpine;
 Alpine.start();
+initMotion();

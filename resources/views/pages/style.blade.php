@@ -197,9 +197,124 @@
         </div>
     </section>
 
-    {{-- 07 Dark section --}}
+    {{-- 07 Motion --}}
+    <section>
+        <x-section-label number="07" label="Motion" meta="(Phase 1.5 demonstration)" />
+        <div class="page py-16 md:py-24">
+            <div class="grid-12 gap-y-6">
+                <p class="t-body col-span-12 text-muted md:col-span-7">
+                    Every block below animates once, when it enters view, using only CSS and one IntersectionObserver. Use Replay to watch a block again. Nothing here loops, bounces or moves layout.
+                </p>
+            </div>
+            <p class="t-label mt-4 text-muted">Currently: <span data-motion-status>…</span></p>
+
+            {{-- A. Hero --}}
+            <div class="mt-24">
+                <div class="mb-8 flex items-center justify-between gap-6">
+                    <p class="t-label text-muted">A / Hero entrance (about 1.6s, full stop lands last)</p>
+                    <x-button variant="secondary" data-replay="#demo-hero">Replay</x-button>
+                </div>
+                <div id="demo-hero" data-reveal="group" data-hero>
+                    <p class="t-label rise text-muted" data-delay="1">Software studio, Zwolle &amp; Amsterdam</p>
+                    <h2 class="t-display mt-6 md:max-w-[75%]">
+                        <x-lines :lines="['Software, done', 'properly']" stop />
+                    </h2>
+                    <div class="grid-12 mt-10">
+                        <p class="t-body rise col-span-12 text-muted md:col-span-5 md:col-start-8" data-delay="12">
+                            We design and build web applications and websites for businesses that care how their software feels, performs and lasts.
+                        </p>
+                        <div class="rise col-span-12 mt-6 md:col-span-5 md:col-start-8" data-delay="14">
+                            <x-link href="#" arrow class="t-h3">Start a project</x-link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- B. Type --}}
+            <div class="mt-32">
+                <div class="mb-8 flex items-center justify-between gap-6">
+                    <p class="t-label text-muted">B / Staggered type: masked lines, then paragraphs</p>
+                    <x-button variant="secondary" data-replay="#demo-type">Replay</x-button>
+                </div>
+                <div id="demo-type" data-reveal="group" class="grid-12 gap-y-8">
+                    <h2 class="t-h2 col-span-12 md:col-span-7">
+                        <x-lines :lines="['Built to a standard,', 'measured on this site']" />
+                    </h2>
+                    <div class="col-span-12 md:col-span-5">
+                        <p class="t-body rise text-muted" data-delay="4">Each paragraph rises 16px over 700ms, one 60ms step after the last.</p>
+                        <p class="t-body rise mt-4 text-muted" data-delay="5">Groups of four at most, so long content never feels slow.</p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- C. Rows --}}
+            <div class="mt-32">
+                <div class="mb-8 flex items-center justify-between gap-6">
+                    <p class="t-label text-muted">C / Rows: hairline draws, then cells rise. Numbers never count up.</p>
+                    <x-button variant="secondary" data-replay="#demo-rows">Replay</x-button>
+                </div>
+                <dl id="demo-rows">
+                    <x-spec-row data-delay="1" label="Third-party requests" value="0" note="By design" />
+                    <x-spec-row data-delay="3" label="Lighthouse performance (mobile)" value="Not yet measured" note="Phase 4" />
+                    <x-spec-row data-delay="5" label="Largest contentful paint" value="Not yet measured" note="Phase 4" />
+                </dl>
+            </div>
+
+            {{-- D. Plates --}}
+            <div class="mt-32">
+                <div class="mb-8 flex items-center justify-between gap-6">
+                    <p class="t-label text-muted">D / Plates: image wipe, hover scale 1.01, "View case" label, caption hairline</p>
+                    <x-button variant="secondary" data-replay="#demo-plates">Replay</x-button>
+                </div>
+                <div id="demo-plates" class="grid-12 gap-y-12">
+                    <x-plate class="col-span-12 md:col-span-6" href="#" number="01" title="Project one" kind="Web application" year="2026" stack="Laravel · Alpine" placeholder="[[ OWNER: screenshot 1 ]]" />
+                    <x-plate class="col-span-12 md:col-span-6" data-delay="3" href="#" number="02" title="Project two" kind="Dashboard" year="2026" stack="Laravel · Vite" placeholder="[[ OWNER: screenshot 2 ]]" />
+                </div>
+                <p class="t-label mt-6 text-muted">Placeholders only: no screenshots exist yet. Hover or Tab to a plate to see the interaction.</p>
+            </div>
+
+            {{-- E. Process --}}
+            <div class="mt-32">
+                <p class="t-label mb-8 text-muted">E / Process timeline: scroll through. The line fills; steps light as they pass.</p>
+                <div class="grid-12 gap-y-10">
+                    <div class="col-span-12 md:col-span-5">
+                        <div class="md:sticky md:top-28">
+                            <h3 class="t-h2">Process</h3>
+                            <p class="t-label mt-4 text-muted">Sticky title, steps scroll</p>
+                        </div>
+                    </div>
+                    <div class="relative col-span-12 pl-8 md:col-span-6 md:col-start-7 md:pl-12" data-process>
+                        <span class="process-track" aria-hidden="true"><span class="process-fill"></span></span>
+                        @foreach ([['01', 'Talk', 'We listen, ask the awkward questions, and agree scope and price in writing.'], ['02', 'Design', 'Wireframes and a clickable design you approve before any code.'], ['03', 'Build', 'Weekly working builds you can open and use. No surprises.'], ['04', 'Launch', 'We ship, monitor, and stay on call.']] as [$n, $name, $text])
+                            <div class="process-step py-14 md:py-20" data-step>
+                                <p class="t-label">{{ $n }}</p>
+                                <h3 class="t-h3 mt-2">{{ $name }}</h3>
+                                <p class="t-body mt-3">{{ $text }}</p>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
+            {{-- F. Menu and transitions --}}
+            <div class="mt-32 grid-12 gap-y-6">
+                <div class="col-span-12 md:col-span-6">
+                    <p class="t-label mb-3 text-muted">F / Mobile menu</p>
+                    <p class="t-body text-muted">Resize below 768px and open the menu: the panel settles, links rise in a stagger and their hairlines draw. Closing is faster and has no stagger.</p>
+                </div>
+                <div class="col-span-12 md:col-span-6">
+                    <p class="t-label mb-3 text-muted">G / Page transitions</p>
+                    <p class="t-body text-muted">
+                        <x-link href="{{ route('en.work') }}">Open a page</x-link> to see a 250ms cross-fade in browsers that support it. Elsewhere it simply navigates.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- 08 Dark section --}}
     <section class="on-ink">
-        <x-section-label number="07" label="On ink" meta="(dark section, 1 of 2)" />
+        <x-section-label number="08" label="On ink" meta="(dark section, 1 of 2)" />
         <div class="page py-16 md:py-24">
             <h2 class="t-h2 max-w-[16ch]">Built to a standard</h2>
             <p class="t-body mt-6 text-muted">Paper text on ink. Muted text, hairlines and buttons follow automatically.</p>

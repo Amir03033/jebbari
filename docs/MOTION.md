@@ -1,6 +1,6 @@
 # Jebbari motion system (plan, for owner review)
 
-Status: **proposal, nothing of this is built yet.** It extends brief section 6, and per the owner's direction it replaces "motion pass at the end" (Phase 6) with "motion designed into every phase".
+Status: **owner decisions recorded; primitives built in Phase 1.5 (see section 9).** It extends brief section 6, and per the owner's direction it replaces "motion pass at the end" (Phase 6) with "motion designed into every phase".
 
 ## 1. Principles
 
@@ -64,7 +64,7 @@ Lines are split **server-side** in Blade (`<x-lines>`), each line in an `overflo
 ### 4.3 Scroll-triggered section and image reveals
 - Sections reveal as described in 4.2 when 15% visible, once.
 - **Images and plates:** a `clip-path: inset(0 0 100% 0)` → `inset(0)` wipe (900ms) with the image inside scaling 1.06 → 1 (900ms). The frame (1px border) is visible immediately, so space is reserved and nothing shifts.
-- Optional plate parallax: image translates max 24px with scroll, plates only, disabled under reduced motion and on touch devices if it costs frames.
+- **No parallax anywhere** (owner decision): performance and a controlled experience come first.
 
 ### 4.4 Project plates (Work)
 - **Hover (pointer devices only):** image scale 1 → 1.01 over 600ms (brief). Caption row: the title shifts 4px right and an arrow `→` slides in; the hairline above the caption draws signal-coloured left→right.
@@ -121,8 +121,32 @@ Looping or idle animation, parallax on text, cursor trails, magnetic buttons, sc
 - **Phases 4–5:** spec sheet, packages, form micro-interactions, copy-to-clipboard.
 - **Phase 6:** audit and tuning only (frames, CLS, reduced-motion, budgets), not first-time motion.
 
-## 8. Decisions needed from you
-1. Is the **full stop landing last** in the hero (4.1) the right signature moment?
-2. Should plate parallax (4.3) be in at all, or skipped for restraint?
-3. Are cross-document view transitions (4.8) wanted, or should pages simply load?
-4. OK to add the **Phase 1.5 motion primitives page** before Phase 2?
+## 8. Owner decisions (resolved)
+1. **Hero:** the full stop lands last. Yes.
+2. **Parallax:** none.
+3. **Page transitions:** yes, subtle cross-document view transitions as progressive enhancement; navigation must never depend on them.
+4. Keep the CSS + IntersectionObserver system. No GSAP unless genuinely necessary (it is not).
+
+## 9. Phase 1.5 status (built on `/_style`, section 07 "Motion")
+
+Built and verified: tokens; `data-reveal="up"` and `"group"`; `data-delay` stagger (60ms steps); masked line reveal (`x-lines`, server-split); full stop landing last; hairline draw (`section-label`, `spec-row`); plate component (`x-plate`) with image wipe, hover scale, caption hairline, arrow, and pointer-following "View case" label; link arrow nudge; button press; active-nav dot; mobile menu transitions; process timeline (CSS scroll-driven fill, step lighting); cross-document view transition; reduced-motion rules; print rules; `html.js` flag with a 3s failsafe; replay controls for review.
+
+Not yet built (arrive with their pages): language-switch emphasis, form-field and error transitions, success cross-fade, copy-to-clipboard confirmation, hero use on the real homepage.
+
+Measured on `/_style` (Chromium, strict CSP, no `unsafe-eval`):
+
+| Check | Result |
+|---|---|
+| Layout shift, desktop full scroll | 0.0000 |
+| Layout shift, 390px full scroll | 0.0000 |
+| Layout shift, reduced motion | 0.0000 |
+| Console errors under strict CSP | none |
+| Elements hidden or transformed with JS disabled | 0 |
+| Reduced motion: line/stop transforms, process fill | none (opacity fades only) |
+| View transition on navigation | active normally, off under reduced motion |
+| Built JS / CSS (gzipped) | 24.1 KB / 9.7 KB |
+| Third-party requests | 0 |
+
+One bug found and fixed in testing: IntersectionObserver does not fire when an element jumps from above the viewport to below it, which left process steps lit after a large scroll jump. The timeline now uses one passive, rAF-throttled scroll check.
+
+Known limits: the frame capture and video are from headless Chromium, not Safari or a phone; Safari needs a hands-on check (cross-document view transitions and `animation-timeline` support there should be confirmed on a real device).

@@ -1,0 +1,555 @@
+/*
+ * Motion system (docs/MOTION.md).
+ *
+ * Rules: only transform, opacity and clip-path animate. Space is always
+ * reserved, so nothing shifts. Hidden start states exist only under `.js`
+ * (set by public/js/motion-flag.js), so without JS every word and image is
+ * visible. Reduced motion keeps short opacity fades and drops everything else.
+ */
+
+/* Stagger steps: data-delay="n" is n x 60ms. */
+[data-delay='1'] { --delay: 60ms; }
+[data-delay='2'] { --delay: 120ms; }
+[data-delay='3'] { --delay: 180ms; }
+[data-delay='4'] { --delay: 240ms; }
+[data-delay='5'] { --delay: 300ms; }
+[data-delay='6'] { --delay: 360ms; }
+[data-delay='7'] { --delay: 420ms; }
+[data-delay='8'] { --delay: 480ms; }
+[data-delay='9'] { --delay: 540ms; }
+[data-delay='10'] { --delay: 600ms; }
+[data-delay='11'] { --delay: 660ms; }
+[data-delay='12'] { --delay: 720ms; }
+[data-delay='13'] { --delay: 780ms; }
+[data-delay='14'] { --delay: 840ms; }
+[data-delay='15'] { --delay: 900ms; }
+[data-delay='16'] { --delay: 960ms; }
+
+@layer components {
+    /* ---------------- Fade-up ----------------
+       data-reveal="up": the element itself rises.
+       data-reveal="group": the container stays put; .rise, .rule, .line-inner,
+       .stop and .plate-clip inside it animate when the group enters view. */
+    .js [data-reveal='up'],
+    .js [data-reveal='group'] .rise {
+        opacity: 0;
+        transform: translateY(var(--shift));
+        transition:
+            opacity var(--dur-reveal) var(--ease) var(--delay, 0ms),
+            transform var(--dur-reveal) var(--ease) var(--delay, 0ms);
+    }
+
+    .js [data-reveal='up'].is-in,
+    .js [data-reveal='group'].is-in .rise {
+        opacity: 1;
+        transform: none;
+    }
+
+    /* ---------------- Hairline that draws left to right ---------------- */
+    .rule {
+        position: absolute;
+        inset-inline: 0;
+        top: 0;
+        height: 1px;
+        background-color: var(--line);
+        transform-origin: left center;
+    }
+
+    .js [data-reveal='group'] .rule {
+        transform: scaleX(0);
+        transition: transform var(--dur-reveal) var(--ease) var(--delay, 0ms);
+    }
+
+    .js [data-reveal='group'].is-in .rule {
+        transform: none;
+    }
+
+    .label-row {
+        transition: opacity var(--dur-reveal) var(--ease) 100ms;
+    }
+
+    .js [data-reveal='group'] .label-row {
+        opacity: 0;
+    }
+
+    .js [data-reveal='group'].is-in .label-row {
+        opacity: 1;
+    }
+
+    /* ---------------- Masked line reveal ----------------
+       Lines are split on the server (x-lines), so nothing is measured or
+       shifted in the browser. The padding/negative margin keeps descenders
+       from being clipped without changing the line box. */
+    .line {
+        display: block;
+        overflow: clip;
+        padding-block: 0.12em;
+        margin-block: -0.12em;
+    }
+
+    .line-inner {
+        display: block;
+    }
+
+    .js [data-reveal='group'] .line-inner {
+        transform: translateY(115%);
+        transition: transform var(--dur-hero) var(--ease)
+            calc(var(--lines-delay, 0ms) + var(--line-i, 0) * var(--stagger));
+    }
+
+    .js [data-reveal='group'].is-in .line-inner {
+        transform: none;
+    }
+
+    .line:nth-child(2) { --line-i: 1; }
+    .line:nth-child(3) { --line-i: 2; }
+    .line:nth-child(4) { --line-i: 3; }
+    .line:nth-child(5) { --line-i: 4; }
+    .line:nth-child(6) { --line-i: 5; }
+
+    /* The full stop lands last, after the lines have settled. */
+    .stop {
+        display: inline-block;
+        transform-origin: 50% 85%;
+    }
+
+    .js [data-reveal='group'] .stop {
+        transform: scale(0);
+        transition: transform 400ms var(--ease) var(--stop-delay, 820ms);
+    }
+
+    .js [data-reveal='group'].is-in .stop {
+        transform: none;
+    }
+
+    /* ---------------- Plates ----------------
+       The 1px frame and its aspect ratio are visible immediately, so space is
+       reserved. The image wipes in from the top and settles from 1.06 to 1. */
+    .plate-frame {
+        aspect-ratio: 16 / 10;
+        border: 1px solid var(--line);
+        overflow: hidden;
+    }
+
+    .plate-clip,
+    .plate-reveal,
+    .plate-img {
+        height: 100%;
+    }
+
+    .js [data-reveal='group'] .plate-clip {
+        clip-path: inset(0 0 100% 0);
+        transition: clip-path var(--dur-hero) var(--ease) var(--delay, 0ms);
+    }
+
+    .js [data-reveal='group'] .plate-reveal {
+        transform: scale(1.06);
+        transition: transform var(--dur-hero) var(--ease) var(--delay, 0ms);
+    }
+
+    .js [data-reveal='group'].is-in .plate-clip {
+        clip-path: inset(0);
+    }
+
+    .js [data-reveal='group'].is-in .plate-reveal {
+        transform: none;
+    }
+
+    .plate-img {
+        transition: transform var(--dur-slow) var(--ease);
+    }
+
+    .plate-caption {
+        position: relative;
+        padding-block: 1rem;
+    }
+
+    .plate-caption::before,
+    .plate-caption::after {
+        content: '';
+        position: absolute;
+        inset-inline: 0;
+        top: 0;
+        height: 1px;
+    }
+
+    .plate-caption::before {
+        background-color: var(--line);
+    }
+
+    .plate-caption::after {
+        background-color: var(--signal);
+        transform: scaleX(0);
+        transform-origin: left center;
+        transition: transform var(--dur-slow) var(--ease);
+    }
+
+    .plate-title {
+        display: inline-block;
+        transition: transform var(--dur-fast) var(--ease);
+    }
+
+    .plate-arrow {
+        display: inline-block;
+        opacity: 0;
+        transform: translateX(-4px);
+        transition:
+            opacity var(--dur-fast) var(--ease),
+            transform var(--dur-fast) var(--ease);
+    }
+
+    /* Keyboard focus gets the same visual change as hover. */
+    .plate:focus-visible .plate-img {
+        transform: scale(1.01);
+    }
+
+    .plate:focus-visible .plate-caption::after {
+        transform: scaleX(1);
+    }
+
+    .plate:focus-visible .plate-title {
+        transform: translateX(4px);
+    }
+
+    .plate:focus-visible .plate-arrow {
+        opacity: 1;
+        transform: none;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        .plate:hover .plate-img {
+            transform: scale(1.01);
+        }
+
+        .plate:hover .plate-caption::after {
+            transform: scaleX(1);
+        }
+
+        .plate:hover .plate-title {
+            transform: translateX(4px);
+        }
+
+        .plate:hover .plate-arrow {
+            opacity: 1;
+            transform: none;
+        }
+    }
+
+    /* "View case" label that follows the pointer (pointer: fine only, see motion.js). */
+    .cursor-label {
+        position: fixed;
+        left: 0;
+        top: 0;
+        z-index: 60;
+        pointer-events: none;
+        padding: 0.35rem 0.6rem;
+        border-radius: var(--radius-ui);
+        background-color: var(--ink);
+        color: var(--paper);
+        opacity: 0;
+        transition: opacity var(--dur-fast) var(--ease);
+        will-change: transform;
+    }
+
+    .cursor-label.is-on {
+        opacity: 1;
+    }
+
+    /* ---------------- Micro-interactions ---------------- */
+    .link .arrow {
+        display: inline-block;
+        transition: transform var(--dur-fast) var(--ease);
+    }
+
+    .link:hover .arrow,
+    .link:focus-visible .arrow {
+        transform: translateX(4px);
+    }
+
+    .btn:active {
+        transform: translateY(1px);
+    }
+
+    .dot-in {
+        animation: dot-in var(--dur-fast) var(--ease) both;
+    }
+
+    @keyframes dot-in {
+        from {
+            scale: 0;
+        }
+
+        to {
+            scale: 1;
+        }
+    }
+
+    /* ---------------- Mobile menu ----------------
+       Panel fades and settles 8px; links rise in a 60ms stagger and their
+       hairlines draw. Closing is faster than opening and has no stagger. */
+    .menu-panel {
+        visibility: hidden;
+        opacity: 0;
+        transform: translateY(-8px);
+        transition:
+            opacity var(--dur-fast) var(--ease),
+            transform var(--dur-fast) var(--ease),
+            visibility 0s linear var(--dur-fast);
+    }
+
+    .menu-panel[data-open='true'] {
+        visibility: visible;
+        opacity: 1;
+        transform: none;
+        transition:
+            opacity var(--dur-base) var(--ease),
+            transform var(--dur-base) var(--ease),
+            visibility 0s;
+    }
+
+    .menu-item {
+        position: relative;
+        opacity: 0;
+        transform: translateY(var(--shift));
+        transition:
+            opacity var(--dur-fast) var(--ease),
+            transform var(--dur-fast) var(--ease);
+    }
+
+    .menu-item::after {
+        content: '';
+        position: absolute;
+        inset-inline: 0;
+        bottom: 0;
+        height: 1px;
+        background-color: var(--line);
+        transform: scaleX(0);
+        transform-origin: left center;
+        transition: transform var(--dur-fast) var(--ease);
+    }
+
+    .menu-panel[data-open='true'] .menu-item {
+        opacity: 1;
+        transform: none;
+        transition:
+            opacity var(--dur-reveal) var(--ease) calc(100ms + var(--i, 0) * var(--stagger)),
+            transform var(--dur-reveal) var(--ease) calc(100ms + var(--i, 0) * var(--stagger));
+    }
+
+    .menu-panel[data-open='true'] .menu-item::after {
+        transform: none;
+        transition: transform var(--dur-reveal) var(--ease) calc(100ms + var(--i, 0) * var(--stagger));
+    }
+
+    .menu-item:nth-child(2) { --i: 1; }
+    .menu-item:nth-child(3) { --i: 2; }
+    .menu-item:nth-child(4) { --i: 3; }
+
+    .menu-label {
+        grid-area: 1 / 1;
+        transition: opacity var(--dur-fast) var(--ease);
+    }
+
+    [data-open='true'] > .menu-label[data-state='closed'],
+    [data-open='false'] > .menu-label[data-state='open'] {
+        opacity: 0;
+    }
+
+    /* ---------------- Process timeline ----------------
+       A hairline fills as the section scrolls; steps light from muted to ink
+       as they pass. Fill is CSS scroll-driven where supported, otherwise one
+       rAF-throttled listener sets --progress (see motion.js). */
+    .process-track {
+        position: absolute;
+        inset-block: 0;
+        left: 0;
+        width: 1px;
+        background-color: var(--line);
+    }
+
+    .process-fill {
+        position: absolute;
+        inset: 0;
+        background-color: var(--fg);
+        transform-origin: top center;
+    }
+
+    .js .process-fill {
+        transform: scaleY(var(--progress, 0));
+    }
+
+    @supports (animation-timeline: view()) {
+        .process-fill {
+            animation: process-fill linear both;
+            animation-timeline: view();
+            animation-range: cover 25% cover 75%;
+        }
+    }
+
+    @keyframes process-fill {
+        from {
+            transform: scaleY(0);
+        }
+
+        to {
+            transform: scaleY(1);
+        }
+    }
+
+    .js .process-step {
+        color: var(--muted);
+        transition: color var(--dur-base) var(--ease);
+    }
+
+    .js .process-step.is-passed {
+        color: var(--fg);
+    }
+}
+
+/* ---------------- Page transitions ----------------
+   Progressive enhancement: a short cross-fade between pages in browsers that
+   support cross-document view transitions. Navigation never depends on it. */
+@media (prefers-reduced-motion: no-preference) {
+    @view-transition {
+        navigation: auto;
+    }
+
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+        animation-duration: 250ms;
+        animation-timing-function: var(--ease);
+    }
+}
+
+.site-header {
+    view-transition-name: site-header;
+}
+
+/* Used by the replay control on /_style: resets a reveal without animating back. */
+.replaying,
+.replaying * {
+    transition: none;
+}
+
+/* ---------------- Reduced motion ----------------
+   Opacity fades only (200ms). No translate, scale, clip, draw or fill. */
+@media (prefers-reduced-motion: reduce) {
+    .js [data-reveal='up'],
+    .js [data-reveal='group'] .rise,
+    .js [data-reveal='group'] .stop,
+    .js [data-reveal='group'] .line-inner,
+    .js [data-reveal='group'] .rule,
+    .js [data-reveal='group'] .plate-clip {
+        transform: none;
+        clip-path: none;
+        transition: opacity 200ms linear;
+    }
+
+    .js [data-reveal='group'] .stop,
+    .js [data-reveal='group'] .line-inner,
+    .js [data-reveal='group'] .rule,
+    .js [data-reveal='group'] .plate-clip {
+        opacity: 0;
+    }
+
+    .js [data-reveal='group'].is-in .stop,
+    .js [data-reveal='group'].is-in .line-inner,
+    .js [data-reveal='group'].is-in .rule,
+    .js [data-reveal='group'].is-in .plate-clip {
+        opacity: 1;
+    }
+
+    .js [data-reveal='group'] .plate-reveal,
+    .plate-img,
+    .plate-title,
+    .plate-arrow,
+    .link .arrow,
+    .link::after,
+    .plate-caption::after,
+    .btn,
+    .site-header,
+    .process-step {
+        transform: none;
+        transition: none;
+    }
+
+    .plate-arrow {
+        transform: none;
+    }
+
+    .plate:hover .plate-img,
+    .plate:focus-visible .plate-img,
+    .plate:hover .plate-title,
+    .plate:focus-visible .plate-title,
+    .link:hover .arrow,
+    .link:focus-visible .arrow,
+    .btn:active {
+        transform: none;
+    }
+
+    .link::after,
+    .plate-caption::after {
+        transform: scaleX(1);
+        opacity: 0;
+    }
+
+    .link:hover::after,
+    .link:focus-visible::after,
+    .plate:hover .plate-caption::after,
+    .plate:focus-visible .plate-caption::after {
+        opacity: 1;
+    }
+
+    .dot-in {
+        animation: none;
+    }
+
+    .menu-panel,
+    .menu-item {
+        transform: none;
+        transition: opacity 200ms linear;
+    }
+
+    .menu-panel[data-open='true'],
+    .menu-panel[data-open='true'] .menu-item {
+        transition: opacity 200ms linear;
+    }
+
+    .menu-item::after,
+    .menu-panel[data-open='true'] .menu-item::after {
+        transform: none;
+        transition: none;
+    }
+
+    .process-fill,
+    .js .process-fill {
+        animation: none;
+        transform: none;
+    }
+
+    .js .process-step {
+        color: var(--fg);
+        transition: none;
+    }
+}
+
+/* Print: show everything. */
+@media print {
+    .js [data-reveal='up'],
+    .js [data-reveal='group'] .rise,
+    .js [data-reveal='group'] .line-inner,
+    .js [data-reveal='group'] .stop,
+    .js [data-reveal='group'] .rule,
+    .js [data-reveal='group'] .plate-clip,
+    .js [data-reveal='group'] .plate-reveal,
+    .label-row {
+        opacity: 1;
+        transform: none;
+        clip-path: none;
+    }
+}
+
+/* Hero group: the headline lines start slightly after the label. */
+[data-hero] {
+    --lines-delay: 160ms;
+}

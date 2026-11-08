@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import './fonts.css';
+@import './motion.css';
 
 @source '../../storage/framework/views/*.php';
 
@@ -19,7 +20,15 @@
     --fg: var(--ink);
     --muted: var(--ink-2);
 
+    /* Motion tokens (docs/MOTION.md) */
     --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --dur-fast: 200ms;
+    --dur-base: 400ms;
+    --dur-slow: 600ms;
+    --dur-reveal: 700ms;
+    --dur-hero: 900ms;
+    --stagger: 60ms;
+    --shift: 16px;
     --gutter: 16px;
     --margin: 24px;
     --content-max: 1360px;
@@ -328,19 +337,5 @@
 
     .site-header[data-hidden='true'] {
         transform: translateY(-100%);
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        transition-duration: 0.01ms;
-        animation-duration: 0.01ms;
-        scroll-behavior: auto;
-    }
-
-    .site-header[data-hidden='true'] {
-        transform: none;
     }
 }
