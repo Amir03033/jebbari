@@ -1,0 +1,21 @@
+/*
+ * Geist Mono (OFL), Latin subset, self-hosted.
+ *
+ * Satoshi (Fontshare) could not be downloaded in the build environment, so it
+ * is not declared here. See resources/fonts/README.md for how to add it.
+ */
+@font-face {
+    font-family: 'Geist Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../fonts/geist-mono-latin-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Geist Mono';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('../fonts/geist-mono-latin-500-normal.woff2') format('woff2');
+}

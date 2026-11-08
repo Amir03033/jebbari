@@ -1,0 +1,344 @@
+@import 'tailwindcss';
+@import './fonts.css';
+
+@source '../../storage/framework/views/*.php';
+
+/* ------------------------------------------------------------------
+   Design tokens (brief, section 3)
+   ------------------------------------------------------------------ */
+:root {
+    --paper: #f5f3ee;
+    --paper-2: #ece9e2;
+    --ink: #0e0e0f;
+    --ink-2: #6b6a66;
+    --line: rgba(14, 14, 15, 0.14);
+    --line-dark: rgba(245, 243, 238, 0.16);
+    --signal: #ff4b1f;
+
+    /* Semantic roles. Remapped inside .on-ink. */
+    --fg: var(--ink);
+    --muted: var(--ink-2);
+
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --gutter: 16px;
+    --margin: 24px;
+    --content-max: 1360px;
+}
+
+@media (min-width: 768px) {
+    :root {
+        --gutter: 24px;
+        --margin: 48px;
+    }
+}
+
+/* Dark section: ink background, paper text. Hairlines and muted text follow. */
+.on-ink {
+    --fg: var(--paper);
+    --muted: rgba(245, 243, 238, 0.64);
+    --line: var(--line-dark);
+
+    background-color: var(--ink);
+    color: var(--paper);
+}
+
+/*
+ * Tailwind's default palette, radii and fonts are removed on purpose: only
+ * brand tokens exist, so nothing off-brand can be reached for by accident.
+ */
+@theme inline {
+    --color-*: initial;
+    --color-paper: var(--paper);
+    --color-paper-2: var(--paper-2);
+    --color-ink: var(--ink);
+    --color-ink-2: var(--ink-2);
+    --color-line: var(--line);
+    --color-line-dark: var(--line-dark);
+    --color-signal: var(--signal);
+    --color-fg: var(--fg);
+    --color-muted: var(--muted);
+    --color-transparent: transparent;
+    --color-current: currentColor;
+
+    --font-*: initial;
+    --font-sans: 'Satoshi', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+    --radius-*: initial;
+    --radius-ui: 2px;
+
+    --breakpoint-*: initial;
+    --breakpoint-sm: 40rem;
+    --breakpoint-md: 48rem;
+    --breakpoint-lg: 64rem;
+    --breakpoint-xl: 80rem;
+}
+
+/* ------------------------------------------------------------------
+   Base
+   ------------------------------------------------------------------ */
+@layer base {
+    html {
+        background-color: var(--paper);
+        color: var(--ink);
+        -webkit-text-size-adjust: 100%;
+        scroll-padding-top: 96px;
+    }
+
+    body {
+        min-height: 100vh;
+        font-family: var(--font-sans);
+        font-size: 1.125rem;
+        font-weight: 400;
+        line-height: 1.6;
+        font-feature-settings: 'ss01', 'tnum';
+        text-wrap: pretty;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        font-weight: 500;
+        text-wrap: balance;
+    }
+
+    ::selection {
+        background-color: var(--signal);
+        color: var(--ink);
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--signal);
+        outline-offset: 2px;
+    }
+
+    :focus:not(:focus-visible) {
+        outline: none;
+    }
+}
+
+/* Unlayered, so it outranks every layered rule without !important. */
+[x-cloak] {
+    display: none;
+}
+
+/* ------------------------------------------------------------------
+   Layout
+   ------------------------------------------------------------------ */
+@layer components {
+    .page {
+        width: 100%;
+        max-width: calc(var(--content-max) + var(--margin) * 2);
+        margin-inline: auto;
+        padding-inline: var(--margin);
+    }
+
+    .grid-12 {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        column-gap: var(--gutter);
+    }
+
+    .section {
+        padding-block: clamp(96px, 16vw, 200px);
+    }
+
+    /* ---------------- Type scale ---------------- */
+    .t-display {
+        font-size: clamp(3.5rem, 9vw, 9rem);
+        line-height: 0.95;
+        letter-spacing: -0.04em;
+        font-weight: 500;
+        text-align: left;
+    }
+
+    .t-h2 {
+        font-size: clamp(2rem, 4.5vw, 4rem);
+        line-height: 1.02;
+        letter-spacing: -0.03em;
+        font-weight: 500;
+    }
+
+    .t-h3 {
+        font-size: 1.5rem;
+        line-height: 1.2;
+        letter-spacing: -0.015em;
+        font-weight: 500;
+    }
+
+    .t-body {
+        max-width: 62ch;
+        font-size: 1.125rem;
+        line-height: 1.6;
+    }
+
+    .t-label {
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        line-height: 1.4;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        font-weight: 400;
+    }
+
+    /* ---------------- Links ----------------
+       Resting hairline underline; on hover a signal line draws left to right. */
+    .link {
+        position: relative;
+        display: inline-block;
+        padding-bottom: 0.1em;
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .link::before,
+    .link::after {
+        content: '';
+        position: absolute;
+        inset-inline: 0;
+        bottom: 0;
+        height: 1px;
+    }
+
+    .link::before {
+        background-color: currentColor;
+        opacity: 0.35;
+    }
+
+    .link::after {
+        background-color: var(--signal);
+        transform: scaleX(0);
+        transform-origin: left center;
+        transition: transform 200ms var(--ease);
+    }
+
+    .link:hover::after,
+    .link:focus-visible::after {
+        transform: scaleX(1);
+    }
+
+    /* Navigation links: no resting line. */
+    .link-bare::before {
+        display: none;
+    }
+
+    /* ---------------- Buttons ----------------
+       Never filled with the accent. Ink fill or hairline outline. */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        min-height: 3rem;
+        padding: 0.75rem 1.5rem;
+        border: 1px solid var(--fg);
+        border-radius: var(--radius-ui);
+        font-size: 1rem;
+        font-weight: 500;
+        line-height: 1.2;
+        cursor: pointer;
+        transition:
+            background-color 200ms var(--ease),
+            color 200ms var(--ease),
+            border-color 200ms var(--ease);
+    }
+
+    .btn-primary {
+        background-color: var(--fg);
+        color: var(--paper);
+    }
+
+    .on-ink .btn-primary {
+        background-color: var(--paper);
+        color: var(--ink);
+    }
+
+    .btn-primary:hover {
+        background-color: transparent;
+        color: var(--fg);
+    }
+
+    .btn-secondary {
+        background-color: transparent;
+        color: var(--fg);
+        border-color: var(--line);
+    }
+
+    .btn-secondary:hover {
+        border-color: var(--fg);
+    }
+
+    .btn:disabled,
+    .btn[aria-disabled='true'] {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    /* ---------------- Form fields ---------------- */
+    .field-control {
+        display: block;
+        width: 100%;
+        min-height: 3rem;
+        padding: 0.75rem 0.875rem;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-ui);
+        background-color: transparent;
+        color: var(--fg);
+        font: inherit;
+        font-size: 1rem;
+        line-height: 1.4;
+        transition: border-color 200ms var(--ease);
+    }
+
+    .field-control:hover {
+        border-color: var(--muted);
+    }
+
+    .field-control:focus-visible {
+        border-color: var(--fg);
+    }
+
+    .field-control::placeholder {
+        color: var(--muted);
+    }
+
+    .field-control[aria-invalid='true'] {
+        border-color: var(--fg);
+    }
+
+    textarea.field-control {
+        min-height: 9rem;
+        resize: vertical;
+    }
+
+    select.field-control {
+        appearance: none;
+        padding-right: 2.75rem;
+        cursor: pointer;
+    }
+
+    /* ---------------- Header hide-on-scroll ---------------- */
+    .site-header {
+        transition: transform 300ms var(--ease);
+    }
+
+    .site-header[data-hidden='true'] {
+        transform: translateY(-100%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms;
+        animation-duration: 0.01ms;
+        scroll-behavior: auto;
+    }
+
+    .site-header[data-hidden='true'] {
+        transform: none;
+    }
+}
