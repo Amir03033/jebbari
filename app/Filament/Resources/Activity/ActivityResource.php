@@ -51,8 +51,8 @@ class ActivityResource extends Resource
                 TextEntry::make('causer.name')->label('Door')->placeholder('Systeem'),
                 TextEntry::make('event')->label('Gebeurtenis')->formatStateUsing(fn ($state) => self::EVENTS[$state] ?? $state),
                 TextEntry::make('subject_type')->label('Onderdeel')->formatStateUsing(fn ($state, $record) => $state ? class_basename($state).' #'.$record->subject_id : '—'),
-                TextEntry::make('properties')->label('Details')->columnSpanFull()->formatStateUsing(fn ($state) => json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES))
-                    ->extraAttributes(['style' => 'white-space: pre-wrap; font-family: monospace; font-size: .8rem']),
+                TextEntry::make('properties')->label('Details')->columnSpanFull()->html()
+                    ->formatStateUsing(fn ($state) => '<pre style="white-space: pre-wrap; font-size: .8rem; margin: 0">'.e(json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)).'</pre>'),
             ]),
         ]);
     }

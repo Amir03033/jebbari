@@ -54,7 +54,8 @@ class InquiryResource extends Resource
                 TextEntry::make('budget')->label('Budget')->placeholder('—'),
                 TextEntry::make('created_at')->label('Ontvangen')->dateTime('d-m-Y H:i')->timezone('Europe/Amsterdam'),
                 TextEntry::make('locale')->label('Taal')->formatStateUsing(fn ($state) => strtoupper($state)),
-                TextEntry::make('message')->label('Bericht')->columnSpanFull()->extraAttributes(['style' => 'white-space: pre-wrap']),
+                TextEntry::make('message')->label('Bericht')->columnSpanFull()->html()
+                    ->formatStateUsing(fn (?string $state) => nl2br(e($state ?? ''))),
             ]),
         ]);
     }

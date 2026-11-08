@@ -26,3 +26,13 @@
 - [ ] CMS architecture decisions (docs/CMS-ARCHITECTURE.md section 16): draft overlay, own traits vs Spatie, hosting facts (PHP, DB, GD/AVIF, queue, mail, backups), roles and MFA, missing-translation policy, interface microcopy, blog, admin path.
 - [ ] Real-device check of motion and, later, the admin on iPhone Safari and iPad (only headless Chromium available here).
 - [ ] Safari support for cross-document view transitions and scroll-driven animations should be confirmed on a device (both degrade to normal navigation and a JS-driven fill).
+
+## Added after the CMS foundation
+
+- [ ] Production hosting facts (docs/CMS-IMPLEMENTATION.md section 5): PHP 8.4+, GD with WebP (AVIF optional) or Imagick, database engine and version, queue worker or cron, SMTP provider and credentials (SPF/DKIM/DMARC), backups including `.env` and `APP_KEY`.
+- [ ] Real-device check of the admin on iPhone and iPad (rich text editor, photo upload from the camera roll, page builder, MFA setup).
+- [ ] Review the Dutch draft translations seeded from the brief (all content is seeded as DRAFT; nothing is live).
+- [ ] Decide whether settings, navigation and blog categories should also use the draft step (currently immediate, audit-logged).
+- [ ] Admin CSP: Filament and Livewire need `unsafe-inline` and `unsafe-eval`; try Livewire's `csp_safe` mode later if a stricter admin CSP is wanted.
+- [ ] Preview shows a structured content view until the real page layouts exist (arrives with each page phase).
+- [ ] Create the real owner account with `php artisan cms:create-owner` and keep the authenticator recovery codes safe.

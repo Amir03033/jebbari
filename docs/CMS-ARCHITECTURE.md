@@ -1,6 +1,6 @@
 # Jebbari CMS architecture (proposal, for owner review)
 
-Status: **design only. Nothing in this document is installed or built.** Implementation starts after you approve it, in the order in section 14.
+Status: **approved and implemented (foundation).** See `CMS-IMPLEMENTATION.md` for what was built, the production requirements and the deviations. Owner decisions taken: draft overlay for every content type; Spatie Activitylog and Media Library; Dutch admin; one owner; MFA required; complete blog CMS.
 
 Goal: manage almost all of jebbari.nl from `/admin` on an iPhone, iPad or computer, in Dutch and English, without touching code, while the design and animation system stay fully controlled by Blade components.
 

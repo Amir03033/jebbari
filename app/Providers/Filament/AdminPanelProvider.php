@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\InitialsAvatarProvider;
 use App\Http\Middleware\SecurityHeaders;
 use Filament\Auth\MultiFactor\App\AppAuthentication;
 use Filament\FontProviders\LocalFontProvider;
@@ -37,6 +38,7 @@ class AdminPanelProvider extends PanelProvider
                 AppAuthentication::make()->brandName('Jebbari')->recoverable(),
             ], isRequired: true)
             ->brandName('Jebbari')
+            ->defaultAvatarProvider(InitialsAvatarProvider::class)
             ->favicon(asset('favicon.svg'))
             ->font('system-ui', provider: LocalFontProvider::class)
             ->colors(['primary' => Color::Zinc])
