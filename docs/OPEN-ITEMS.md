@@ -19,3 +19,10 @@
 - ~~Strict CSP vs Alpine~~ Resolved: `@alpinejs/csp` approved and in use.
 - Privacy and Terms in the footer are plain text until those pages exist (Phase 6).
 - `x-plate` is not built yet; it belongs to Phase 3 with real screenshots.
+
+## Added after Phase 1.5 review
+
+- [x] Motion decisions recorded (docs/MOTION.md section 8): full stop lands last, no parallax, cross-document view transitions on.
+- [ ] CMS architecture decisions (docs/CMS-ARCHITECTURE.md section 16): draft overlay, own traits vs Spatie, hosting facts (PHP, DB, GD/AVIF, queue, mail, backups), roles and MFA, missing-translation policy, interface microcopy, blog, admin path.
+- [ ] Real-device check of motion and, later, the admin on iPhone Safari and iPad (only headless Chromium available here).
+- [ ] Safari support for cross-document view transitions and scroll-driven animations should be confirmed on a device (both degrade to normal navigation and a JS-driven fill).
