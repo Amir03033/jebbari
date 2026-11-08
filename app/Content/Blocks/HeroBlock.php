@@ -31,9 +31,12 @@ class HeroBlock extends Block
             Translated::textarea('headline', 'Kop (één regel per rij)', true, 3),
             Toggle::make('end_with_stop')->label('Sluit de kop af met de punt (merkpunt)')->default(true),
             Translated::textarea('description', 'Beschrijving', true, 4),
-            Translated::text('cta_label', 'Tekst van de knop', true, 60),
-            Select::make('cta_page')->label('Knop verwijst naar')->options(BlockOptions::pages())->default('contact'),
-            TextInput::make('cta_url')->label('Of eigen link (optioneel)')->url()->maxLength(255),
+            Translated::text('cta_label', 'Hoofdknop: tekst', true, 60),
+            Select::make('cta_page')->label('Hoofdknop verwijst naar')->options(BlockOptions::pages())->default('work'),
+            TextInput::make('cta_url')->label('Hoofdknop: eigen link (optioneel)')->url()->maxLength(255),
+            Translated::text('cta2_label', 'Tweede knop: tekst (optioneel)', false, 60),
+            Select::make('cta2_page')->label('Tweede knop verwijst naar')->options(BlockOptions::pages())->default('contact'),
+            TextInput::make('cta2_url')->label('Tweede knop: eigen link (optioneel)')->url()->maxLength(255),
         ];
     }
 }

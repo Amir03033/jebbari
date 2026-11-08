@@ -78,7 +78,7 @@ class Page extends Model
             }
         }
 
-        return [...$this->publishIssuesBase(), ...$issues];
+        return [...$this->publishIssuesBase(), ...$issues, ...$this->placeholderIssues()];
     }
 
     private function publishIssuesBase(): array

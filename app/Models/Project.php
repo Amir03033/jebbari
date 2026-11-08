@@ -22,7 +22,7 @@ class Project extends Model
     protected function casts(): array
     {
         return [
-            'title' => 'array', 'kind' => 'array', 'brief' => 'array', 'built' => 'array',
+            'title' => 'array', 'kind' => 'array', 'summary' => 'array', 'brief' => 'array', 'built' => 'array',
             'outcome' => 'array', 'stack' => 'array', 'gallery' => 'array', 'seo' => 'array',
             'is_featured' => 'boolean',
         ];
@@ -30,7 +30,9 @@ class Project extends Model
 
     public function requiredTranslations(): array
     {
-        return ['title' => 'Titel', 'kind' => 'Soort project', 'brief' => 'Opdracht', 'outcome' => 'Resultaat'];
+        // Only the facts every project has. Description and outcome are shown when filled in,
+        // so nothing has to be invented to publish.
+        return ['title' => 'Titel', 'kind' => 'Soort project'];
     }
 
     public function cover(): BelongsTo

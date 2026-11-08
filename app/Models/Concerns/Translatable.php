@@ -44,25 +44,47 @@ trait Translatable
         return $this->getAttribute('slug_'.$locale);
     }
 
-    /** @return array<string, list<string>> locale => labels of missing required fields */
-    public function translationGaps(): array
+    /**
+     * Missing required fields per language. With $withDraft the unpublished
+     * changes are considered (what publishing would check); without it only
+     * the live values count (what the public site may show).
+     *
+     * @return array<string, list<string>> locale => labels
+     */
+    public function translationGaps(bool $withDraft = true): array
     {
-        $source = method_exists($this, 'withDraft') ? $this->withDraft() : $this;
-        $gaps = ['nl' => [], 'en' => []];
+        $gaps = [];
 
         foreach (self::LOCALES as $locale) {
-            foreach ($source->requiredTranslations() as $field => $label) {
-                if (! self::filled($source->t($field, $locale))) {
-                    $gaps[$locale][] = $label;
-                }
-            }
-
-            if (method_exists($source, 'blockGaps')) {
-                $gaps[$locale] = [...$gaps[$locale], ...$source->blockGaps($locale)];
-            }
+            $gaps[$locale] = $this->gapsFor($locale, $withDraft);
         }
 
         return $gaps;
+    }
+
+    /** @return list<string> */
+    public function gapsFor(string $locale, bool $withDraft = true): array
+    {
+        $source = $withDraft && method_exists($this, 'withDraft') ? $this->withDraft() : $this;
+        $gaps = [];
+
+        foreach ($source->requiredTranslations() as $field => $label) {
+            if (! self::filled($source->t($field, $locale))) {
+                $gaps[] = $label;
+            }
+        }
+
+        if (method_exists($source, 'blockGaps')) {
+            $gaps = [...$gaps, ...$source->blockGaps($locale)];
+        }
+
+        return $gaps;
+    }
+
+    /** Complete in this language using live values only: the test for showing it publicly. */
+    public function isTranslatedIn(string $locale): bool
+    {
+        return $this->gapsFor($locale, false) === [];
     }
 
     public function isFullyTranslated(): bool

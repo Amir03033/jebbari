@@ -42,7 +42,11 @@ class MediaAsset extends Model implements HasMedia
 
         // Responsive set: every width in WebP, and AVIF where the server can encode it.
         // The original is the fallback.
-        foreach (MediaSizes::WIDTHS as $width) {
+        // Widths larger than the original are skipped: upscaling adds bytes, not detail.
+        $original = (int) ($media?->getCustomProperty('width') ?? 0);
+        $widths = array_values(array_filter(MediaSizes::WIDTHS, fn (int $w) => $original === 0 || $w <= $original)) ?: [MediaSizes::WIDTHS[0]];
+
+        foreach ($widths as $width) {
             foreach (MediaSizes::formats() as $format) {
                 $this->addMediaConversion("{$format}-{$width}")
                     ->performOnCollections('file')

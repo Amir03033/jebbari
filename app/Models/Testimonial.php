@@ -38,7 +38,7 @@ class Testimonial extends Model
             $issues[] = 'Toestemming van de klant is niet bevestigd';
         }
 
-        return $issues;
+        return [...$issues, ...$this->placeholderIssues()];
     }
 
     public static function previewType(): string

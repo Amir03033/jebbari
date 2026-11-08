@@ -147,7 +147,21 @@ trait HasPublishing
             $issues = [...$issues, ...$this->withDraft()->mediaIssues()];
         }
 
-        return $issues;
+        return [...$issues, ...$this->placeholderIssues()];
+    }
+
+    /**
+     * Content that still contains an owner placeholder such as "[[ OWNER: KvK ]]"
+     * must not go live. Placeholders are for the editor, never for visitors.
+     *
+     * @return list<string>
+     */
+    public function placeholderIssues(): array
+    {
+        $copy = $this->withDraft();
+        $json = json_encode(collect($copy->getAttributes())->except(self::WORKFLOW)->map(fn ($v, $k) => $copy->getAttribute($k))->all(), JSON_UNESCAPED_UNICODE);
+
+        return str_contains((string) $json, '[[ OWNER') ? ['De tekst bevat nog een invulveld "[[ OWNER: ... ]]"'] : [];
     }
 
     public function publish(): void

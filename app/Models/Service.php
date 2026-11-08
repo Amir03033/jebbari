@@ -22,7 +22,7 @@ class Service extends Model
     protected function casts(): array
     {
         return [
-            'title' => 'array', 'summary' => 'array', 'description' => 'array',
+            'title' => 'array', 'summary' => 'array', 'description' => 'array', 'benefits' => 'array',
             'included' => 'array', 'not_included' => 'array', 'timeline' => 'array',
             'tags' => 'array', 'packages' => 'array', 'seo' => 'array',
         ];

@@ -12,7 +12,7 @@ class BlockOptions
 {
     public static function pages(): array
     {
-        return ['contact' => 'Contact', 'work' => 'Werk', 'services' => 'Diensten', 'about' => 'Over ons'];
+        return ['contact' => 'Contact', 'work' => 'Werk', 'services' => 'Diensten', 'about' => 'Over ons', 'blog' => 'Blog'];
     }
 
     public static function services(): array
