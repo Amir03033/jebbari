@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\StyleController;
 use App\Http\Middleware\SetLocale;
 use App\Support\Locale;
@@ -28,3 +29,9 @@ foreach (Locale::all() as $locale) {
 Route::get('/_style', StyleController::class)
     ->middleware(SetLocale::class.':en')
     ->name('style');
+
+// Draft previews: signed, expiring link plus a signed-in admin. See PreviewController.
+Route::get('/preview/{type}/{id}', PreviewController::class)
+    ->middleware(['signed', 'auth'])
+    ->whereNumber('id')
+    ->name('preview');
