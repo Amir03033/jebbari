@@ -14,8 +14,8 @@
 
 ## Found during Phase 1
 
-- `--ink-2` on `--paper-2` measures 4.47:1, just under AA for text (4.5:1). Avoid secondary text on `--paper-2`, or darken `--ink-2` slightly. Decision needed.
+- ~~`--ink-2` contrast~~ Resolved: now `#686763` (5.11:1 on paper, 4.67:1 on paper-2).
 - `--signal` on `--paper` measures 3.02:1: enough for focus rings (non-text, 3:1) but not for text. The wordmark dot is exempt as a logo.
-- The standard Alpine build needs `unsafe-eval` under a strict CSP. For the section 9 CSP, either switch to `@alpinejs/csp` (same project, a separate package, not in section 8) or allow `unsafe-eval`. Decision needed in Phase 6.
+- ~~Strict CSP vs Alpine~~ Resolved: `@alpinejs/csp` approved and in use.
 - Privacy and Terms in the footer are plain text until those pages exist (Phase 6).
 - `x-plate` is not built yet; it belongs to Phase 3 with real screenshots.

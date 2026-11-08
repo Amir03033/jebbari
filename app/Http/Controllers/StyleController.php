@@ -10,7 +10,7 @@ class StyleController extends Controller
         'paper' => ['#F5F3EE', 'Default background'],
         'paper-2' => ['#ECE9E2', 'Subtle surfaces, image placeholders'],
         'ink' => ['#0E0E0F', 'Primary text, dark sections'],
-        'ink-2' => ['#6B6A66', 'Secondary text'],
+        'ink-2' => ['#686763', 'Secondary text'],
         'signal' => ['#FF4B1F', 'The one accent'],
     ];
 
@@ -23,8 +23,8 @@ class StyleController extends Controller
         // Contrast ratios are computed here, not typed in, so the page stays true.
         $pairs = [
             ['ink on paper', '#0E0E0F', $paper],
-            ['ink-2 on paper', '#6B6A66', $paper],
-            ['ink-2 on paper-2', '#6B6A66', '#ECE9E2'],
+            ['ink-2 on paper', '#686763', $paper],
+            ['ink-2 on paper-2', '#686763', '#ECE9E2'],
             ['signal on paper (focus ring, non-text)', '#FF4B1F', $paper],
             ['paper on ink', $paper, '#0E0E0F'],
             ['muted on ink (paper at 64%)', $this->blend($paper, '#0E0E0F', 0.64), '#0E0E0F'],

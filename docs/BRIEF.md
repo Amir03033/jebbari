@@ -63,7 +63,7 @@ The goal is *Apple-like restraint with an editorial, almost print-like character
 | `--paper` | `#F5F3EE` | Default background (warm off-white, not Apple's cool gray) |
 | `--paper-2` | `#ECE9E2` | Subtle surfaces, image placeholders |
 | `--ink` | `#0E0E0F` | Primary text, dark sections |
-| `--ink-2` | `#6B6A66` | Secondary text (verify contrast ≥ 4.5:1 on paper) |
+| `--ink-2` | `#686763` | Secondary text. Measured 5.11:1 on paper, 4.67:1 on paper-2 (owner decision, was `#6B6A66`) |
 | `--line` | `rgba(14,14,15,.14)` | 1px hairlines on paper |
 | `--line-dark` | `rgba(245,243,238,.16)` | Hairlines on ink |
 | `--signal` | `#FF4B1F` | **The one accent** |
@@ -74,7 +74,7 @@ Dark sections (`--ink` background, `--paper` text) are used at most twice per pa
 
 ### Typography
 
-- **Display + body:** **Satoshi** (Fontshare, free for commercial use). Self-host as `woff2`, `font-display: swap`, preload the two weights used. Fallback stack: `ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif`. If Satoshi cannot be downloaded in this environment, use the fallback stack and flag it in section 12. Do **not** substitute Inter.
+- **Display + body:** **Satoshi** (owner confirmed: remains the intended font, never Inter) (Fontshare, free for commercial use). Self-host as `woff2`, `font-display: swap`, preload the two weights used. Fallback stack: `ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif`. If Satoshi cannot be downloaded in this environment, use the fallback stack and flag it in section 12. Do **not** substitute Inter.
 - **Mono (labels, captions, specs):** **Geist Mono** (OFL), self-hosted.
 - Weights: 400 (body), 500 (display and headings). No 700+. Lighter feels more expensive.
 
@@ -128,6 +128,8 @@ Do not add further decorative devices. If something is not on this list or in se
 ---
 
 ## 6. Motion
+
+> Owner direction (Phase 1 review): motion is a core part of the experience and is designed into every page as it is built, not added at the end. See `docs/MOTION.md` for the motion system and plan. The rules below still apply.
 
 Purposeful, slow, quiet. Respect `prefers-reduced-motion: reduce` by disabling everything below except opacity fades.
 
@@ -203,7 +205,7 @@ Giant wordmark is **not** used. Instead: email, social links (as text), `NL/EN`,
 
 ## 8. Tech stack
 
-- **Laravel 11, Blade, Tailwind CSS, Alpine.js, Vite.** Matches the owner's existing projects.
+- **Laravel 13 (PHP 8.3+), Blade, Tailwind CSS, Alpine.js, Vite.** Owner decision: Laravel 13 replaces the originally written Laravel 11. Alpine is used via `@alpinejs/csp` (explicitly approved dependency exception) so the CSP needs no `unsafe-eval`; expressions in Blade must stay CSP-compatible (property and method references only).
 - Tailwind configured with the tokens from section 3 (CSS variables mapped in the theme). No UI kit, no component library, no Tailwind plugins beyond typography if needed.
 - Localisation: Laravel's built-in localisation, locale-prefixed routes, `hreflang` + canonical tags, translated slugs where sensible. All copy lives in lang files, not hard-coded in Blade.
 - Content: project case studies as Blade views fed by a simple PHP/config array (no CMS in v1). Structure so a CMS could be added later.

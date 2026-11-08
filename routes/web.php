@@ -26,5 +26,5 @@ foreach (Locale::all() as $locale) {
 
 // Design-token test page. Not part of the public site.
 Route::get('/_style', StyleController::class)
-    ->middleware(SetLocale::class.':'.config('site.default_locale'))
+    ->middleware(SetLocale::class.':en')
     ->name('style');

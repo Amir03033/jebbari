@@ -1,4 +1,4 @@
-import Alpine from 'alpinejs';
+import Alpine from '@alpinejs/csp';
 
 /*
  * Header: hides on scroll down, returns on scroll up (300ms, see app.css).

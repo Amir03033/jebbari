@@ -10,7 +10,7 @@
     --paper: #f5f3ee;
     --paper-2: #ece9e2;
     --ink: #0e0e0f;
-    --ink-2: #6b6a66;
+    --ink-2: #686763;
     --line: rgba(14, 14, 15, 0.14);
     --line-dark: rgba(245, 243, 238, 0.16);
     --signal: #ff4b1f;
@@ -272,7 +272,9 @@
 
     .btn:disabled,
     .btn[aria-disabled='true'] {
-        opacity: 0.4;
+        background-color: transparent;
+        border-color: var(--line);
+        color: var(--muted);
         cursor: not-allowed;
     }
 
