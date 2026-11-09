@@ -117,7 +117,10 @@ class MediaAsset extends Model implements HasMedia
             return null;
         }
 
-        return $media->hasGeneratedConversion('webp-1200') ? $media->getUrl('webp-1200') : $media->getUrl();
+        $url = $media->hasGeneratedConversion('webp-1200') ? $media->getUrl('webp-1200') : $media->getUrl();
+
+        // Link previews and structured data need an absolute address.
+        return str_starts_with($url, 'http') ? $url : url($url);
     }
 
     public function altFor(?string $locale = null): string

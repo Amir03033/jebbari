@@ -35,6 +35,16 @@ class Page extends Model
         return ['title' => 'Titel'];
     }
 
+    /**
+     * Whether the page itself may be shown in a language: only its title counts.
+     * A block that lacks text in that language is left out of the page instead of
+     * taking the whole page down (publishing already requires complete blocks).
+     */
+    public function isTranslatedIn(string $locale): bool
+    {
+        return filled(loc($this->title, $locale));
+    }
+
     /** @return list<string> problems inside visible blocks, for one locale */
     public function blockGaps(string $locale): array
     {

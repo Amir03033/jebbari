@@ -39,11 +39,11 @@ class StoreInquiryRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'name' => __('site.contact.name'),
-            'email' => __('site.contact.email'),
-            'company' => __('site.contact.company'),
-            'budget' => __('site.contact.budget'),
-            'message' => __('site.contact.message'),
+            'name' => __('site.contact.attr_name'),
+            'email' => __('site.contact.attr_email'),
+            'company' => __('site.contact.attr_company'),
+            'budget' => __('site.contact.attr_budget'),
+            'message' => __('site.contact.attr_message'),
         ];
     }
 
