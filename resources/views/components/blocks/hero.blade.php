@@ -15,7 +15,7 @@
     moment: set at the width of the screen, its letters rise in turn and the full
     stop lands last. Rings behind echo the full stop. All motion is CSS (motion.css).
 --}}
-<section class="hero on-ink" aria-labelledby="hero-title">
+<section class="hero on-ink" aria-labelledby="hero-title" data-scroll="exit">
     <div class="hero-body page-wide" data-reveal="group" data-hero>
         <div class="rings" aria-hidden="true"><span class="ring"></span><span class="ring"></span><span class="ring"></span></div>
 

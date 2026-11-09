@@ -88,6 +88,7 @@
             </div>
         </nav>
     </div>
+    <span class="scroll-line" aria-hidden="true"></span>
 </header>
 
 {{-- Spacer: the header is fixed so it can slide away. Dark pages start under it, so no spacer there. --}}

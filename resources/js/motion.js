@@ -5,7 +5,7 @@
 const html = document.documentElement;
 const reduceQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-/* Scroll reveals: once only, when 15% of the element is visible. */
+/* Scroll reveals: once only, when the element has risen into the viewport. */
 function initReveals() {
     const targets = document.querySelectorAll('[data-reveal]');
 
@@ -23,7 +23,9 @@ function initReveals() {
                 }
             }
         },
-        { threshold: 0.15 },
+        // Fires when an element has risen 8% into the viewport: the same rule for
+        // small and very tall blocks, on a phone and on a laptop.
+        { threshold: 0, rootMargin: '0px 0px -8% 0px' },
     );
 
     targets.forEach((el) => observer.observe(el));
@@ -95,7 +97,6 @@ function initProcess() {
         return;
     }
 
-    const driveFill = !CSS.supports('animation-timeline', 'view()');
     let frame = 0;
 
     const update = () => {
@@ -115,11 +116,48 @@ function initProcess() {
 
             root.dataset.active = String(active);
 
-            if (driveFill) {
-                const rect = root.getBoundingClientRect();
-                const progress = (line - rect.top) / rect.height;
-                root.style.setProperty('--progress', String(Math.min(1, Math.max(0, progress))));
-            }
+            const rect = root.getBoundingClientRect();
+            const progress = (line - rect.top) / rect.height;
+            root.style.setProperty('--progress', Math.min(1, Math.max(0, progress)).toFixed(4));
+        });
+    };
+
+    const schedule = () => (frame ||= requestAnimationFrame(update));
+
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule, { passive: true });
+    update();
+}
+
+/*
+ * Scroll-linked values. One passive, rAF-throttled listener writes --p (0 to 1)
+ * on every [data-scroll] section. "exit": 0 at rest, 1 once it has scrolled
+ * away. "enter": rises from 0 to 1 as it scrolls into view. CSS only reads --p,
+ * so every browser follows exactly the same curve. Skipped under reduced motion.
+ */
+function initScrollLinked() {
+    const items = document.querySelectorAll('[data-scroll]');
+
+    if (reduceQuery.matches) {
+        return;
+    }
+
+    let frame = 0;
+
+    const update = () => {
+        frame = 0;
+        const vh = window.innerHeight;
+
+        const page = document.documentElement;
+        const max = page.scrollHeight - vh;
+
+        page.style.setProperty('--page', (max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0).toFixed(4));
+
+        items.forEach((el) => {
+            const rect = el.getBoundingClientRect();
+            const raw = el.dataset.scroll === 'exit' ? -rect.top / Math.max(rect.height, 1) : (vh - rect.top) / Math.min(Math.max(rect.height, 1), vh);
+
+            el.style.setProperty('--p', Math.min(1, Math.max(0, raw)).toFixed(4));
         });
     };
 
@@ -197,6 +235,7 @@ export function initMotion() {
     initReplay();
     initCursorLabel();
     initProcess();
+    initScrollLinked();
     initCopy();
     initHeaderTheme();
     initStatus();

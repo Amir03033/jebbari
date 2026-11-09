@@ -11,7 +11,7 @@
 @endphp
 
 {{-- The ending: the question at the width of the screen, the email at display size, rings behind. It flows into the footer. --}}
-<section class="cta on-ink" aria-labelledby="cta-title">
+<section class="cta on-ink" aria-labelledby="cta-title" data-scroll="enter">
     <x-section-label :number="$number" :label="__('site.nav.contact')" />
     <div class="page-wide relative py-24 md:py-40" data-reveal="group">
         <div class="rings" aria-hidden="true"><span class="ring"></span><span class="ring"></span><span class="ring"></span><span class="ring-dot"></span></div>

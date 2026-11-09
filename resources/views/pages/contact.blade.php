@@ -26,7 +26,7 @@
                     @if ($email)
                         <p class="t-label rise mb-3 text-muted">{{ __('site.footer.email') }}</p>
                         <p class="rise" data-delay="1">
-                            <x-link href="mailto:{{ $email }}" class="text-[clamp(1.5rem,4vw,3.75rem)] font-medium tracking-[-0.035em] break-all">{{ $email }}</x-link>
+                            <x-link href="mailto:{{ $email }}" class="text-[clamp(1.5rem,3vw,3rem)] font-medium tracking-[-0.035em] break-all">{{ $email }}</x-link>
                         </p>
                         <p class="rise mt-4" data-delay="2">
                             <button type="button" class="t-label link link-bare" data-copy="{{ $email }}" data-copied="{{ __('site.contact.copied') }}">{{ __('site.contact.copy') }}</button>
