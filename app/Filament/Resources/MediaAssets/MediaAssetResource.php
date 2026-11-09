@@ -44,7 +44,7 @@ class MediaAssetResource extends Resource
         return $schema->columns(1)->components([
             Section::make('Afbeelding')->schema([
                 TextInput::make('title')->label('Naam (alleen intern)')->required()->maxLength(120),
-                SpatieMediaLibraryFileUpload::make('file')->label('Bestand')->collection('file')->conversion('thumb')
+                SpatieMediaLibraryFileUpload::make('file')->label('Bestand')->collection('file')->conversion('thumb')->disk('public')->visibility('public')
                     ->image()->acceptedFileTypes(MediaSizes::mimes())->maxSize(MediaSizes::MAX_KB)
                     ->rules(['dimensions:min_width='.MediaSizes::MIN_WIDTH.',max_width='.MediaSizes::MAX_WIDTH])
                     ->helperText('JPEG, PNG'.(in_array('image/avif', MediaSizes::mimes(), true) ? ', WebP of AVIF' : ' of WebP').', maximaal 10 MB. Locatiegegevens (EXIF) worden verwijderd.')
