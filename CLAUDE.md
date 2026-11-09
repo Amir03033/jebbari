@@ -5,8 +5,8 @@ Read `docs/BRIEF.md` in full before writing any code. It is the design and build
 ## Status
 
 - Phase 1 (foundations): done. Phase 1.5 (motion demonstration on `/_style`): done, awaiting review.
-- CMS foundation (Filament admin at /admin) is built and tested: see `docs/CMS-IMPLEMENTATION.md`. Awaiting owner review.
-- Do not start the homepage until the owner approves the CMS foundation. No PR and no deployment without explicit approval.
+- CMS foundation (Filament admin at /admin): approved. See `docs/CMS-IMPLEMENTATION.md`.
+- Phase 3 (public website, all pages, NL/EN, CMS-driven): built and tested, awaiting owner review. See `docs/PHASE-3.md`. Do not start further phases, open a PR or deploy without explicit approval.
 - Do not deploy or open a PR without the owner's approval.
 
 ## Stack
@@ -28,3 +28,6 @@ Laravel 13 (PHP 8.3+), Blade, Tailwind CSS 4 (tokens in `resources/css/app.css`)
 
 - Content editing goes through `saveFromForm()` only (draft rule): never write to live columns of a published record from the admin.
 - Run `php artisan filament:assets` if the admin is unstyled; `composer install` does it automatically.
+
+- Public pages read content only through `App\Content\Site` (published, live values, complete in the visitor's language) and render through `App\Content\Renderer`; never query models directly in views. Missing content is omitted, never replaced by placeholder text.
+- Public HTML must stay CSP-clean: no inline `style`, event handlers or scripts (JSON-LD excepted). `SeoTest` enforces it.

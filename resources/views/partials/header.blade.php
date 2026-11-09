@@ -16,15 +16,15 @@
     :data-hidden="isHidden"
     class="site-header fixed inset-x-0 top-0 z-40 border-b border-line bg-paper"
 >
-    <div class="page flex h-16 items-center gap-6 md:h-20">
+    <div class="page flex h-16 items-center gap-4 md:h-20 lg:gap-6">
         <a href="{{ $home }}" class="flex items-baseline gap-3 text-2xl" aria-label="{{ config('site.name') }}, {{ __('site.nav.home') }}">
             <x-wordmark />
-            <span class="t-label hidden text-muted md:inline">{{ __('site.descriptor') }}</span>
+            <span class="t-label hidden whitespace-nowrap text-muted lg:inline">{{ __('site.descriptor') }}</span>
         </a>
 
         <x-status class="hidden text-muted xl:flex" />
 
-        <nav aria-label="{{ __('site.nav.label') }}" class="ml-auto hidden items-center gap-8 md:flex">
+        <nav aria-label="{{ __('site.nav.label') }}" class="ml-auto hidden items-center gap-6 whitespace-nowrap lg:gap-8 md:flex">
             @foreach ($links as $item)
                 <a
                     href="{{ $item['url'] }}"

@@ -140,5 +140,15 @@ class SampleContentSeeder extends Seeder
             ['type' => 'skills', 'data' => ['visible' => true, 'label' => ['nl' => 'Vaardigheden', 'en' => 'Skills'], 'items' => [['name' => ['nl' => 'Voorbeeldvaardigheid', 'en' => 'Sample skill'], 'description' => ['nl' => 'Voorbeeld.', 'en' => 'Sample.']]]]],
         ]]);
         $about->publish();
+
+        // Legal pages: sample text only, so the footer links and the template can be reviewed.
+        foreach (['privacy', 'terms'] as $key) {
+            $legal = Page::where('key', $key)->first();
+            $legal->update(['blocks' => [['type' => 'rich_text', 'data' => ['visible' => true, 'body' => [
+                'nl' => '<h2>Voorbeeldkop</h2><p>Voorbeeldtekst. De echte juridische tekst voeg je toe in de CMS.</p><ul><li>Voorbeeldpunt</li></ul>',
+                'en' => '<h2>Sample heading</h2><p>Sample text. You add the real legal text in the CMS.</p><ul><li>Sample point</li></ul>',
+            ]]]]]);
+            $legal->publish();
+        }
     }
 }

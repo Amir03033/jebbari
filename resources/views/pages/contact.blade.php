@@ -39,7 +39,7 @@
                     @endif
                 </div>
 
-                <div id="contact-form" class="col-span-12 scroll-mt-28 md:col-span-6" tabindex="-1">
+                <div id="contact-form" class="col-span-12 scroll-mt-28 focus:outline-none md:col-span-6" tabindex="-1">
                     @if ($sent)
                         <div role="status" class="border border-line p-6 md:p-8">
                             <h2 class="t-h3">{{ __('site.contact.sent_title') }}</h2>
