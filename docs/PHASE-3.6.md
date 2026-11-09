@@ -8,7 +8,7 @@ Scroll-linked effects used two systems: CSS `animation-timeline` (Chrome, newest
 ## Changes
 - **One engine.** `initScrollLinked()` in `resources/js/motion.js` writes `--p` (0 to 1) on `[data-scroll]` sections and `--page` on `<html>`; CSS only reads them. The process timeline fill uses the same rAF scroll loop. All `animation-timeline` CSS is removed, so every browser follows the same curve.
 - **Reveals** fire at one rule everywhere (8% into the viewport), including very tall blocks on phones.
-- **Scale.** Hero wordmark 30vw to 26vw (max 26rem; rings follow via `--wm`), page titles max 6.75rem (was 10), H2 max 3.75rem, statements max 2rem, service names max 4.75rem, process numerals about 60%, next-project title max 6rem, section padding max 140px (was 200).
+- **Scale.** Hero wordmark 30vw to 14vw (max 13rem; rings follow via `--wm`), footer wordmark 13vw (max 12rem), page titles max 6.75rem (was 10), H2 max 3.75rem, statements max 2rem, service names max 4.75rem, process numerals about 60%, next-project title max 6rem, section padding max 140px (was 200).
 - **More life.** Page progress line under the header (signal colour), press feedback on buttons and arrow rings, services rows get a soft surface sweep on hover. Transform and opacity only; reduced motion hides or removes them.
 
 ## Verified
