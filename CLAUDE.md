@@ -7,6 +7,7 @@ Read `docs/BRIEF.md` in full before writing any code. It is the design and build
 - Phase 1 (foundations): done. Phase 1.5 (motion demonstration on `/_style`): done, awaiting review.
 - CMS foundation (Filament admin at /admin): approved. See `docs/CMS-IMPLEMENTATION.md`.
 - Phase 3 (public website, all pages, NL/EN, CMS-driven): built and tested, awaiting owner review. See `docs/PHASE-3.md`. Do not start further phases, open a PR or deploy without explicit approval.
+- Phase 3.5 (visual redesign): built and tested, awaiting owner review. See `docs/VISUAL-REDESIGN.md` and `docs/VISUAL-COMPARISON.md`. Do not start further phases.
 - Do not deploy or open a PR without the owner's approval.
 
 ## Stack
@@ -18,7 +19,7 @@ Laravel 13 (PHP 8.3+), Blade, Tailwind CSS 4 (tokens in `resources/css/app.css`)
 - Copy lives in `lang/{nl,en}`, never hard-coded in Blade.
 - Owner-supplied facts live in `config/site.php`; when `null` they render as `[[ OWNER: ... ]]`.
 - Routes are `{locale}.{page}`; helpers in `App\Support\Locale`.
-- Fonts: see `resources/fonts/README.md` (Satoshi is not yet installed).
+- Fonts: Instrument Sans is self-hosted; Satoshi takes over when added (`resources/fonts/README.md`).
 - Run `vendor/bin/pint` and `php artisan test` before committing.
 - Open items for the owner are tracked in `docs/OPEN-ITEMS.md` (brief section 12).
 
