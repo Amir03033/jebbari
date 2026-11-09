@@ -107,10 +107,19 @@
     .line:nth-child(5) { --line-i: 4; }
     .line:nth-child(6) { --line-i: 5; }
 
-    /* The full stop lands last, after the lines have settled. */
+    /* The full stop is drawn as a circle (the font's period is square) and lands last.
+       The "." stays in the markup for screen readers and is clipped away visually. */
     .stop {
         display: inline-block;
-        transform-origin: 50% 85%;
+        width: 0.17em;
+        height: 0.17em;
+        margin-left: 0.035em;
+        border-radius: 50%;
+        background-color: currentColor;
+        overflow: hidden;
+        text-indent: -9em;
+        white-space: nowrap;
+        transform-origin: 50% 50%;
     }
 
     .js [data-reveal='group'] .stop {
@@ -123,12 +132,24 @@
     }
 
     /* ---------------- Plates ----------------
-       The 1px frame and its aspect ratio are visible immediately, so space is
-       reserved. The image wipes in from the top and settles from 1.06 to 1. */
+       Rounded image tiles. The frame and its aspect ratio are visible at once, so
+       space is reserved; the image then wipes in with a settle (clip tightens to
+       full while the picture eases from 1.14 to 1). */
     .plate-frame {
+        position: relative;
         aspect-ratio: 16 / 10;
-        border: 1px solid var(--line);
+        border-radius: var(--radius-card);
+        background-color: var(--card);
         overflow: hidden;
+        isolation: isolate;
+    }
+
+    .plate-frame[data-ratio='wide'] {
+        aspect-ratio: 16 / 9;
+    }
+
+    .plate-frame[data-ratio='tall'] {
+        aspect-ratio: 4 / 5;
     }
 
     .plate-clip,
@@ -138,17 +159,21 @@
     }
 
     .js [data-reveal='group'] .plate-clip {
-        clip-path: inset(0 0 100% 0);
-        transition: clip-path var(--dur-hero) var(--ease) var(--delay, 0ms);
+        clip-path: inset(7% 7% 7% 7% round var(--radius-card));
+        opacity: 0;
+        transition:
+            clip-path 1200ms var(--ease) var(--delay, 0ms),
+            opacity 600ms var(--ease) var(--delay, 0ms);
     }
 
     .js [data-reveal='group'] .plate-reveal {
-        transform: scale(1.06);
-        transition: transform var(--dur-hero) var(--ease) var(--delay, 0ms);
+        transform: scale(1.14);
+        transition: transform 1500ms var(--ease) var(--delay, 0ms);
     }
 
     .js [data-reveal='group'].is-in .plate-clip {
-        clip-path: inset(0);
+        clip-path: inset(0 round var(--radius-card));
+        opacity: 1;
     }
 
     .js [data-reveal='group'].is-in .plate-reveal {
@@ -156,82 +181,38 @@
     }
 
     .plate-img {
-        transition: transform var(--dur-slow) var(--ease);
+        transition: transform 1000ms var(--ease);
     }
 
     .plate-caption {
-        position: relative;
-        padding-block: 1rem;
-    }
-
-    .plate-caption::before,
-    .plate-caption::after {
-        content: '';
-        position: absolute;
-        inset-inline: 0;
-        top: 0;
-        height: 1px;
-    }
-
-    .plate-caption::before {
-        background-color: var(--line);
-    }
-
-    .plate-caption::after {
-        background-color: var(--signal);
-        transform: scaleX(0);
-        transform-origin: left center;
-        transition: transform var(--dur-slow) var(--ease);
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 1.5rem;
+        padding-top: 1.5rem;
     }
 
     .plate-title {
         display: inline-block;
-        transition: transform var(--dur-fast) var(--ease);
-    }
-
-    .plate-arrow {
-        display: inline-block;
-        opacity: 0;
-        transform: translateX(-4px);
-        transition:
-            opacity var(--dur-fast) var(--ease),
-            transform var(--dur-fast) var(--ease);
+        transition: transform var(--dur-base) var(--ease);
     }
 
     /* Keyboard focus gets the same visual change as hover. */
     .plate:focus-visible .plate-img {
-        transform: scale(1.01);
-    }
-
-    .plate:focus-visible .plate-caption::after {
-        transform: scaleX(1);
+        transform: scale(1.035);
     }
 
     .plate:focus-visible .plate-title {
-        transform: translateX(4px);
-    }
-
-    .plate:focus-visible .plate-arrow {
-        opacity: 1;
-        transform: none;
+        transform: translateX(6px);
     }
 
     @media (hover: hover) and (pointer: fine) {
         .plate:hover .plate-img {
-            transform: scale(1.01);
-        }
-
-        .plate:hover .plate-caption::after {
-            transform: scaleX(1);
+            transform: scale(1.035);
         }
 
         .plate:hover .plate-title {
-            transform: translateX(4px);
-        }
-
-        .plate:hover .plate-arrow {
-            opacity: 1;
-            transform: none;
+            transform: translateX(6px);
         }
     }
 
@@ -242,8 +223,9 @@
         top: 0;
         z-index: 60;
         pointer-events: none;
-        padding: 0.35rem 0.6rem;
-        border-radius: var(--radius-ui);
+        padding: 0.45rem 0.8rem;
+        border: 1px solid rgba(245, 243, 238, 0.3);
+        border-radius: var(--radius-pill);
         background-color: var(--ink);
         color: var(--paper);
         opacity: 0;
@@ -462,19 +444,13 @@
     .js [data-reveal='group'] .plate-reveal,
     .plate-img,
     .plate-title,
-    .plate-arrow,
     .link .arrow,
     .link::after,
-    .plate-caption::after,
     .btn,
     .site-header,
     .process-step {
         transform: none;
         transition: none;
-    }
-
-    .plate-arrow {
-        transform: none;
     }
 
     .plate:hover .plate-img,
@@ -487,16 +463,13 @@
         transform: none;
     }
 
-    .link::after,
-    .plate-caption::after {
+    .link::after {
         transform: scaleX(1);
         opacity: 0;
     }
 
     .link:hover::after,
-    .link:focus-visible::after,
-    .plate:hover .plate-caption::after,
-    .plate:focus-visible .plate-caption::after {
+    .link:focus-visible::after {
         opacity: 1;
     }
 
@@ -551,5 +524,67 @@
 
 /* Hero group: the headline lines start slightly after the label. */
 [data-hero] {
-    --lines-delay: 160ms;
+    --lines-delay: 380ms;
+}
+
+/* ---------------- Hero and brand device ----------------
+   Order: rings draw, label, wordmark letters rise one by one while the headline
+   follows, statement and buttons rise, and the wordmark's full stop lands last. */
+@layer components {
+    .ring:nth-child(1) { --ring-i: 0; }
+    .ring:nth-child(2) { --ring-i: 1; }
+    .ring:nth-child(3) { --ring-i: 2; }
+
+    /* The rings contract onto the full stop, outermost first, and are in place before it lands. */
+    .js [data-reveal='group'] .ring {
+        opacity: 0;
+        transform: scale(1.2);
+        transition:
+            opacity 1200ms var(--ease) calc(var(--ring-i, 0) * 150ms),
+            transform 1900ms var(--ease) calc(var(--ring-i, 0) * 150ms);
+    }
+
+    .js [data-reveal='group'].is-in .ring {
+        opacity: 1;
+        transform: none;
+    }
+
+    .js [data-reveal='group'] .ring-dot {
+        transform: scale(0);
+        transition: transform 600ms var(--ease) 900ms;
+    }
+
+    .js [data-reveal='group'].is-in .ring-dot {
+        transform: none;
+    }
+
+    .js [data-reveal='group'] .wm-ch > span {
+        transform: translateY(105%);
+        transition: transform 1300ms var(--ease) calc(120ms + var(--ch, 0) * 75ms);
+    }
+
+    .js [data-reveal='group'].is-in .wm-ch > span {
+        transform: none;
+    }
+
+    .wordmark-xl .stop {
+        --stop-delay: 1350ms;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .js [data-reveal='group'] .ring,
+    .js [data-reveal='group'] .wm-ch > span,
+    .js [data-reveal='group'] .ring-dot {
+        transform: none;
+    }
+
+    .js [data-reveal='group'] .ring {
+        transition: opacity 200ms linear;
+    }
+
+    .js [data-reveal='group'] .ring-dot,
+    .js [data-reveal='group'] .wm-ch > span {
+        transition: none;
+    }
 }

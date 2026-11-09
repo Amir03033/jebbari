@@ -103,9 +103,17 @@ function initProcess() {
         const line = window.innerHeight * 0.6;
 
         roots.forEach((root) => {
-            root.querySelectorAll('[data-step]').forEach((step) => {
-                step.classList.toggle('is-passed', step.getBoundingClientRect().top < line);
+            let active = 1;
+
+            root.querySelectorAll('[data-step]').forEach((step, index) => {
+                const passed = step.getBoundingClientRect().top < line;
+                step.classList.toggle('is-passed', passed);
+                if (passed) {
+                    active = index + 1;
+                }
             });
+
+            root.dataset.active = String(active);
 
             if (driveFill) {
                 const rect = root.getBoundingClientRect();
@@ -145,6 +153,35 @@ function initCopy() {
     });
 }
 
+/* The header takes the surface beneath it: dark over black sections, light over paper. */
+function initHeaderTheme() {
+    const header = document.querySelector('.site-header');
+
+    if (!header) {
+        return;
+    }
+
+    let frame = 0;
+
+    const update = () => {
+        frame = 0;
+        const menuOpen = document.documentElement.style.overflow === 'hidden';
+        const point = document.elementsFromPoint(window.innerWidth / 2, Math.max(2, header.offsetHeight / 2));
+        const below = point.find((el) => !header.contains(el) && el !== document.documentElement && el !== document.body);
+        const dark = menuOpen || Boolean(below?.closest('.on-ink'));
+
+        header.classList.toggle('on-ink', dark);
+        header.dataset.theme = dark ? 'dark' : 'light';
+    };
+
+    const schedule = () => (frame ||= requestAnimationFrame(update));
+
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule, { passive: true });
+    header.addEventListener('click', () => setTimeout(schedule, 0));
+    update();
+}
+
 function initStatus() {
     const write = () =>
         document.querySelectorAll('[data-motion-status]').forEach((el) => {
@@ -161,5 +198,6 @@ export function initMotion() {
     initCursorLabel();
     initProcess();
     initCopy();
+    initHeaderTheme();
     initStatus();
 }

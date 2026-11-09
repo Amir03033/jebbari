@@ -10,19 +10,21 @@
     $contact = Site::pageUrl('contact');
 @endphp
 
-{{-- Dark close that continues into the footer. The email is the primary action when it exists. --}}
-<section class="on-ink" aria-labelledby="cta-title">
+{{-- The ending: the question at the width of the screen, the email at display size, rings behind. It flows into the footer. --}}
+<section class="cta on-ink" aria-labelledby="cta-title">
     <x-section-label :number="$number" :label="__('site.nav.contact')" />
-    <div class="page py-20 md:py-36" data-reveal="group">
-        <h2 id="cta-title" class="t-display md:max-w-[80%]"><x-lines :lines="$lines" /></h2>
+    <div class="page-wide relative py-24 md:py-40" data-reveal="group">
+        <div class="rings" aria-hidden="true"><span class="ring"></span><span class="ring"></span><span class="ring"></span><span class="ring-dot"></span></div>
 
-        <div class="rise mt-12 md:mt-20" data-delay="6">
+        <h2 id="cta-title" class="t-display relative md:max-w-[85%]"><x-lines :lines="$lines" /></h2>
+
+        <div class="rise relative mt-16 md:mt-28" data-delay="6">
             @if ($email)
-                <p class="t-label mb-3 text-muted">{{ __('site.footer.email') }}</p>
-                <x-link href="mailto:{{ $email }}" class="text-[clamp(1.5rem,4.2vw,3.75rem)] font-medium tracking-[-0.03em] break-all">{{ $email }}</x-link>
+                <p class="t-label mb-4 text-muted">{{ __('site.footer.email') }}</p>
+                <x-link href="mailto:{{ $email }}" class="cta-email">{{ $email }}</x-link>
             @endif
 
-            <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
+            <div class="mt-12 flex flex-wrap items-center gap-x-8 gap-y-4">
                 @if ($contact)
                     <x-button :href="$contact">{{ __('site.cta.contact') }}<span class="arrow" aria-hidden="true">→</span></x-button>
                 @endif

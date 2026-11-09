@@ -1,11 +1,10 @@
 /*
- * Public-site components built on the design tokens: editor text, the hero's
- * column hairlines, service rows. Colours come only from tokens; motion follows
- * docs/MOTION.md (and is switched off in the reduced-motion block below).
+ * Public-site components built on the design tokens. Colours come only from
+ * tokens; motion follows docs/MOTION.md and is switched off or reduced in the
+ * reduced-motion block at the end.
  */
 @layer components {
-    /* Text written in the CMS (biography, articles, legal pages). Only the
-       tags the sanitiser allows are styled; editors cannot change the look. */
+    /* ---------------- Editor text (biography, articles, legal) ---------------- */
     .prose-jebbari {
         max-width: 62ch;
     }
@@ -16,17 +15,17 @@
 
     .prose-jebbari h2 {
         margin-top: 2.25em;
-        font-size: clamp(1.5rem, 2.6vw, 2rem);
-        line-height: 1.15;
-        letter-spacing: -0.02em;
+        font-size: clamp(1.75rem, 3vw, 2.5rem);
+        line-height: 1.08;
+        letter-spacing: -0.03em;
         font-weight: 500;
     }
 
     .prose-jebbari h3 {
         margin-top: 1.75em;
-        font-size: 1.25rem;
-        line-height: 1.25;
-        letter-spacing: -0.015em;
+        font-size: 1.375rem;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
         font-weight: 500;
     }
 
@@ -76,61 +75,303 @@
         letter-spacing: -0.015em;
     }
 
-    /* Hairlines at four column starts behind the hero: print-like structure, not decoration. */
-    .hero-grid {
+    /* ---------------- Brand device: the full stop seen from above ---------------- */
+    .rings {
         position: absolute;
-        inset-block: 0;
-        inset-inline: 0;
+        display: grid;
+        place-items: center;
+        aspect-ratio: 1;
         pointer-events: none;
     }
 
-    .hero-grid span {
-        border-left: 1px solid var(--line);
+    .ring {
+        grid-area: 1 / 1;
+        aspect-ratio: 1;
+        border: 1px solid var(--line);
+        border-radius: 50%;
     }
 
-    /* A single divider at the start of the right-hand column. */
-    .hero-grid span {
-        grid-column: 7;
+    .ring:nth-child(1) {
+        width: 100%;
     }
 
-    /* Projects without an image get a shorter typographic tile. */
-    .plate[data-tile] .plate-frame {
-        aspect-ratio: 2 / 1;
+    .ring:nth-child(2) {
+        width: 70%;
     }
 
-    /* Service rows: the name steps right and the arrow nudges on hover or focus. */
-    .service-row {
-        color: inherit;
+    .ring:nth-child(3) {
+        width: 42%;
     }
 
-    .service-name {
-        display: block;
-        transition: transform var(--dur-base) var(--ease);
+    .ring-dot {
+        grid-area: 1 / 1;
+        width: 3%;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background-color: var(--signal);
     }
 
-    .service-more .arrow {
+    /* ---------------- Hero ---------------- */
+    .hero {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-height: 100svh;
+        overflow: clip;
+    }
+
+    /*
+     * Concentric around the wordmark's own full stop. The dot's centre sits
+     * 0.136 of the viewport (less the page margin) from the right edge and 7.4vw
+     * above the bottom (30vw wordmark, Instrument Sans metrics), so the rings
+     * stay centred on it at every width.
+     */
+    .hero .rings {
+        --r: 56vw;
+
+        right: calc(13.6vw - var(--margin) - var(--r) / 2);
+        bottom: calc(7.4vw - var(--r) / 2);
+        width: var(--r);
+    }
+
+    @media (max-width: 767px) {
+        .hero .rings {
+            --r: 104vw;
+        }
+    }
+
+    .hero-body {
+        position: relative;
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: clamp(2.5rem, 6vw, 5rem);
+        padding-top: clamp(6.5rem, 12vh, 9rem);
+    }
+
+    /* The wordmark at display size, letter by letter. Decorative: the h1 carries the meaning. */
+    /* Instrument Sans: ascent .97em, descent .25em, glyph ascent .73em, j tail .22em below the baseline.
+       Line height 1.04 puts the baseline .16em above the box bottom; the edge clips the last .06em of the tail. */
+    .wordmark-xl {
+        font-size: clamp(5rem, 30vw, 46rem);
+        font-weight: 500;
+        line-height: 1.04;
+        letter-spacing: -0.065em;
+        white-space: nowrap;
+        user-select: none;
+    }
+
+    .wm-ch {
         display: inline-block;
-        transition: transform var(--dur-fast) var(--ease);
+        overflow-x: visible;
+        overflow-y: clip;
+        padding-bottom: 0.2em;
+        margin-bottom: -0.2em;
+        vertical-align: bottom;
     }
 
-    .service-row:focus-visible .service-name {
-        transform: translateX(8px);
+    .wm-ch > span {
+        display: inline-block;
     }
 
-    .service-row:focus-visible .service-more .arrow {
-        transform: translateX(4px);
+    .wm-ch:nth-child(1) { --ch: 0; }
+    .wm-ch:nth-child(2) { --ch: 1; }
+    .wm-ch:nth-child(3) { --ch: 2; }
+    .wm-ch:nth-child(4) { --ch: 3; }
+    .wm-ch:nth-child(5) { --ch: 4; }
+    .wm-ch:nth-child(6) { --ch: 5; }
+    .wm-ch:nth-child(7) { --ch: 6; }
+
+    /* ---------------- Chips and meta ---------------- */
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.4rem 0.9rem;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-pill);
+    }
+
+    /* ---------------- Services: names at display scale ---------------- */
+    .svc-item {
+        position: relative;
+        display: block;
+        color: inherit;
+        transition: opacity var(--dur-base) var(--ease);
+    }
+
+    .svc-name {
+        display: block;
+        font-size: clamp(2.5rem, 7.2vw, 8rem);
+        line-height: 0.98;
+        letter-spacing: -0.045em;
+        font-weight: 500;
+        text-wrap: balance;
+        transition: transform var(--dur-slow) var(--ease);
+    }
+
+    .svc-item:focus-visible .arrow-ring,
+    .plate:focus-visible .arrow-ring,
+    .next-panel:focus-visible .arrow-ring {
+        background-color: var(--fg);
+        border-color: var(--fg);
+        color: var(--surface);
+    }
+
+    .svc-item:focus-visible .arrow-ring svg,
+    .plate:focus-visible .arrow-ring svg,
+    .next-panel:focus-visible .arrow-ring svg {
+        transform: translateX(3px);
     }
 
     @media (hover: hover) and (pointer: fine) {
-        .service-row:hover .service-name {
-            transform: translateX(8px);
+        /* The row you point at stays; the others recede. */
+        .svc-list:has(.svc-item:hover) .svc-item:not(:hover),
+        .svc-list:has(.svc-item:focus-visible) .svc-item:not(:focus-visible) {
+            opacity: 0.3;
         }
 
-        .service-row:hover .service-more .arrow {
-            transform: translateX(4px);
+        .svc-item:hover .svc-name {
+            transform: translateX(clamp(0.5rem, 1.2vw, 1.5rem));
+        }
+
+        .svc-item:hover .arrow-ring,
+        .plate:hover .arrow-ring,
+        .next-panel:hover .arrow-ring {
+            background-color: var(--fg);
+            border-color: var(--fg);
+            color: var(--surface);
+        }
+
+        .svc-item:hover .arrow-ring svg,
+        .plate:hover .arrow-ring svg,
+        .next-panel:hover .arrow-ring svg {
+            transform: translateX(3px);
         }
     }
 
+    /* ---------------- Process: sticky stage with a rolling numeral ---------------- */
+    .process-numerals {
+        position: relative;
+        height: clamp(8rem, 24vw, 22rem);
+        overflow: clip;
+    }
+
+    .process-num {
+        position: absolute;
+        inset: 0 auto auto 0;
+        font-size: clamp(8rem, 24vw, 22rem);
+        font-weight: 500;
+        line-height: 0.82;
+        letter-spacing: -0.06em;
+        opacity: 0;
+        transform: translateY(45%);
+        transition:
+            transform var(--dur-slow) var(--ease),
+            opacity var(--dur-base) var(--ease);
+    }
+
+    .process[data-active='1'] .process-num:nth-child(1),
+    .process[data-active='2'] .process-num:nth-child(2),
+    .process[data-active='3'] .process-num:nth-child(3),
+    .process[data-active='4'] .process-num:nth-child(4),
+    .process[data-active='5'] .process-num:nth-child(5),
+    .process[data-active='6'] .process-num:nth-child(6) {
+        opacity: 1;
+        transform: none;
+    }
+
+    /* Numerals before the active one have rolled out upwards. */
+    .process[data-active='2'] .process-num:nth-child(-n + 1),
+    .process[data-active='3'] .process-num:nth-child(-n + 2),
+    .process[data-active='4'] .process-num:nth-child(-n + 3),
+    .process[data-active='5'] .process-num:nth-child(-n + 4),
+    .process[data-active='6'] .process-num:nth-child(-n + 5) {
+        opacity: 0;
+        transform: translateY(-45%);
+    }
+
+    /* Without JS the first numeral is simply shown. */
+    .process:not([data-active]) .process-num:nth-child(1) {
+        opacity: 1;
+        transform: none;
+    }
+
+    /* ---------------- Case study ---------------- */
+    .case-cover {
+        position: relative;
+        z-index: 1;
+        margin-top: calc(-1 * clamp(4rem, 11vw, 9rem));
+    }
+
+    /* The typographic cover is one step lighter than the opening, so its edge reads. */
+    .case-cover .on-ink {
+        background-color: var(--ink-3);
+    }
+
+    .next-panel {
+        position: relative;
+        display: block;
+        color: inherit;
+    }
+
+    .next-panel .next-title {
+        display: block;
+        font-size: clamp(2.5rem, 9vw, 9rem);
+        line-height: 0.95;
+        letter-spacing: -0.048em;
+        font-weight: 500;
+        text-wrap: balance;
+        transition: transform var(--dur-slow) var(--ease);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        .next-panel:hover .next-title {
+            transform: translateX(clamp(0.5rem, 1.4vw, 2rem));
+        }
+    }
+
+    /* ---------------- Closing section and footer finale ---------------- */
+    .cta {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 92svh;
+        overflow: clip;
+    }
+
+    .cta .rings {
+        right: -18vw;
+        bottom: -26vw;
+        width: 70vw;
+    }
+
+    .cta-email {
+        font-size: clamp(1.75rem, 5.4vw, 5.5rem);
+        font-weight: 500;
+        letter-spacing: -0.04em;
+        line-height: 1.05;
+        overflow-wrap: anywhere;
+    }
+
+    .footer-mark {
+        font-size: clamp(4.5rem, 30vw, 46rem);
+        font-weight: 500;
+        line-height: 1.04;
+        letter-spacing: -0.065em;
+        white-space: nowrap;
+        user-select: none;
+    }
+
+    .location-line {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem 1.5rem;
+    }
+
+    /* ---------------- Misc links ---------------- */
     .btn .arrow {
         display: inline-block;
         transition: transform var(--dur-fast) var(--ease);
@@ -142,20 +383,105 @@
     }
 }
 
+/* ---------------- Scroll-linked rings (progressive enhancement) ----------------
+   Where the browser supports scroll-driven animation the rings grow slowly as
+   their section scrolls away. Elsewhere they simply stay still. */
+@supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+        .hero .rings,
+        .cta .rings {
+            animation: rings-grow linear both;
+            animation-timeline: view();
+            animation-range: exit 0% exit 100%;
+        }
+
+        .cta .rings {
+            animation-range: entry 0% entry 100%;
+            animation-name: rings-settle;
+        }
+
+        @keyframes rings-grow {
+            to {
+                transform: scale(1.22);
+            }
+        }
+
+        @keyframes rings-settle {
+            from {
+                transform: scale(0.82);
+            }
+        }
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
-    .service-name,
-    .service-more .arrow,
-    .btn .arrow {
+    .svc-name,
+    .next-panel .next-title,
+    .btn .arrow,
+    .arrow-ring svg {
         transform: none;
         transition: none;
     }
 
-    .service-row:hover .service-name,
-    .service-row:focus-visible .service-name,
-    .service-row:hover .service-more .arrow,
-    .service-row:focus-visible .service-more .arrow,
-    .btn:hover .arrow,
-    .btn:focus-visible .arrow {
+    .svc-list:has(.svc-item:hover) .svc-item:not(:hover) {
+        opacity: 1;
+    }
+
+    .process-num {
         transform: none;
+        transition: opacity 200ms linear;
+    }
+
+    .process[data-active='2'] .process-num:nth-child(-n + 1),
+    .process[data-active='3'] .process-num:nth-child(-n + 2),
+    .process[data-active='4'] .process-num:nth-child(-n + 3),
+    .process[data-active='5'] .process-num:nth-child(-n + 4),
+    .process[data-active='6'] .process-num:nth-child(-n + 5) {
+        transform: none;
+    }
+}
+
+@layer components {
+    /* Project names: sized to the tile, never wider than it. */
+    .plate-name {
+        font-size: clamp(1.875rem, 3.3vw, 3.5rem);
+        line-height: 1;
+        letter-spacing: -0.04em;
+        font-weight: 500;
+        overflow-wrap: anywhere;
+        text-wrap: balance;
+    }
+
+    .plate-name-xl {
+        font-size: clamp(2.75rem, 8vw, 8rem);
+        line-height: 0.95;
+        letter-spacing: -0.048em;
+        font-weight: 500;
+        overflow-wrap: anywhere;
+        text-wrap: balance;
+    }
+
+    /* Rings inside a project tile: cropped at the lower right. */
+    .tile-rings {
+        right: -22%;
+        bottom: -42%;
+        width: 78%;
+    }
+}
+
+@layer components {
+    /* Rings on a dark opening: cropped at the upper right. */
+    .opening-rings {
+        top: -12vw;
+        right: -22vw;
+        width: 62vw;
+    }
+
+    @media (max-width: 767px) {
+        .opening-rings {
+            top: 4vw;
+            right: -60vw;
+            width: 110vw;
+        }
     }
 }

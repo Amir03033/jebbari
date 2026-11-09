@@ -1,6 +1,6 @@
 @php($hasIntro = \App\Content\BlockRenderer::blocks($page)->contains('type', 'intro'))
 
-<x-layouts.app :seo="$seo" :preview="$preview">
+<x-layouts.app :seo="$seo" :preview="$preview" :header-theme="$page->hasDarkOpening() ? 'dark' : 'light'">
     @unless ($hasIntro)
         <x-page-header :page="$page" />
     @endunless

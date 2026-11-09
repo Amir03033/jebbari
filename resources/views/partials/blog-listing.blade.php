@@ -11,13 +11,17 @@
 
 <section>
     <x-section-label :number="$number" :label="__('site.blog.articles')" :meta="'('.$posts->total().')'" />
-    <div class="page py-16 md:py-28">
+    <div class="page py-12 md:py-20">
         @if ($posts->isEmpty())
             <p class="t-body text-muted">{{ __('site.empty.blog') }}</p>
         @else
-            <div class="grid-12 gap-y-16">
+            <div class="grid-12 gap-y-16 md:gap-y-24">
                 @foreach ($posts as $post)
-                    <x-post-card :post="$post" :eager="$loop->first" class="col-span-12 md:col-span-6 lg:col-span-4" />
+                    @if ($loop->first && $posts->currentPage() === 1 && $posts->count() > 1)
+                        <x-post-card :post="$post" :eager="true" :featured="true" class="col-span-12" />
+                    @else
+                        <x-post-card :post="$post" :eager="$loop->first" class="col-span-12 md:col-span-6 lg:col-span-4" />
+                    @endif
                 @endforeach
             </div>
 

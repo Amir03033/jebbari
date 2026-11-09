@@ -5,24 +5,31 @@
     $label = loc($data['label'] ?? null);
 @endphp
 
-{{-- A hairline fills as you scroll and each step lights as it passes (see motion.css). --}}
-<section>
+{{--
+    A sticky stage: the numeral on the left rolls from 01 to 04 as each step passes,
+    a hairline fills beside the steps. The active step comes from a passive scroll
+    handler (motion.js); nothing takes over scrolling.
+--}}
+<section class="process" data-process>
     <x-section-label :number="$number" :label="$label" :meta="'('.$steps->count().')'" />
-    <div class="page py-16 md:py-28">
-        <div class="grid-12 gap-y-10">
+    <div class="page py-20 md:py-36">
+        <div class="grid-12 gap-y-12">
             <div class="col-span-12 md:col-span-5">
                 <div class="md:sticky md:top-28" data-reveal="group">
-                    <h2 class="t-h2 max-w-[12ch]"><x-lines :lines="[loc($data['heading'] ?? null) ?: $label]" /></h2>
+                    <h2 class="t-label mb-8 text-muted">{{ loc($data['heading'] ?? null) ?: $label }}</h2>
+                    <div class="process-numerals" aria-hidden="true">
+                        @foreach ($steps as $step)<span class="process-num">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>@endforeach
+                    </div>
                 </div>
             </div>
-            <div class="relative col-span-12 pl-8 md:col-span-6 md:col-start-7 md:pl-12" data-process>
+            <div class="relative col-span-12 pl-8 md:col-span-6 md:col-start-7 md:pl-14">
                 <span class="process-track" aria-hidden="true"><span class="process-fill"></span></span>
                 @foreach ($steps as $step)
-                    <div class="process-step py-12 md:py-20" data-step>
+                    <div class="process-step py-14 md:py-32" data-step>
                         <p class="t-label">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</p>
-                        <h3 class="t-h3 mt-2">{{ loc($step['title']) }}</h3>
+                        <h3 class="t-h2 mt-4">{{ loc($step['title']) }}</h3>
                         @if (loc($step['description'] ?? null))
-                            <p class="t-body mt-3">{{ loc($step['description']) }}</p>
+                            <p class="t-statement mt-5 max-w-[26ch]">{{ loc($step['description']) }}</p>
                         @endif
                     </div>
                 @endforeach

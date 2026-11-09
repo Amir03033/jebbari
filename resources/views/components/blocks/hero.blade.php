@@ -10,41 +10,45 @@
     $secondary = Site::cta($data, 'cta2');
 @endphp
 
-{{-- Dark opening. The headline reveals line by line and the full stop lands last. --}}
-<section class="on-ink relative overflow-clip" aria-labelledby="hero-title">
-    <div class="hero-grid page hidden md:grid grid-12" aria-hidden="true"><span></span></div>
+{{--
+    The opening. The CMS headline is the h1. The wordmark below it is the brand
+    moment: set at the width of the screen, its letters rise in turn and the full
+    stop lands last. Rings behind echo the full stop. All motion is CSS (motion.css).
+--}}
+<section class="hero on-ink" aria-labelledby="hero-title">
+    <div class="hero-body page-wide" data-reveal="group" data-hero>
+        <div class="rings" aria-hidden="true"><span class="ring"></span><span class="ring"></span><span class="ring"></span></div>
 
-    <div class="page relative pb-12 pt-16 md:pb-20 md:pt-28" data-reveal="group" data-hero>
-        @if ($label)
-            <p class="t-label rise text-muted" data-delay="1">{{ $label }}</p>
-        @endif
+        <div class="grid-12 relative items-end gap-y-10">
+            <div class="col-span-12 md:col-span-7">
+                @if ($label)
+                    <p class="t-label rise text-muted" data-delay="1">{{ $label }}</p>
+                @endif
 
-        <h1 id="hero-title" class="t-display mt-8 md:mt-10 md:max-w-[88%]">
-            <x-lines :lines="$lines" :stop="$data['end_with_stop'] ?? true" />
-        </h1>
+                <h1 id="hero-title" class="t-hero mt-6 max-w-[15ch] md:mt-8">
+                    <x-lines :lines="$lines" :stop="$data['end_with_stop'] ?? true" />
+                </h1>
+            </div>
 
-        <div class="grid-12 mt-12 gap-y-8 md:mt-24">
-            @if ($description)
-                <p class="t-body rise col-span-12 text-muted md:col-span-5 md:col-start-8" data-delay="12">{{ $description }}</p>
-            @endif
-            @if ($primary || $secondary)
-                <div class="rise col-span-12 flex flex-wrap gap-4 md:col-span-5 md:col-start-8" data-delay="14">
-                    @if ($primary)
-                        <x-button :href="$primary['url']">{{ $primary['label'] }}<span class="arrow" aria-hidden="true">→</span></x-button>
-                    @endif
-                    @if ($secondary)
-                        <x-button variant="secondary" :href="$secondary['url']">{{ $secondary['label'] }}</x-button>
-                    @endif
-                </div>
-            @endif
+            <div class="col-span-12 flex flex-col items-start gap-8 md:col-span-5">
+                @if ($description)
+                    <p class="rise max-w-[30ch] text-lg leading-snug text-muted md:text-xl" data-delay="12">{{ $description }}</p>
+                @endif
+                @if ($primary || $secondary)
+                    <div class="rise flex flex-wrap gap-3" data-delay="14">
+                        @if ($primary)
+                            <x-button :href="$primary['url']">{{ $primary['label'] }}<span class="arrow" aria-hidden="true">→</span></x-button>
+                        @endif
+                        @if ($secondary)
+                            <x-button variant="secondary" :href="$secondary['url']">{{ $secondary['label'] }}</x-button>
+                        @endif
+                    </div>
+                @endif
+            </div>
         </div>
-    </div>
 
-    {{-- Brand sign-off: the wordmark at display size, with the descriptor. --}}
-    <div class="relative border-t border-line" data-reveal="group">
-        <div class="page flex items-end justify-between gap-6 py-6 md:py-8">
-            <p class="rise text-[clamp(2.5rem,7vw,6rem)] font-medium leading-none tracking-[-0.04em]" data-delay="16"><x-wordmark /></p>
-            <p class="t-label rise pb-1 text-right text-muted" data-delay="16">{{ __('site.descriptor') }}<br>Zwolle &amp; Amsterdam</p>
-        </div>
+        <p class="wordmark-xl relative -mt-[0.06em]" aria-hidden="true">
+            @foreach (['j', 'e', 'b', 'b', 'a', 'r', 'i'] as $letter)<span class="wm-ch"><span>{{ $letter }}</span></span>@endforeach<span class="stop text-signal">.</span>
+        </p>
     </div>
 </section>

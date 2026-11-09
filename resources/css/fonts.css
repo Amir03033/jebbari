@@ -1,9 +1,19 @@
 /*
- * Geist Mono (OFL), Latin subset, self-hosted.
+ * Self-hosted fonts, Latin subset.
  *
- * Satoshi (Fontshare) could not be downloaded in the build environment, so it
- * is not declared here. See resources/fonts/README.md for how to add it.
+ * Instrument Sans (SIL OFL 1.1, variable weight) is the site's typeface. It
+ * replaces the system font; the owner's first choice, Satoshi, is still first
+ * in the font stack and takes over as soon as its files are added (see
+ * resources/fonts/README.md). Geist Mono (OFL) is used for labels.
  */
+@font-face {
+    font-family: 'Instrument Sans';
+    font-style: normal;
+    font-weight: 400 700;
+    font-display: swap;
+    src: url('../fonts/instrument-sans-latin-wght-normal.woff2') format('woff2');
+}
+
 @font-face {
     font-family: 'Geist Mono';
     font-style: normal;

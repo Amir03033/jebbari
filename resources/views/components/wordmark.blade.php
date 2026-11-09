@@ -1,1 +1,1 @@
-<span {{ $attributes->class('font-medium tracking-[-0.03em]') }}>jebbari<span class="text-signal">.</span></span>
+<span {{ $attributes->class('font-medium tracking-[-0.04em]') }}>jebbari<span class="dot text-signal" aria-hidden="true"></span></span>

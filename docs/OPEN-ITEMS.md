@@ -9,7 +9,7 @@
 - [ ] About text and photo
 - [ ] Decision: first-person ("I") vs. studio ("we") voice
 - [ ] Analytics: none vs. cookieless self-hosted
-- [x] Satoshi: **not self-hosted.** Fontshare returned 403 from the build environment, so the system fallback stack is in use. Steps to add it are in `resources/fonts/README.md`.
+- [x] Satoshi: **not self-hosted** (Fontshare returned 403 from the build environment). Phase 3.5 self-hosts Instrument Sans (SIL OFL) as the site face; Satoshi stays first in the stack and takes over once its files are added (`resources/fonts/README.md`).
 - [ ] Hosting target and deployment approach
 
 ## Found during Phase 1
@@ -48,3 +48,12 @@
 - [ ] Contact email, booking link, company name, KvK, BTW and social links (Site settings); they appear on the site only when filled in.
 - [ ] Test the public site and admin on iPhone, iPad, Safari and Firefox; run Lighthouse on a production build and, if the numbers are good, fill `config/specs.php` to show the "Built to a standard" section.
 - [ ] Add the Satoshi font files.
+
+## Added after Phase 3.5 (visual redesign)
+
+- [ ] Review the visual direction (`docs/VISUAL-COMPARISON.md`): type, surfaces, ring device, hero, case study layout.
+- [ ] Decide: keep Instrument Sans, or add Satoshi (licence download from Fontshare).
+- [ ] Decide: keep orange as the accent (recommended) or switch to blue (one token, `--signal`).
+- [ ] Capital I looks like lowercase l in "Iets te bouwen?" (also in Instrument Sans). Options: keep, or reword the closing question in the CMS.
+- [ ] Real screenshots, objectives and features for each case study (new fields in the project form); until then ServerScope uses a typographic tile.
+- [ ] Optional owner photo for About (the layout works without one).

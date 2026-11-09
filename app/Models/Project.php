@@ -22,7 +22,7 @@ class Project extends Model
     protected function casts(): array
     {
         return [
-            'title' => 'array', 'kind' => 'array', 'summary' => 'array', 'brief' => 'array', 'built' => 'array',
+            'title' => 'array', 'kind' => 'array', 'summary' => 'array', 'brief' => 'array', 'objectives' => 'array', 'built' => 'array', 'features' => 'array',
             'outcome' => 'array', 'stack' => 'array', 'gallery' => 'array', 'seo' => 'array',
             'is_featured' => 'boolean',
         ];

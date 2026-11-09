@@ -1,4 +1,6 @@
 @php
+    use App\Content\PackagePricing;
+    use App\Content\Site;
     use App\Support\Locale;
 
     $locale = app()->getLocale();
@@ -8,110 +10,166 @@
         [__('site.project.year'), $project->year],
         [__('site.project.client'), $project->client_name],
     ])->filter(fn ($r) => filled($r[1]));
+    $summary = loc($project->summary);
     $brief = loc($project->brief);
+    $objectives = PackagePricing::lines(loc($project->objectives));
     $built = loc($project->built);
+    $features = PackagePricing::lines(loc($project->features));
     $outcome = loc($project->outcome);
-    $contact = \App\Content\Site::pageUrl('contact');
+    $contact = Site::pageUrl('contact');
+    $hasOverview = $summary || $brief || $meta->isNotEmpty() || $stack->isNotEmpty() || $project->url;
+    $n = 1;
+    $number = function () use (&$n) {
+        return str_pad((string) ++$n, 2, '0', STR_PAD_LEFT);
+    };
+    $galleryLayout = ['md:col-span-12', 'md:col-span-6', 'md:col-span-6 md:mt-24', 'md:col-span-8 md:col-start-4', 'md:col-span-7', 'md:col-span-5 md:mt-20'];
 @endphp
 
-<x-layouts.app :seo="$seo" :preview="$preview">
+<x-layouts.app :seo="$seo" :preview="$preview" header-theme="dark">
     <article>
-        <x-section-label number="01" :label="__('site.nav.work')" :meta="loc($project->kind)" />
+        {{-- 1. The opening: the name, large, and the cover straddling the dark and light surfaces. --}}
+        <x-page-opening number="01" :label="__('site.nav.work')" :title="$title" :dark="true" :tall="true"
+            :back="Locale::url('work')" :back-label="__('site.nav.work')" :meta="collect([loc($project->kind), $project->year])->filter()->implode(' · ')" />
 
-        <header class="page pb-10 pt-12 md:pb-16 md:pt-20" data-reveal="group">
-            <nav aria-label="{{ __('site.breadcrumb') }}" class="t-label rise mb-8 text-muted">
-                <a href="{{ Locale::url('work') }}" class="link link-bare">← {{ __('site.nav.work') }}</a>
-            </nav>
-            <h1 class="t-display md:max-w-[90%]"><x-lines :lines="[$title]" /></h1>
-            @if (loc($project->summary))
-                <div class="grid-12 mt-10 md:mt-16">
-                    <p class="t-body rise col-span-12 text-muted md:col-span-5 md:col-start-8" data-delay="5">{{ loc($project->summary) }}</p>
-                </div>
-            @endif
-        </header>
-
-        @if ($project->cover)
-            <div class="page pb-16 md:pb-28" data-reveal="group">
-                <div class="plate-frame"><div class="plate-clip"><div class="plate-reveal"><x-picture :asset="$project->cover" sizes="(min-width: 1360px) 1264px, 100vw" :eager="true" /></div></div></div>
-            </div>
-        @endif
-
-        <div class="page pb-16 md:pb-28">
-            <div class="grid-12 gap-y-12">
-                @if ($meta->isNotEmpty() || $stack->isNotEmpty() || $project->url)
-                    <dl class="col-span-12 grid gap-6 self-start md:col-span-4">
-                        @foreach ($meta as [$term, $value])
-                            <div class="border-t border-line pt-3"><dt class="t-label text-muted">{{ $term }}</dt><dd class="mt-1 tabular-nums">{{ $value }}</dd></div>
-                        @endforeach
-                        @if ($stack->isNotEmpty())
-                            <div class="border-t border-line pt-3">
-                                <dt class="t-label text-muted">{{ __('site.project.stack') }}</dt>
-                                <dd class="mt-2 flex flex-wrap gap-x-4 gap-y-1"><ul class="t-label flex flex-wrap gap-x-4 gap-y-1">@foreach ($stack as $tech)<li>{{ $tech }}</li>@endforeach</ul></dd>
-                            </div>
-                        @endif
-                        @if ($project->url)
-                            <div class="border-t border-line pt-3"><dt class="t-label text-muted">{{ __('site.project.visit') }}</dt><dd class="mt-1"><x-link :href="$project->url" rel="noopener" target="_blank" arrow>{{ parse_url($project->url, PHP_URL_HOST) }}</x-link></dd></div>
-                        @endif
-                    </dl>
-                @endif
-
-                <div class="col-span-12 md:col-span-7 md:col-start-6">
-                    @if ($brief)
-                        <h2 class="t-label mb-3 text-muted">{{ __('site.project.brief') }}</h2>
-                        <p class="t-body mb-12 text-ink">{{ $brief }}</p>
+        <div class="page case-cover" data-reveal="group">
+            <div class="plate-frame" data-ratio="wide">
+                <div class="plate-clip"><div class="plate-reveal"><div class="plate-img">
+                    @if ($project->cover)
+                        <x-picture :asset="$project->cover" sizes="(min-width: 1360px) 1264px, 100vw" :eager="true" />
+                    @else
+                        <div class="on-ink relative flex h-full flex-col justify-between overflow-clip p-6 md:p-12">
+                            <div class="rings tile-rings" aria-hidden="true"><span class="ring"></span><span class="ring"></span><span class="ring"></span><span class="ring-dot"></span></div>
+                            <p class="t-label relative text-muted">{{ loc($project->kind) }}</p>
+                            <p class="plate-name-xl relative">{{ $title }}</p>
+                        </div>
                     @endif
-                    @if ($built)
-                        <h2 class="t-label mb-3 text-muted">{{ __('site.project.built') }}</h2>
-                        <x-rich-text :html="$built" class="mb-12" />
-                    @endif
-                    @if ($outcome)
-                        <h2 class="t-label mb-3 text-muted">{{ __('site.project.outcome') }}</h2>
-                        <p class="t-h2">{{ $outcome }}</p>
-                    @endif
-                </div>
+                </div></div></div>
             </div>
         </div>
 
+        {{-- 2. Overview: what it is, in a large voice, with the facts beside it. --}}
+        @if ($hasOverview)
+            <section>
+                <x-section-label :number="$number()" :label="__('site.project.overview')" />
+                <div class="page py-16 md:py-28">
+                    <div class="grid-12 gap-y-12" data-reveal="group">
+                        <div class="col-span-12 md:col-span-8 md:col-start-5 md:order-2">
+                            @if ($summary)<p class="t-statement rise">{{ $summary }}</p>@endif
+                            @if ($brief)<p class="t-body rise mt-8 text-muted" data-delay="2">{{ $brief }}</p>@endif
+                        </div>
+                        <dl class="col-span-12 grid content-start gap-6 md:col-span-4 md:order-1">
+                            @foreach ($meta as [$term, $value])
+                                <div class="rise border-t border-line pt-3"><dt class="t-label text-muted">{{ $term }}</dt><dd class="mt-1 tabular-nums">{{ $value }}</dd></div>
+                            @endforeach
+                            @if ($stack->isNotEmpty())
+                                <div class="rise border-t border-line pt-3">
+                                    <dt class="t-label text-muted">{{ __('site.project.stack') }}</dt>
+                                    <dd class="mt-3"><ul class="t-label flex flex-wrap gap-2">@foreach ($stack as $tech)<li class="chip">{{ $tech }}</li>@endforeach</ul></dd>
+                                </div>
+                            @endif
+                            @if ($project->url)
+                                <div class="rise border-t border-line pt-3"><dt class="t-label text-muted">{{ __('site.project.visit') }}</dt><dd class="mt-1"><x-link :href="$project->url" rel="noopener" target="_blank" arrow>{{ parse_url($project->url, PHP_URL_HOST) }}</x-link></dd></div>
+                            @endif
+                        </dl>
+                    </div>
+                </div>
+            </section>
+        @endif
+
+        {{-- 3. Objectives. --}}
+        @if ($objectives)
+            <x-statement-list :items="$objectives" :number="$number()" :label="__('site.project.objectives')" />
+        @endif
+
+        {{-- 4. Features and implementation: the story of what was built, and what it does. --}}
+        @if ($built || $features)
+            <section class="bg-paper-2">
+                <x-section-label :number="$number()" :label="__('site.project.features')" />
+                <div class="page py-16 md:py-28">
+                    <div class="grid-12 gap-y-12" data-reveal="group">
+                        @if ($built)
+                            <div class="col-span-12 md:col-span-5"><x-rich-text :html="$built" class="rise" /></div>
+                        @endif
+                        @if ($features)
+                            <ol @class(['col-span-12 grid gap-4 sm:grid-cols-2', 'md:col-span-7' => $built, 'md:col-span-12 lg:grid-cols-3' => ! $built])>
+                                @foreach ($features as $feature)
+                                    <li class="rise rounded-card bg-paper p-6 md:p-8" data-delay="{{ min($loop->index, 4) }}">
+                                        <span class="t-label text-muted">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                                        <p class="t-h3 mt-6">{{ $feature }}</p>
+                                    </li>
+                                @endforeach
+                            </ol>
+                        @endif
+                    </div>
+                </div>
+            </section>
+        @endif
+
+        {{-- 5. Interface: the screenshots, composed rather than stacked. --}}
         @if ($gallery->isNotEmpty())
-            <section aria-label="{{ __('site.project.gallery') }}">
-                <x-section-label number="02" :label="__('site.project.gallery')" :meta="'('.$gallery->count().')'" />
-                <div class="page grid gap-12 py-16 md:gap-20 md:py-28">
-                    @foreach ($gallery as $item)
-                        <figure data-reveal="group">
-                            <div class="plate-frame"><div class="plate-clip"><div class="plate-reveal"><x-picture :asset="$item['asset']" sizes="(min-width: 1360px) 1264px, 100vw" /></div></div></div>
-                            @if ($item['caption'])<figcaption class="t-label mt-3 text-muted">{{ $item['caption'] }}</figcaption>@endif
-                        </figure>
-                    @endforeach
+            <section aria-label="{{ __('site.project.interface') }}">
+                <x-section-label :number="$number()" :label="__('site.project.interface')" :meta="'('.$gallery->count().')'" />
+                <div class="page py-16 md:py-28">
+                    <div class="grid-12 gap-y-12 md:gap-y-20">
+                        @foreach ($gallery as $item)
+                            <figure @class(['col-span-12', $galleryLayout[$loop->index % count($galleryLayout)]]) data-reveal="group">
+                                <div class="plate-frame" data-ratio="{{ in_array($loop->index % count($galleryLayout), [5], true) ? 'tall' : 'wide' }}">
+                                    <div class="plate-clip"><div class="plate-reveal"><x-picture :asset="$item['asset']" sizes="(min-width: 1360px) 1264px, 100vw" /></div></div>
+                                </div>
+                                @if ($item['caption'])<figcaption class="t-label mt-4 text-muted">{{ $item['caption'] }}</figcaption>@endif
+                            </figure>
+                        @endforeach
+                    </div>
+                </div>
+            </section>
+        @endif
+
+        {{-- 6. Outcome: only when the owner wrote one. --}}
+        @if ($outcome)
+            <section class="on-ink">
+                <x-section-label :number="$number()" :label="__('site.project.outcome')" />
+                <div class="page py-24 md:py-44" data-reveal="group">
+                    <p class="t-display md:max-w-[92%]"><x-lines :lines="[$outcome]" /></p>
+                </div>
+            </section>
+        @endif
+
+        {{-- 7. Related work. --}}
+        @if ($related->isNotEmpty())
+            <section>
+                <x-section-label :number="$number()" :label="__('site.project.related')" />
+                <div class="page py-16 md:py-28">
+                    <div class="grid-12 gap-y-16">
+                        @foreach ($related as $item)
+                            <x-plate
+                                class="col-span-12 md:col-span-6"
+                                :href="Locale::route('work.show', ['slug' => $item->slugFor($locale)])"
+                                :number="str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT)"
+                                :title="loc($item->title)" :kind="loc($item->kind)" :year="$item->year"
+                                :stack="collect($item->stack)->take(2)->implode(' · ')" :summary="loc($item->summary)" :asset="$item->cover"
+                            />
+                        @endforeach
+                    </div>
                 </div>
             </section>
         @endif
     </article>
 
-    @if ($related->isNotEmpty())
-        <section>
-            <x-section-label :number="$gallery->isNotEmpty() ? '03' : '02'" :label="__('site.project.related')" />
-            <div class="page py-16 md:py-28">
-                <div class="grid-12 gap-y-16">
-                    @foreach ($related as $item)
-                        <x-plate
-                            class="col-span-12 md:col-span-6"
-                            :href="Locale::route('work.show', ['slug' => $item->slugFor($locale)])"
-                            :number="str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT)"
-                            :title="loc($item->title)" :kind="loc($item->kind)" :year="$item->year"
-                            :stack="collect($item->stack)->take(3)->implode(' · ')" :summary="loc($item->summary)" :asset="$item->cover"
-                        />
-                    @endforeach
-                </div>
+    {{-- 8. Closing navigation: the next project, as large as the page is wide. --}}
+    @if ($next)
+        <a href="{{ Locale::route('work.show', ['slug' => $next->slugFor($locale)]) }}" class="next-panel on-ink block" data-cursor="{{ __('site.cta.view_case') }}">
+            <x-section-label number="→" :label="__('site.project.next')" />
+            <div class="page-wide flex flex-wrap items-end justify-between gap-10 py-20 md:py-36">
+                <span class="next-title max-w-[14ch]">{{ loc($next->title) }}</span>
+                <x-arrow-ring class="size-20 md:size-28" />
             </div>
-        </section>
-    @endif
-
-    @if ($contact)
+        </a>
+    @elseif ($contact)
         <section class="on-ink">
-            <x-section-label number="—" :label="__('site.nav.contact')" />
-            <div class="page py-16 md:py-28" data-reveal="group">
-                <h2 class="t-h2 max-w-[18ch]"><x-lines :lines="[__('site.project.cta')]" /></h2>
-                <p class="rise mt-8" data-delay="3"><x-button :href="$contact">{{ __('site.cta.contact') }}<span class="arrow" aria-hidden="true">→</span></x-button></p>
+            <x-section-label number="→" :label="__('site.nav.contact')" />
+            <div class="page-wide py-20 md:py-36" data-reveal="group">
+                <h2 class="t-display md:max-w-[85%]"><x-lines :lines="[__('site.project.cta')]" /></h2>
+                <p class="rise mt-12" data-delay="3"><x-button :href="$contact">{{ __('site.cta.contact') }}<span class="arrow" aria-hidden="true">→</span></x-button></p>
             </div>
         </section>
     @endif

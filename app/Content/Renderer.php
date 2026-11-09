@@ -101,7 +101,13 @@ class Renderer
             ->map(fn ($g) => ['asset' => filled($g['media_id'] ?? null) ? MediaAsset::with('media')->find($g['media_id']) : null, 'caption' => loc($g['caption'] ?? null)])
             ->filter(fn ($g) => $g['asset']?->originalUrl())->values();
 
-        return view('pages.project', compact('project', 'seo', 'preview', 'related', 'gallery', 'title'));
+        // The next project in the CMS order, for the closing panel. Wraps around; none if it is the only one.
+        $all = Site::projects();
+        $position = $all->search(fn ($p) => $p->is($project));
+        $others = $all->reject(fn ($p) => $p->is($project))->values();
+        $next = $others->isEmpty() ? null : ($position === false ? $others->first() : ($all->get($position + 1) ?? $all->first()));
+
+        return view('pages.project', compact('project', 'seo', 'preview', 'related', 'gallery', 'title', 'next'));
     }
 
     public static function service(Service $service, ?array $preview = null): View

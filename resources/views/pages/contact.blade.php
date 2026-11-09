@@ -12,7 +12,7 @@
     $action = \App\Support\Locale::route('contact.send');
 @endphp
 
-<x-layouts.app :seo="$seo" :preview="$preview">
+<x-layouts.app :seo="$seo" :preview="$preview" :header-theme="$page->hasDarkOpening() ? 'dark' : 'light'">
     @if ($hasIntro)
         <x-blocks :page="$page" :only="['intro']" />
     @else
@@ -20,14 +20,13 @@
     @endif
 
     <section>
-        <x-section-label :number="$next" :label="__('site.contact.label')" />
         <div class="page py-16 md:py-28">
             <div class="grid-12 gap-y-16">
                 <div class="col-span-12 md:col-span-6" data-reveal="group">
                     @if ($email)
                         <p class="t-label rise mb-3 text-muted">{{ __('site.footer.email') }}</p>
                         <p class="rise" data-delay="1">
-                            <x-link href="mailto:{{ $email }}" class="text-[clamp(1.5rem,3.6vw,3.25rem)] font-medium tracking-[-0.03em] break-all">{{ $email }}</x-link>
+                            <x-link href="mailto:{{ $email }}" class="text-[clamp(1.5rem,4vw,3.75rem)] font-medium tracking-[-0.035em] break-all">{{ $email }}</x-link>
                         </p>
                         <p class="rise mt-4" data-delay="2">
                             <button type="button" class="t-label link link-bare" data-copy="{{ $email }}" data-copied="{{ __('site.contact.copied') }}">{{ __('site.contact.copy') }}</button>
@@ -39,9 +38,9 @@
                     @endif
                 </div>
 
-                <div id="contact-form" class="col-span-12 scroll-mt-28 focus:outline-none md:col-span-6" tabindex="-1">
+                <div id="contact-form" class="card col-span-12 scroll-mt-28 p-6 focus:outline-none md:col-span-6 md:p-10" tabindex="-1">
                     @if ($sent)
-                        <div role="status" class="border border-line p-6 md:p-8">
+                        <div role="status">
                             <h2 class="t-h3">{{ __('site.contact.sent_title') }}</h2>
                             <p class="t-body mt-3 text-muted">{{ __('site.contact.sent_text') }}</p>
                         </div>
@@ -56,7 +55,7 @@
                             </div>
 
                             @if ($errors->any())
-                                <p role="alert" class="border border-line p-4 text-sm font-medium">{{ __('site.contact.fix_errors') }}</p>
+                                <p role="alert" class="rounded-ui border border-fg p-4 text-sm font-medium">{{ __('site.contact.fix_errors') }}</p>
                             @endif
 
                             <x-field name="name" :label="__('site.contact.name')" required autocomplete="name" maxlength="120" :value="old('name')" :error="$errors->first('name')" />

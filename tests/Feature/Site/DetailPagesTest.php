@@ -42,6 +42,34 @@ class DetailPagesTest extends TestCase
         $this->get("/en/work/{$project->slug_en}")->assertSee('The brief was X.')->assertSee('alt="The dashboard"', false)->assertSee('Caption');
     }
 
+    public function test_a_case_study_shows_objectives_features_and_the_next_project(): void
+    {
+        $main = $this->makeProject([
+            'title' => ['nl' => 'Hoofd', 'en' => 'Main'], 'published_at' => now()->subDay(),
+            'objectives' => ['nl' => "Sneller laden\nEenvoudig beheren", 'en' => "Load faster\nEasy to manage"],
+            'features' => ['nl' => "Live statuskaart\nMeldingen per e-mail", 'en' => "Live status map\nEmail alerts"],
+        ]);
+        $this->makeProject(['title' => ['nl' => 'Volgend', 'en' => 'Following'], 'published_at' => now()->subDays(2)]);
+
+        $nl = $this->get("/nl/werk/{$main->slug_nl}")->assertOk();
+        $nl->assertSee('Sneller laden')->assertSee('Eenvoudig beheren')->assertSee('Live statuskaart')->assertSee('Meldingen per e-mail')
+            ->assertSee(__('site.project.objectives', [], 'nl'))->assertSee(__('site.project.features', [], 'nl'));
+        $this->assertSame(1, substr_count($nl->getContent(), 'class="next-panel'), 'one closing next-project panel');
+
+        $this->get("/en/work/{$main->slug_en}")->assertSee('Load faster')->assertSee('Email alerts')->assertSee(__('site.project.objectives', [], 'en'));
+    }
+
+    public function test_case_study_sections_that_have_no_content_are_left_out(): void
+    {
+        $project = $this->makeProject(['objectives' => null, 'features' => null, 'outcome' => null, 'built' => null, 'gallery' => []]);
+
+        $html = $this->get("/nl/werk/{$project->slug_nl}")->assertOk()->getContent();
+
+        foreach (['objectives', 'features', 'outcome', 'interface'] as $key) {
+            $this->assertStringNotContainsString(__("site.project.$key", [], 'nl'), $html, "$key heading is hidden when empty");
+        }
+    }
+
     public function test_project_pages_list_related_work_by_shared_technology(): void
     {
         $main = $this->makeProject(['title' => ['nl' => 'Hoofd', 'en' => 'Main'], 'stack' => ['Laravel', 'Vue']]);

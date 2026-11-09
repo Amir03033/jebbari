@@ -6,17 +6,20 @@
     $links = Site::navigation('header');
     $other = Locale::other();
     $home = Locale::url('home');
+    $dark = $headerTheme === 'dark';
 @endphp
 
+{{-- The header takes the colour of the section beneath it (motion.js keeps data-theme and .on-ink in step). --}}
 <header
     x-data="siteHeader"
     @scroll.window="onScroll"
     @focusin="reveal"
     @keydown.escape.window="close"
     :data-hidden="isHidden"
-    class="site-header fixed inset-x-0 top-0 z-40 border-b border-line bg-paper"
+    data-theme="{{ $headerTheme }}"
+    class="site-header fixed inset-x-0 top-0 z-40 border-b border-line @if ($dark) on-ink @endif"
 >
-    <div class="page flex h-16 items-center gap-4 md:h-20 lg:gap-6">
+    <div class="page-wide flex h-16 items-center gap-4 md:h-20 lg:gap-6">
         <a href="{{ $home }}" class="flex items-baseline gap-3 text-2xl" aria-label="{{ config('site.name') }}, {{ __('site.nav.home') }}">
             <x-wordmark />
             <span class="t-label hidden whitespace-nowrap text-muted lg:inline">{{ __('site.descriptor') }}</span>
@@ -24,7 +27,7 @@
 
         <x-status class="hidden text-muted xl:flex" />
 
-        <nav aria-label="{{ __('site.nav.label') }}" class="ml-auto hidden items-center gap-6 whitespace-nowrap lg:gap-8 md:flex">
+        <nav aria-label="{{ __('site.nav.label') }}" class="ml-auto hidden items-center gap-6 whitespace-nowrap md:flex lg:gap-8">
             @foreach ($links as $item)
                 <a
                     href="{{ $item['url'] }}"
@@ -58,19 +61,19 @@
         </button>
     </div>
 
-    {{-- Full-screen menu. Same links at display size. --}}
-    <div id="mobile-menu" :data-open="expanded" class="menu-panel fixed inset-x-0 bottom-0 top-16 overflow-y-auto bg-paper md:hidden">
-        <nav aria-label="{{ __('site.nav.label') }}" class="page flex min-h-full flex-col justify-between pb-10 pt-8">
+    {{-- Full-screen menu: black, links at display size. --}}
+    <div id="mobile-menu" :data-open="expanded" class="menu-panel on-ink fixed inset-x-0 bottom-0 top-16 overflow-y-auto md:hidden">
+        <nav aria-label="{{ __('site.nav.label') }}" class="page-wide flex min-h-full flex-col justify-between pb-10 pt-8">
             <ul class="flex flex-col border-t border-line">
                 @foreach ($links as $item)
                     <li class="menu-item">
                         <a
                             href="{{ $item['url'] }}"
                             @if ($loop->first) x-ref="firstLink" @endif
-                            class="t-h2 flex items-center gap-4 py-5"
+                            class="flex items-center gap-4 py-5 text-[clamp(2.5rem,12vw,4.5rem)] font-medium leading-none tracking-[-0.04em]"
                             @if ($item['key'] && $current === $item['key']) aria-current="page" @endif
                         >
-                            @if ($item['key'] && $current === $item['key'])<span class="size-2 rounded-full bg-signal" aria-hidden="true"></span>@endif
+                            @if ($item['key'] && $current === $item['key'])<span class="size-2.5 rounded-full bg-signal" aria-hidden="true"></span>@endif
                             {{ $item['label'] }}
                         </a>
                     </li>
@@ -87,5 +90,7 @@
     </div>
 </header>
 
-{{-- Spacer: the header is fixed so it can slide away. --}}
-<div class="h-16 md:h-20" aria-hidden="true"></div>
+{{-- Spacer: the header is fixed so it can slide away. Dark pages start under it, so no spacer there. --}}
+@unless ($dark)
+    <div class="h-16 md:h-20" aria-hidden="true"></div>
+@endunless
