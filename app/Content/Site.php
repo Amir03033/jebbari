@@ -76,6 +76,13 @@ class Site
     }
 
     /** @return Collection<int, Project> */
+    /** Technologies used across published projects, each once, in order of first appearance. */
+    public static function stack(): Collection
+    {
+        return self::projects()->flatMap(fn ($project) => $project->stack ?? [])
+            ->map(fn ($tech) => trim((string) $tech))->filter()->unique()->values();
+    }
+
     public static function projects(bool $featured = false, ?array $ids = null): Collection
     {
         $query = Project::query()->published()->with('cover.media');

@@ -493,6 +493,81 @@ function initLive() {
     document.addEventListener('visibilitychange', sync);
 }
 
+/* Figures count up once, when they scroll into view. The final value is already in the page. */
+function initCounters() {
+    const targets = [...document.querySelectorAll('[data-count]')];
+
+    if (!targets.length || reduceQuery.matches || !('IntersectionObserver' in window)) {
+        return;
+    }
+
+    const format = new Intl.NumberFormat(document.documentElement.lang || 'nl');
+
+    const observer = new IntersectionObserver(
+        (entries) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) {
+                    return;
+                }
+
+                const el = entry.target;
+                const end = Number(el.dataset.count);
+                const start = performance.now();
+                const duration = 1400;
+
+                observer.unobserve(el);
+
+                const step = (now) => {
+                    const t = Math.min(1, (now - start) / duration);
+                    const eased = t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+
+                    el.textContent = format.format(Math.round(end * eased));
+                    if (t < 1) {
+                        requestAnimationFrame(step);
+                    }
+                };
+
+                requestAnimationFrame(step);
+            });
+        },
+        { threshold: 0.6 },
+    );
+
+    targets.forEach((el) => {
+        el.textContent = format.format(0);
+        observer.observe(el);
+    });
+}
+
+/* Light/dark switch. The first visit follows the system; a choice is remembered in this browser. */
+function initTheme() {
+    const root = document.documentElement;
+    const system = window.matchMedia('(prefers-color-scheme: dark)');
+    const isDark = () => (root.dataset.theme ? root.dataset.theme === 'dark' : system.matches);
+
+    const sync = () =>
+        document.querySelectorAll('[data-theme-toggle]').forEach((button) => button.setAttribute('aria-pressed', String(isDark())));
+
+    document.addEventListener('click', (event) => {
+        if (!event.target.closest('[data-theme-toggle]')) {
+            return;
+        }
+
+        const next = isDark() ? 'light' : 'dark';
+
+        root.dataset.theme = next;
+        try {
+            localStorage.setItem('theme', next);
+        } catch {
+            // Storage unavailable: the choice lasts for this page view only.
+        }
+        sync();
+    });
+
+    system.addEventListener('change', sync);
+    sync();
+}
+
 /* Pictures fade in once decoded. The frame keeps its size, so nothing shifts. */
 function initImages() {
     document.querySelectorAll('picture img').forEach((img) => {
@@ -581,6 +656,8 @@ export function initMotion() {
     initScrollLinked();
     initLive();
     initImages();
+    initTheme();
+    initCounters();
     initCopy();
     initHeaderTheme();
     initStatus();

@@ -14,7 +14,7 @@ use Illuminate\Support\Collection;
  */
 class BlockRenderer
 {
-    private const NUMBERLESS = ['meeting_line', 'reply_promise', 'image'];
+    private const NUMBERLESS = ['meeting_line', 'reply_promise', 'image', 'stats', 'tech_marquee'];
 
     /** @return Collection<int, array{type: string, data: array, number: string}> */
     public static function blocks(Page $page, int $start = 1): Collection
@@ -40,6 +40,8 @@ class BlockRenderer
             'hero' => loc($data['headline'] ?? null) !== null,
             'services_overview', 'service_list' => Site::services(($data['mode'] ?? 'all') === 'selected' ? ($data['service_ids'] ?? []) : null)->isNotEmpty(),
             'work_selection' => Site::projects(($data['mode'] ?? 'featured') === 'featured', ($data['mode'] ?? 'featured') === 'selected' ? ($data['project_ids'] ?? []) : null)->isNotEmpty(),
+            'tech_marquee' => Site::stack()->count() >= 3,
+            'stats' => collect($data['items'] ?? [])->contains(fn ($i) => is_numeric($i['value'] ?? null) && loc($i['label'] ?? null) !== null),
             'packages_table' => PackagePricing::rows()->isNotEmpty(),
             'testimonials' => Site::testimonials(($data['mode'] ?? 'featured') === 'featured', ($data['mode'] ?? 'featured') === 'selected' ? ($data['testimonial_ids'] ?? []) : null)->isNotEmpty(),
             'spec_sheet' => ! empty(config('specs.values')),

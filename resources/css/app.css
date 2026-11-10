@@ -18,6 +18,11 @@
     --line-dark: rgba(245, 243, 238, 0.16);
     --signal: #ff4b1f;
 
+    /* Fixed surfaces: the dark and light of the brand, whatever the theme. */
+    --white: #f5f3ee;
+    --black: #0e0e0f;
+    --black-2: #161617;
+
     /* Semantic roles. Remapped inside .on-ink. */
     --fg: var(--ink);
     --muted: var(--ink-2);
@@ -54,14 +59,49 @@
 
 /* Dark section: deep black, off-white text. Hairlines, muted text and cards follow. */
 .on-ink {
-    --fg: var(--paper);
+    --fg: var(--white);
     --muted: rgba(245, 243, 238, 0.64);
     --line: var(--line-dark);
-    --surface: var(--ink);
-    --card: var(--ink-3);
+    --surface: var(--black);
+    --card: var(--black-2);
 
-    background-color: var(--ink);
-    color: var(--paper);
+    background-color: var(--black);
+    color: var(--white);
+}
+
+/* Dark theme. Follows the visitor's system unless they chose (the header
+   switch, remembered in this browser). Dark sections stay the deepest black,
+   so the light and dark rhythm of the page survives. */
+:root[data-theme='dark'] {
+    --paper: #151516;
+    --paper-2: #1d1d1f;
+    --ink: #f5f3ee;
+    --ink-2: #a9a7a1;
+    --ink-3: #242426;
+    --line: rgba(245, 243, 238, 0.14);
+    --fg: var(--ink);
+    --muted: var(--ink-2);
+    --surface: var(--paper);
+    --card: var(--paper-2);
+
+    color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+        --paper: #151516;
+        --paper-2: #1d1d1f;
+        --ink: #f5f3ee;
+        --ink-2: #a9a7a1;
+        --ink-3: #242426;
+        --line: rgba(245, 243, 238, 0.14);
+        --fg: var(--ink);
+        --muted: var(--ink-2);
+        --surface: var(--paper);
+        --card: var(--paper-2);
+
+        color-scheme: dark;
+    }
 }
 
 /*
@@ -134,7 +174,7 @@
 
     ::selection {
         background-color: var(--signal);
-        color: var(--ink);
+        color: var(--black);
     }
 
     :focus-visible {

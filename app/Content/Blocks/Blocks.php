@@ -12,7 +12,7 @@ class Blocks
     public static function allowedFor(string $pageKey): array
     {
         $list = match ($pageKey) {
-            'home' => [new HeroBlock, new ServicesOverviewBlock, new WorkSelectionBlock, new ProcessBlock, new AboutTeaserBlock, new SpecSheetBlock, new TestimonialsBlock, new ClosingCtaBlock],
+            'home' => [new HeroBlock, new ServicesOverviewBlock, new WorkSelectionBlock, new ProcessBlock, new AboutTeaserBlock, new StatsBlock, new AutoBlock('tech_marquee', 'Technologieën (automatisch)'), new SpecSheetBlock, new TestimonialsBlock, new ClosingCtaBlock],
             'about' => [
                 new IntroBlock,
                 new RichTextBlock('biography', 'Biografie'),

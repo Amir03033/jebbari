@@ -46,7 +46,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $meta['title'] }}</title>
     <meta name="description" content="{{ $meta['description'] }}">
-    <meta name="theme-color" content="#F5F3EE">
+    <meta name="color-scheme" content="light dark">
+    <meta name="theme-color" content="#F5F3EE" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#151516" media="(prefers-color-scheme: dark)">
     @if ($meta['robots'])
         <meta name="robots" content="{{ $meta['robots'] }}">
     @endif

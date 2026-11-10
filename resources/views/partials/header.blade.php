@@ -44,6 +44,7 @@
             <a href="{{ $switchUrl }}" hreflang="{{ $other }}" lang="{{ $other }}" class="link link-bare t-label" aria-label="{{ __('site.nav.language') }}: {{ strtoupper($other) }}">
                 <span class="text-muted">{{ strtoupper(app()->getLocale()) }}</span> / {{ strtoupper($other) }}
             </a>
+            <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false" aria-label="{{ __('site.theme.toggle') }}" title="{{ __('site.theme.toggle') }}"><span class="theme-icon" aria-hidden="true"></span></button>
         </nav>
 
         <button
@@ -88,9 +89,12 @@
 
             <div class="mt-8 flex items-center justify-between">
                 <x-status class="text-muted" />
-                <a href="{{ $switchUrl }}" hreflang="{{ $other }}" lang="{{ $other }}" class="link link-bare t-label" aria-label="{{ __('site.nav.language') }}: {{ strtoupper($other) }}">
-                    <span class="text-muted">{{ strtoupper(app()->getLocale()) }}</span> / {{ strtoupper($other) }}
-                </a>
+                <span class="flex items-center gap-5">
+                    <a href="{{ $switchUrl }}" hreflang="{{ $other }}" lang="{{ $other }}" class="link link-bare t-label" aria-label="{{ __('site.nav.language') }}: {{ strtoupper($other) }}">
+                        <span class="text-muted">{{ strtoupper(app()->getLocale()) }}</span> / {{ strtoupper($other) }}
+                    </a>
+                    <button type="button" class="theme-toggle" data-theme-toggle aria-pressed="false" aria-label="{{ __('site.theme.toggle') }}" title="{{ __('site.theme.toggle') }}"><span class="theme-icon" aria-hidden="true"></span></button>
+                </span>
             </div>
         </nav>
     </div>

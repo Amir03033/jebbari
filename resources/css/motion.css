@@ -226,8 +226,8 @@
         padding: 0.45rem 0.8rem;
         border: 1px solid rgba(245, 243, 238, 0.3);
         border-radius: var(--radius-pill);
-        background-color: var(--ink);
-        color: var(--paper);
+        background-color: var(--black);
+        color: var(--white);
         opacity: 0;
         transition: opacity var(--dur-fast) var(--ease);
         will-change: transform;
@@ -768,5 +768,52 @@ picture {
     .btn,
     .arrow-ring {
         transition-property: background-color, color, border-color, transform, translate;
+    }
+}
+
+/* ---------------- Theme switch ---------------- */
+.theme-toggle {
+    display: inline-grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    color: inherit;
+    cursor: pointer;
+    transition:
+        border-color var(--dur-fast) var(--ease),
+        transform var(--dur-base) var(--ease);
+}
+
+.theme-toggle:hover {
+    border-color: var(--fg);
+}
+
+/* A circle, half filled: the universal light/dark sign. It turns over when pressed. */
+.theme-icon {
+    position: relative;
+    width: 0.875rem;
+    height: 0.875rem;
+    border: 1.5px solid currentColor;
+    border-radius: 50%;
+    overflow: clip;
+    transition: transform var(--dur-slow) var(--ease);
+}
+
+.theme-icon::after {
+    content: '';
+    position: absolute;
+    inset: 0 0 0 50%;
+    background-color: currentColor;
+}
+
+.theme-toggle[aria-pressed='true'] .theme-icon {
+    transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .theme-icon {
+        transition: none;
     }
 }

@@ -9,3 +9,14 @@
         }
     }, 3000);
 })(document);
+
+/* Theme: a saved choice wins over the system setting. Runs before first paint
+   so there is no flash. Storage can be unavailable (private windows): ignore. */
+(function (d) {
+    try {
+        var t = localStorage.getItem('theme');
+        if (t === 'dark' || t === 'light') {
+            d.documentElement.setAttribute('data-theme', t);
+        }
+    } catch (e) {}
+})(document);

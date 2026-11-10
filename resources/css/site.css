@@ -309,7 +309,7 @@
 
     /* The typographic cover is one step lighter than the opening, so its edge reads. */
     .case-cover .on-ink {
-        background-color: var(--ink-3);
+        background-color: var(--black-2);
     }
 
     .next-panel {
@@ -708,7 +708,7 @@ section.bg-paper-2 + .dot-bridge {
     aspect-ratio: 1;
     margin: calc(-115vmax) 0 0 calc(-115vmax);
     border-radius: 50%;
-    background-color: var(--ink);
+    background-color: var(--black);
     transform: scale(calc(var(--p, 1) * var(--p, 1)));
     will-change: transform;
 }
@@ -792,4 +792,119 @@ section.bg-paper-2 + .dot-bridge {
             opacity: 1;
         }
     }
+}
+
+/* ---------------- Technology marquee ---------------- */
+.marquee {
+    position: relative;
+    overflow: clip;
+    border-block: 1px solid var(--line);
+    padding-block: clamp(1.25rem, 3vw, 2.25rem);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+}
+
+.marquee-list {
+    display: none;
+}
+
+.marquee-track {
+    display: flex;
+    width: max-content;
+}
+
+.marquee-group {
+    display: flex;
+    flex: none;
+    align-items: center;
+    list-style: none;
+}
+
+.marquee-group li {
+    display: flex;
+    align-items: center;
+    font-size: clamp(1.5rem, 3.4vw, 2.75rem);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.marquee-dot {
+    flex: none;
+    width: 0.3em;
+    height: 0.3em;
+    margin-inline: clamp(1.25rem, 3vw, 2.5rem);
+    border-radius: 50%;
+    background-color: var(--signal);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .marquee-track {
+        animation: marquee 48s linear infinite;
+        will-change: transform;
+    }
+
+    @media (hover: hover) {
+        .marquee:hover .marquee-track {
+            animation-play-state: paused;
+        }
+    }
+
+    @keyframes marquee {
+        to {
+            transform: translate3d(-50%, 0, 0);
+        }
+    }
+}
+
+/* Reduced motion: a calm static list instead of a moving strip. */
+@media (prefers-reduced-motion: reduce) {
+    .marquee {
+        -webkit-mask-image: none;
+        mask-image: none;
+    }
+
+    .marquee-track {
+        display: none;
+    }
+
+    .marquee-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1.5rem;
+        padding-inline: var(--margin);
+        font-size: clamp(1.25rem, 3vw, 2rem);
+        font-weight: 500;
+        letter-spacing: -0.03em;
+        list-style: none;
+    }
+}
+
+/* ---------------- Figures ---------------- */
+.stat-figure {
+    display: flex;
+    align-items: baseline;
+    font-size: clamp(3rem, 7vw, 6rem);
+    font-weight: 500;
+    letter-spacing: -0.05em;
+    line-height: 0.95;
+    font-variant-numeric: tabular-nums;
+}
+
+.count {
+    display: inline-grid;
+}
+
+.count > * {
+    grid-area: 1 / 1;
+}
+
+.count-size {
+    visibility: hidden;
+}
+
+.stat-suffix {
+    margin-left: 0.04em;
+    color: var(--signal);
 }
