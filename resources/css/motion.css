@@ -351,9 +351,9 @@
     }
 }
 
-/* ---------------- Pointer companions (fine pointers only) ----------------
-   A quiet ring trails the pointer and swells over anything you can press; on
-   project tiles a small label names the action. The system cursor stays. */
+/* ---------------- Tile label (fine pointers only) ----------------
+   On project tiles a small label names the action and follows the pointer.
+   The system cursor stays as it is. */
 .cursor-label {
     position: fixed;
     left: 0;
@@ -371,30 +371,6 @@
 
 .cursor-label.is-on {
     opacity: 1;
-}
-
-.cursor-ring {
-    position: fixed;
-    left: 0;
-    top: 0;
-    z-index: 70;
-    width: 2rem;
-    height: 2rem;
-    border: 1px solid #fff;
-    border-radius: 50%;
-    mix-blend-mode: difference;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity var(--dur-fast) var(--ease);
-    will-change: transform;
-}
-
-.cursor-ring.is-on {
-    opacity: 0.85;
-}
-
-.cursor-ring.is-hidden {
-    opacity: 0;
 }
 
 /* ---------------- Images arrive softly ----------------

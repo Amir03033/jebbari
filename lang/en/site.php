@@ -78,6 +78,12 @@ return [
         'confetti' => 'Celebrate something',
         'found' => 'Found.',
     ],
+    'share' => [
+        'label' => 'Share this',
+        'native' => 'Share',
+        'copy' => 'Copy link',
+        'author' => 'Written by',
+    ],
     'hero' => [
         'scroll' => 'Scroll',
     ],
@@ -87,6 +93,7 @@ return [
     ],
 
     'nav' => [
+        'faq' => 'Questions',
         'now' => 'Now',
         'uses' => 'Uses',
         'cv' => 'CV',
@@ -228,6 +235,12 @@ return [
     ],
 
     'error' => [
+        'try' => 'Or continue to',
+        '500_title' => 'Something went wrong',
+        '500_text' => 'That is on the site, not on you. Please try again in a moment.',
+        '503_title' => 'Back shortly',
+        '503_text' => 'The site is being updated and will be back in a moment. This page refreshes by itself.',
+        '503_status' => 'Updating',
         '404_title' => 'Page not found',
         '404_text' => 'The page you are looking for does not exist or has moved.',
         '429_title' => 'Too many requests',

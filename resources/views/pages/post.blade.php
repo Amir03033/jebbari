@@ -41,6 +41,9 @@
                         <p class="t-statement mb-10">{{ loc($post->excerpt) }}</p>
                     @endif
                     <div class="prose-jebbari">{!! $toc['html'] !!}</div>
+
+                    <x-share class="mt-14" :url="$seo['canonical']" :title="$title" />
+                    <x-author class="mt-10" />
                 </div>
             </div>
         </div>

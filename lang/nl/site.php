@@ -78,6 +78,12 @@ return [
         'confetti' => 'Vier iets',
         'found' => 'Gevonden.',
     ],
+    'share' => [
+        'label' => 'Deel dit',
+        'native' => 'Delen',
+        'copy' => 'Kopieer link',
+        'author' => 'Geschreven door',
+    ],
     'hero' => [
         'scroll' => 'Scroll',
     ],
@@ -87,6 +93,7 @@ return [
     ],
 
     'nav' => [
+        'faq' => 'Veelgestelde vragen',
         'now' => 'Nu',
         'uses' => 'Stack',
         'cv' => 'Cv',
@@ -228,6 +235,12 @@ return [
     ],
 
     'error' => [
+        'try' => 'Of ga verder naar',
+        '500_title' => 'Er ging iets mis',
+        '500_text' => 'Dat ligt aan de site, niet aan jou. Probeer het over een moment opnieuw.',
+        '503_title' => 'Even terug voor onderhoud',
+        '503_text' => 'De site wordt bijgewerkt en is zo weer bereikbaar. Deze pagina ververst zichzelf.',
+        '503_status' => 'Bezig met bijwerken',
         '404_title' => 'Pagina niet gevonden',
         '404_text' => 'De pagina die je zoekt bestaat niet of is verplaatst.',
         '429_title' => 'Te veel verzoeken',

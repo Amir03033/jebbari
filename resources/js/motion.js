@@ -54,81 +54,26 @@ function initReplay() {
 
 const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
 
-/*
- * Cursor: a quiet ring that trails the pointer and swells over links, buttons
- * and project tiles, plus the "View case" label on tiles. The system cursor is
- * never hidden. Fine pointers only, off under reduced motion.
- */
+/* Project tiles: a small label names the action and follows the pointer. Fine pointers only; the system cursor stays as it is. */
 function initCursor() {
-    if (!finePointer.matches) {
+    const tiles = document.querySelectorAll('[data-cursor]');
+
+    if (!finePointer.matches || !tiles.length) {
         return;
     }
 
     const label = document.createElement('div');
+
     label.className = 'cursor-label t-label';
     label.setAttribute('aria-hidden', 'true');
     document.body.append(label);
 
-    const ring = document.createElement('div');
-    ring.className = 'cursor-ring';
-    ring.setAttribute('aria-hidden', 'true');
-    const useRing = !reduceQuery.matches;
-
-    if (useRing) {
-        document.body.append(ring);
-    }
-
-    let x = 0;
-    let y = 0;
-    let rx = 0;
-    let ry = 0;
-    let scale = 1;
-    let target = 1;
-    let frame = 0;
-    let seen = false;
-
-    const tick = () => {
-        frame = 0;
-        rx += (x - rx) * 0.22;
-        ry += (y - ry) * 0.22;
-        scale += (target - scale) * 0.2;
-        ring.style.transform = `translate3d(${rx}px, ${ry}px, 0) translate(-50%, -50%) scale(${scale.toFixed(3)})`;
-
-        if (Math.abs(x - rx) > 0.2 || Math.abs(y - ry) > 0.2 || Math.abs(target - scale) > 0.01) {
-            frame = requestAnimationFrame(tick);
-        }
-    };
-
-    document.addEventListener('pointermove', (event) => {
-        x = event.clientX;
-        y = event.clientY;
-        label.style.transform = `translate3d(${x + 18}px, ${y + 18}px, 0)`;
-
-        if (useRing) {
-            if (!seen) {
-                seen = true;
-                rx = x;
-                ry = y;
-                ring.classList.add('is-on');
-            }
-
-            const hit = event.target.closest?.('a, button, [data-cursor], summary, label');
-            const field = event.target.closest?.('input, textarea, select');
-
-            target = field ? 0.4 : hit ? 1.9 : 1;
-            ring.classList.toggle('is-hidden', Boolean(field));
-            frame ||= requestAnimationFrame(tick);
-        }
-    });
-
-    document.documentElement.addEventListener('pointerleave', () => ring.classList.remove('is-on'));
-    document.documentElement.addEventListener('pointerenter', () => seen && ring.classList.add('is-on'));
-
-    document.querySelectorAll('[data-cursor]').forEach((el) => {
+    tiles.forEach((el) => {
         el.addEventListener('pointerenter', () => {
             label.textContent = el.dataset.cursor;
             label.classList.add('is-on');
         });
+        el.addEventListener('pointermove', (event) => (label.style.transform = `translate3d(${event.clientX + 18}px, ${event.clientY + 18}px, 0)`));
         el.addEventListener('pointerleave', () => label.classList.remove('is-on'));
     });
 }
@@ -455,6 +400,18 @@ function initSpot() {
             visual.style.setProperty('--rx', '0deg');
             visual.style.setProperty('--ry', '0deg');
         });
+    });
+}
+
+/* Share: the device's own share sheet where there is one; the plain links work everywhere. */
+function initShare() {
+    document.querySelectorAll('[data-share]').forEach((button) => {
+        if (!navigator.share) {
+            return;
+        }
+
+        button.hidden = false;
+        button.addEventListener('click', () => navigator.share({ title: button.dataset.shareTitle, url: button.dataset.share }).catch(() => {}));
     });
 }
 
@@ -955,6 +912,7 @@ export function initMotion() {
     initToc();
     initSpot();
     initPrint();
+    initShare();
     initEggs();
     initFill();
     initProcess();

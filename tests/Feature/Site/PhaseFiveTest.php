@@ -221,6 +221,55 @@ class PhaseFiveTest extends TestCase
         $this->assertSame(['id', 'date', 'path', 'views'], array_keys(PageView::first()->getAttributes()));
     }
 
+    public function test_publishing_proposals_is_opt_in_and_skips_pages_with_open_fields(): void
+    {
+        $this->publishSite();
+        PersonalBrandSeeder::$replace = true;
+        PersonalBrandSeeder::$publish = true;
+        $this->seed(PersonalBrandSeeder::class);
+        PersonalBrandSeeder::$publish = false;
+
+        // Complete pages are live, with their questions and structured data.
+        $faq = $this->get('/nl/veelgestelde-vragen')->assertOk()->assertSee('Van wie is de code?');
+        $this->assertStringContainsString('"@type":"FAQPage"', $faq->getContent());
+        $this->get('/en/faq')->assertOk()->assertSee('Who owns the code?');
+        $this->get('/nl')->assertSee('Maken wat hierna komt');
+        // Pages that still need the owner stay drafts.
+        $this->get('/nl/nu')->assertNotFound();
+    }
+
+    public function test_articles_and_projects_can_be_shared_and_articles_name_the_author(): void
+    {
+        $this->publishSite();
+        $post = Post::create(['title' => ['nl' => 'Stuk', 'en' => 'Piece'], 'excerpt' => ['nl' => 'Kort', 'en' => 'Short'], 'body' => ['nl' => '<p>a</p>', 'en' => '<p>a</p>'], 'published_at' => now()->subDay()]);
+        $post->publish();
+        $url = url('/en/blog/'.$post->slug_en);
+
+        $this->get('/en/blog/'.$post->slug_en)->assertOk()
+            ->assertSee('data-share="'.$url.'"', false)->assertSee('data-copy="'.$url.'"', false)
+            ->assertSee('linkedin.com/sharing/share-offsite/?url='.rawurlencode($url), false)
+            ->assertSee('Written by')->assertSee('property="og:title"', false)->assertSee('name="twitter:card" content="summary_large_image"', false);
+
+        $project = $this->project();
+        $this->get('/en/work/'.$project->slug_en)->assertSee('data-share="'.url('/en/work/'.$project->slug_en).'"', false);
+    }
+
+    public function test_the_maintenance_and_error_pages_need_no_database_or_build(): void
+    {
+        foreach (['503' => 'Even terug voor onderhoud', '500' => 'Er ging iets mis'] as $code => $title) {
+            $html = view('errors.'.$code)->render();
+
+            $this->assertStringContainsString($title, $html);
+            $this->assertStringContainsString('css/standalone.css', $html);
+            $this->assertStringNotContainsString('/build/', $html);
+            $this->assertDoesNotMatchRegularExpression('/\sstyle=|<script/', $html);
+        }
+
+        $this->assertFileExists(public_path('css/standalone.css'));
+        $this->publishSite();
+        $this->get('/nl/bestaat-niet')->assertNotFound()->assertSee('Pagina niet gevonden')->assertSee('href="'.url('/nl/werk').'"', false);
+    }
+
     public function test_proposed_content_never_goes_live_by_itself(): void
     {
         $this->publishSite();
@@ -243,7 +292,7 @@ class PhaseFiveTest extends TestCase
 
         // Running it again changes nothing more.
         $this->seed(PersonalBrandSeeder::class);
-        $this->assertSame(9, Page::where('kind', 'system')->count());
+        $this->assertSame(10, Page::where('kind', 'system')->count());
         $this->assertSame(1, Project::where('title', 'like', '%ChinaSupply%')->count());
         $this->assertNotEmpty($live);
     }

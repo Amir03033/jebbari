@@ -25,6 +25,9 @@ class PersonalBrandSeeder extends Seeder
 {
     public static bool $replace = false;
 
+    /** Also publish every page that has nothing left to fill in. Only on the owner's explicit request. */
+    public static bool $publish = false;
+
     /** @var list<string> what happened, for the command's report */
     public static array $report = [];
 
@@ -38,6 +41,29 @@ class PersonalBrandSeeder extends Seeder
 
         $this->projects();
         $this->navigation();
+
+        if (self::$publish) {
+            $this->publishComplete(array_keys($this->pages()));
+        }
+    }
+
+    /** Publishes the pages without open issues; pages with an owner placeholder or a gap stay drafts and are reported. */
+    private function publishComplete(array $keys): void
+    {
+        foreach (Page::query()->whereIn('key', $keys)->get() as $page) {
+            $issues = $page->publishIssues();
+
+            if ($issues) {
+                self::$report[] = $page->key.': NIET gepubliceerd ('.count($issues).' open punt(en), bijvoorbeeld: '.$issues[0].')';
+
+                continue;
+            }
+
+            if (! $page->isPublished() || $page->hasDraftChanges()) {
+                $page->publish();
+                self::$report[] = $page->key.': gepubliceerd';
+            }
+        }
     }
 
     private function propose(string $key, array $title, array $blocks): void
@@ -301,6 +327,48 @@ class PersonalBrandSeeder extends Seeder
                         ['name' => $t('Computer', 'Computer'), 'description' => $t('[[ OWNER: je computer ]]', '[[ OWNER: your computer ]]')],
                     ],
                 ], false),
+            ]],
+
+            'faq' => [$t('Veelgestelde vragen', 'Questions'), [
+                $this->b('intro', [
+                    'label' => $t('Veelgestelde vragen', 'Questions'),
+                    'heading' => $t('Vragen, en eerlijke antwoorden.', 'Questions, and straight answers.'),
+                    'body' => $t('Staat je vraag er niet tussen? Stuur een bericht, dan antwoord ik zelf.', 'Is your question not here? Send a message and I will answer it myself.'),
+                ]),
+                $this->b('faq', [
+                    'label' => $t('Samenwerken', 'Working together'),
+                    'items' => [
+                        ['question' => $t('Met wie werk ik samen?', 'Who am I working with?'), 'answer' => $t('Met mij, van het eerste gesprek tot de oplevering. Er zit geen accountmanager of doorverwijzing tussen.', 'With me, from the first conversation to delivery. There is no account manager or hand-off in between.')],
+                        ['question' => $t('Hoe begint een project?', 'How does a project start?'), 'answer' => $t('Met een gesprek over wat je wilt bereiken. Daarna leg ik schriftelijk vast wat ik bouw en wat het kost, voordat er iets gebouwd wordt.', 'With a conversation about what you want to achieve. After that I put in writing what I will build and what it costs, before anything is built.')],
+                        ['question' => $t('Moet ik al precies weten wat ik wil?', 'Do I need to know exactly what I want?'), 'answer' => $t('Nee. Een ruwe schets van het probleem is genoeg. Het uitwerken doen we samen.', 'No. A rough sketch of the problem is enough. We work it out together.')],
+                        ['question' => $t('Hoe houd je me op de hoogte?', 'How do you keep me informed?'), 'answer' => $t('Je krijgt tussentijds werkende versies te zien die je zelf kunt openen en proberen. Zo zie je voortgang in plaats van beloftes.', 'You see working versions along the way that you can open and try yourself. That way you see progress instead of promises.')],
+                        ['question' => $t('Kost een eerste gesprek iets?', 'Does a first conversation cost anything?'), 'answer' => $t('Nee, kennismaken is vrijblijvend.', 'No, getting acquainted is without obligation.')],
+                    ],
+                ]),
+                $this->b('faq', [
+                    'label' => $t('Prijs en planning', 'Price and planning'),
+                    'items' => [
+                        ['question' => $t('Wat kost een project?', 'What does a project cost?'), 'answer' => $t('Dat hangt af van wat er gebouwd moet worden. Na een eerste gesprek krijg je een voorstel met een vaste omschrijving en prijs, zodat je vooraf weet waar je aan toe bent.', 'That depends on what needs to be built. After a first conversation you get a proposal with a fixed description and price, so you know where you stand beforehand.')],
+                        ['question' => $t('Hoe lang duurt het?', 'How long does it take?'), 'answer' => $t('Een website is doorgaans sneller klaar dan een applicatie op maat. In het voorstel staat een planning die bij jouw project hoort.', 'A website is generally finished sooner than a custom application. The proposal contains a schedule that fits your project.')],
+                        ['question' => $t('Wat als ik onderweg iets anders wil?', 'What if I want something different along the way?'), 'answer' => $t('Dat kan. We bespreken wat het betekent voor planning en prijs, en ik ga pas verder als dat duidelijk is.', 'That is possible. We discuss what it means for schedule and price, and I only continue once that is clear.')],
+                    ],
+                ]),
+                $this->b('faq', [
+                    'label' => $t('Techniek', 'Technology'),
+                    'items' => [
+                        ['question' => $t('Met welke techniek werk je?', 'Which technology do you use?'), 'answer' => $t('Meestal Laravel en PHP aan de achterkant en Tailwind CSS met JavaScript aan de voorkant. Ik kies wat past bij het probleem, niet andersom.', 'Mostly Laravel and PHP on the back end and Tailwind CSS with JavaScript on the front end. I choose what fits the problem, not the other way round.')],
+                        ['question' => $t('Kan ik de site of applicatie zelf beheren?', 'Can I manage the site or application myself?'), 'answer' => $t('Ja. Tekst en beeld pas je zelf aan in een beheeromgeving, in het Nederlands en zonder technische kennis.', 'Yes. You change text and images yourself in an admin environment, without technical knowledge.')],
+                        ['question' => $t('Van wie is de code?', 'Who owns the code?'), 'answer' => $t('Van jou. Na oplevering heb je alles in handen om er zelf of met iemand anders mee verder te gaan.', 'You do. After delivery you have everything in hand to continue on your own or with someone else.')],
+                        ['question' => $t('Neem je ook bestaande projecten over?', 'Do you take over existing projects?'), 'answer' => $t('Dat kan, na een korte doorlichting van de code. Zo weten we allebei wat de staat is voordat ik eraan begin.', 'I can, after a short review of the code. That way we both know its condition before I start.')],
+                    ],
+                ]),
+                $this->b('faq', [
+                    'label' => $t('Na de oplevering', 'After delivery'),
+                    'items' => [
+                        ['question' => $t('Wat gebeurt er na de oplevering?', 'What happens after delivery?'), 'answer' => $t('Ik kan updates, monitoring en back-ups blijven verzorgen. Dat spreken we apart af, zodat je weet waar je aan toe bent.', 'I can keep taking care of updates, monitoring and backups. We agree on that separately, so you know where you stand.')],
+                        ['question' => $t('Wat doet deze website met mijn gegevens?', 'What does this website do with my data?'), 'answer' => $t('Zo min mogelijk. Er zijn geen trackingcookies en er worden geen gegevens met advertentienetwerken gedeeld. Een bericht via het formulier gebruik ik alleen om te antwoorden.', 'As little as possible. There are no tracking cookies and no data is shared with advertising networks. I use a message sent through the form only to reply.')],
+                    ],
+                ]),
             ]],
 
             'cv' => [$t('Cv', 'CV'), [

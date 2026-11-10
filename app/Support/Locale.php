@@ -22,6 +22,7 @@ class Locale
         'now' => ['nl' => 'nu', 'en' => 'now'],
         'uses' => ['nl' => 'stack', 'en' => 'uses'],
         'cv' => ['nl' => 'cv', 'en' => 'cv'],
+        'faq' => ['nl' => 'veelgestelde-vragen', 'en' => 'faq'],
     ];
 
     /** URL segment that precedes a blog category slug. */

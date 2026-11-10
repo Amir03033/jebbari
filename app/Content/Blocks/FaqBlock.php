@@ -8,6 +8,14 @@ use Filament\Forms\Components\Repeater;
 /** Questions and answers, shown as an accordion and offered to search engines as FAQ data. */
 class FaqBlock extends Block
 {
+    /** On the FAQ page there is one list per subject; elsewhere a single list. */
+    public function __construct(private bool $single = true) {}
+
+    public function singleton(): bool
+    {
+        return $this->single;
+    }
+
     public function type(): string
     {
         return 'faq';

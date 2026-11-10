@@ -1,0 +1,145 @@
+/*
+ * The maintenance (503) and error (500) pages. Deliberately not part of the
+ * build: these pages must render while assets are being rebuilt or the
+ * database is away. Colours mirror the tokens in resources/css/app.css.
+ */
+:root {
+    --paper: #fafaf8;
+    --ink: #0b0c0e;
+    --muted: #5d5e64;
+    --line: rgba(11, 12, 14, 0.12);
+    --signal: #2b4ef5;
+    --glow: rgba(43, 78, 245, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --paper: #0a0a0c;
+        --ink: #f3f3f1;
+        --muted: #9a9aa1;
+        --line: rgba(243, 243, 241, 0.14);
+        --signal: #8ea2ff;
+        --glow: rgba(110, 135, 255, 0.14);
+    }
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+}
+
+body {
+    min-height: 100vh;
+    background: radial-gradient(90vmax 90vmax at 100% 0%, var(--glow), transparent 60%) var(--paper);
+    color: var(--ink);
+    font: 400 1.0625rem/1.6 ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    letter-spacing: -0.011em;
+    -webkit-font-smoothing: antialiased;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 3rem;
+    min-height: 100vh;
+    max-width: 72rem;
+    margin-inline: auto;
+    padding: clamp(1.25rem, 4vw, 2.5rem);
+}
+
+.brand {
+    font-size: 1.375rem;
+    font-weight: 500;
+    letter-spacing: -0.04em;
+}
+
+.dot {
+    display: inline-block;
+    width: 0.17em;
+    height: 0.17em;
+    margin-left: 0.04em;
+    border-radius: 50%;
+    background-color: var(--signal);
+}
+
+.code,
+.foot,
+.status {
+    font: 400 0.6875rem/1.4 ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+h1 {
+    max-width: 14ch;
+    margin-top: 1.25rem;
+    font-size: clamp(2.5rem, 1.4rem + 5.2vw, 6rem);
+    font-weight: 500;
+    line-height: 0.98;
+    letter-spacing: -0.05em;
+    text-wrap: balance;
+}
+
+.text {
+    max-width: 40ch;
+    margin-top: 1.75rem;
+    font-size: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+    color: var(--muted);
+}
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin-top: 2.5rem;
+    padding: 0.5rem 0.875rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+}
+
+.pulse {
+    width: 0.4375rem;
+    height: 0.4375rem;
+    border-radius: 50%;
+    background-color: var(--signal);
+}
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 3.25rem;
+    margin-top: 2.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 999px;
+    background-color: var(--ink);
+    color: var(--paper);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 3px;
+}
+
+.foot {
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .pulse {
+        animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        50% {
+            opacity: 0.25;
+        }
+    }
+}

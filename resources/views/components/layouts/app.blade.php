@@ -84,6 +84,8 @@
         <link rel="alternate" type="application/rss+xml" title="{{ config('site.name') }} · {{ __('site.nav.blog') }}" href="{{ Locale::route('blog.feed') }}">
     @endif
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+    <link rel="icon" href="{{ asset('favicon-32.png') }}" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
     <link rel="preload" as="font" type="font/woff2" crossorigin href="{{ Vite::asset('resources/fonts/geist-latin-wght-normal.woff2') }}">
     <link rel="preload" as="font" type="font/woff2" crossorigin href="{{ Vite::asset('resources/fonts/geist-mono-latin-400-normal.woff2') }}">
     <script src="{{ asset('js/motion-flag.js') }}"></script>

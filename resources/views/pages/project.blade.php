@@ -217,6 +217,8 @@
             </section>
         @endif
 
+        <div class="page pb-16 md:pb-24" data-reveal="up"><x-share :url="$seo['canonical']" :title="$title" /></div>
+
         {{-- 7. Related work. --}}
         @if ($related->isNotEmpty())
             <section>

@@ -36,6 +36,8 @@ class Blocks
             'uses' => [new IntroBlock, new ListBlock('gear', 'Categorie met onderdelen', true, 1, 20, false)],
             // The CV is assembled from the About page; only its opening is edited here.
             'cv' => [new IntroBlock],
+            // All questions in one place, grouped by subject.
+            'faq' => [new IntroBlock, new FaqBlock(false)],
             default => [new RichTextBlock('rich_text', 'Tekst')],
         };
 

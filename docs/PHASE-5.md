@@ -71,3 +71,13 @@ Safari and real devices; the GitHub block against the real API (unreachable from
 build environment, covered by tests with a faked response); a real embedded demo;
 real email delivery; Lighthouse. The "Built to a standard" block still waits for
 measured numbers in `config/specs.php`.
+
+## Round 2 (owner feedback)
+
+- **Favicon:** a "j" with the cobalt full stop on a dark tile: `favicon.svg`, `favicon-32.png`, `favicon.ico`, `apple-touch-icon.png`.
+- **Pointer ring removed.** Only the small "View case" label on project tiles remains.
+- **FAQ page** (`faq`: `/nl/veelgestelde-vragen`, `/en/faq`): questions grouped by subject, fully seeded in `PersonalBrandSeeder`, with `FAQPage` structured data and a footer link.
+- **`content:propose --publish`:** on the owner's explicit request, also publishes the pages that have nothing left to fill in; pages with an `[[ OWNER: ... ]]` field stay drafts and are listed.
+- **404:** the number in the background, a search button and the main pages as ways onward.
+- **503 and 500:** standalone pages (`resources/views/errors/503.blade.php`, `500.blade.php`, `public/css/standalone.css`). They use no layout, database or built assets, so they show during `php artisan down`, a rebuild or an outage. The 503 page refreshes itself every 30 seconds.
+- **Sharing:** articles and case studies have a share row (copy link, the device's share sheet, LinkedIn, X, WhatsApp, email: plain links, nothing is loaded from those sites) and articles end with an author card taken from the About page. The preview card other people see is the page title, description and generated share image.

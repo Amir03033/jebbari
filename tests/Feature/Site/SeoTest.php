@@ -295,7 +295,8 @@ class SeoTest extends TestCase
             preg_match_all('#(?:src|href|action)="(https?://[^"]+)"#', $html, $links);
             foreach ($links[1] as $link) {
                 $host = parse_url($link, PHP_URL_HOST);
-                $this->assertContains($host, ['localhost', 'hello', null], "$url references a third-party host: $link");
+                // The share links are plain outbound links: nothing is requested from those sites until someone follows one.
+                $this->assertContains($host, ['localhost', 'hello', null, 'www.linkedin.com', 'x.com', 'wa.me'], "$url references a third-party host: $link");
             }
         }
     }

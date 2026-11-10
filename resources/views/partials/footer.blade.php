@@ -17,7 +17,7 @@
         ! empty($company['btw']) ? __('site.footer.btw').' '.$company['btw'] : null,
     ])->filter()->implode(' · ');
     $note = loc(Site::setting('header.footer_text'));
-    $more = collect(['now', 'uses', 'cv'])->map(fn ($key) => ($page = Site::page($key)) ? ['label' => loc($page->title), 'url' => Locale::url($key)] : null)->filter();
+    $more = collect(['faq', 'now', 'uses', 'cv'])->map(fn ($key) => ($page = Site::page($key)) ? ['label' => loc($page->title), 'url' => Locale::url($key)] : null)->filter();
 @endphp
 
 {{-- The footer: brand and place, the ways through the site, the ways to reach out, the small print. --}}

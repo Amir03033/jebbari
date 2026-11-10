@@ -2085,3 +2085,74 @@
         font-size: 11.5pt;
     }
 }
+
+@layer components {
+    /* ---------------- Share and author ---------------- */
+    .share {
+        display: grid;
+        gap: 0.875rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--line);
+    }
+
+    .author {
+        display: flex;
+        gap: clamp(1rem, 2.4vw, 1.75rem);
+        padding: clamp(1.25rem, 2.4vw, 2rem);
+    }
+
+    .author-mark {
+        display: grid;
+        flex: none;
+        place-content: center;
+        grid-auto-flow: column;
+        align-items: baseline;
+        width: 4rem;
+        height: 4rem;
+        border-radius: 50%;
+        background-color: var(--fg);
+        color: var(--surface);
+        font-size: 1.625rem;
+        font-weight: 500;
+        letter-spacing: -0.04em;
+        line-height: 1;
+    }
+
+    /* ---------------- 404: the number in the background, ways onward in front ---------------- */
+    .error-code {
+        position: absolute;
+        right: -0.04em;
+        bottom: -0.2em;
+        font-size: clamp(12rem, 38vw, 34rem);
+        font-weight: 500;
+        line-height: 0.8;
+        letter-spacing: -0.07em;
+        color: var(--fg);
+        opacity: 0.045;
+        pointer-events: none;
+        user-select: none;
+    }
+
+    .error-links {
+        border-top: 1px solid var(--line);
+    }
+
+    .error-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-block: 0.875rem;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .error-link .arrow {
+        display: inline-block;
+        color: var(--muted);
+        transition: transform var(--dur-base) var(--ease);
+    }
+
+    .error-link:hover .arrow,
+    .error-link:focus-visible .arrow {
+        transform: translateX(4px);
+    }
+}
