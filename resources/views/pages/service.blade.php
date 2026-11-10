@@ -55,7 +55,7 @@
         @if ($packages->isNotEmpty())
             <section class="bg-paper-2">
                 <x-section-label :number="$number()" :label="__('site.packages.label')" :meta="'('.$packages->count().')'" />
-                <div class="page py-16 md:py-28"><x-package-table :rows="$packages" /></div>
+                <div class="page section-body"><x-package-table :rows="$packages" /></div>
             </section>
         @endif
     </article>

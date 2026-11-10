@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Content\Site;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,7 +27,7 @@ class SecurityHeaders
 
         // Skip while the Vite dev server is running (it needs a looser policy).
         if (! file_exists(public_path('hot'))) {
-            $response->headers->set('Content-Security-Policy', $isAdmin ? self::ADMIN_CSP : self::PUBLIC_CSP);
+            $response->headers->set('Content-Security-Policy', $isAdmin ? self::ADMIN_CSP : self::PUBLIC_CSP.$this->frames());
         }
 
         $response->headers->set('X-Content-Type-Options', 'nosniff');
@@ -43,5 +44,17 @@ class SecurityHeaders
         }
 
         return $response;
+    }
+
+    /** Live demos on case studies may be embedded, and nothing else: only the hosts the owner entered. */
+    private function frames(): string
+    {
+        try {
+            $hosts = Site::demoHosts();
+        } catch (\Throwable) {
+            $hosts = [];
+        }
+
+        return $hosts ? '; frame-src '.implode(' ', array_map(fn ($h) => 'https://'.$h, $hosts)) : '';
     }
 }

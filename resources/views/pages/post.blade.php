@@ -22,12 +22,26 @@
             </div>
         @endif
 
-        <div class="page pb-16 md:pb-28">
-            <div class="grid-12">
-                @if (loc($post->excerpt))
-                    <p class="t-statement col-span-12 mb-10 md:col-span-8 md:col-start-3">{{ loc($post->excerpt) }}</p>
+        {{-- The text, with a contents list that follows along and marks where you are. --}}
+        <div class="page pb-16 md:pb-28" data-article data-scroll="read">
+            <span class="read-line" aria-hidden="true"></span>
+            <div class="grid-12 gap-y-10">
+                @if (count($toc['items']) > 1)
+                    <nav class="toc col-span-12 lg:col-span-3" aria-label="{{ __('site.blog.toc') }}" data-toc>
+                        <p class="t-label mb-4 text-muted">{{ __('site.blog.toc') }}</p>
+                        <ol>
+                            @foreach ($toc['items'] as $item)
+                                <li><a href="#{{ $item['id'] }}" class="toc-link">{{ $item['text'] }}</a></li>
+                            @endforeach
+                        </ol>
+                    </nav>
                 @endif
-                <x-rich-text :html="loc($post->body)" class="col-span-12 md:col-span-8 md:col-start-3" />
+                <div @class(['col-span-12', 'lg:col-span-8 lg:col-start-5' => count($toc['items']) > 1, 'md:col-span-8 md:col-start-3' => count($toc['items']) <= 1])>
+                    @if (loc($post->excerpt))
+                        <p class="t-statement mb-10">{{ loc($post->excerpt) }}</p>
+                    @endif
+                    <div class="prose-jebbari">{!! $toc['html'] !!}</div>
+                </div>
             </div>
         </div>
     </article>
@@ -35,7 +49,7 @@
     @if ($related->isNotEmpty())
         <section>
             <x-section-label number="02" :label="__('site.blog.related')" />
-            <div class="page py-16 md:py-28">
+            <div class="page section-body">
                 <div class="grid-12 gap-y-16">
                     @foreach ($related as $item)
                         <x-post-card :post="$item" class="col-span-12 md:col-span-6 lg:col-span-4" />

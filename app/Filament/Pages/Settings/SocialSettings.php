@@ -26,6 +26,9 @@ class SocialSettings extends SettingsPage
     protected function components(): array
     {
         return [
+            Section::make('GitHub')->description('Met een gebruikersnaam kan het onderdeel "GitHub-projecten" je openbare repositories tonen. De server haalt ze op; bezoekers maken geen verbinding met GitHub.')->schema([
+                TextInput::make('github_username')->label('GitHub-gebruikersnaam (optioneel)')->regex('/^[A-Za-z0-9-]{1,39}$/')->maxLength(39),
+            ]),
             Section::make('Links')->description('Worden als tekstlinks in de voet getoond.')->schema([
                 Repeater::make('links')->label('Links')->reorderableWithButtons()->addActionLabel('Link toevoegen')
                     ->itemLabel(fn (array $state) => $state['label'] ?? 'Nieuwe link')->columns(['default' => 1, 'md' => 2])

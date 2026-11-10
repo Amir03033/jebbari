@@ -17,6 +17,7 @@
         ! empty($company['btw']) ? __('site.footer.btw').' '.$company['btw'] : null,
     ])->filter()->implode(' · ');
     $note = loc(Site::setting('header.footer_text'));
+    $more = collect(['now', 'uses', 'cv'])->map(fn ($key) => ($page = Site::page($key)) ? ['label' => loc($page->title), 'url' => Locale::url($key)] : null)->filter();
 @endphp
 
 {{-- The footer: brand and place, the ways through the site, the ways to reach out, the small print. --}}
@@ -25,7 +26,7 @@
         <div class="relative"><span class="rule" aria-hidden="true"></span></div>
 
         <div class="grid-12 gap-y-14 pb-16 pt-14 md:pb-24 md:pt-20">
-            <div class="rise col-span-12 md:col-span-5">
+            <div class="rise col-span-12 md:col-span-4">
                 <a href="{{ Locale::url('home') }}" class="footer-brand" aria-label="{{ config('site.name') }}, {{ __('site.nav.home') }}"><x-wordmark /></a>
                 @if ($note)
                     <p class="t-statement mt-6 max-w-[24ch]">{{ $note }}</p>
@@ -38,7 +39,7 @@
                 <x-live-status class="mt-10 max-w-[24rem]" />
             </div>
 
-            <div class="rise col-span-6 md:col-span-2 md:col-start-8" data-delay="2">
+            <div class="rise col-span-6 md:col-span-2 md:col-start-6" data-delay="2">
                 <p class="t-label mb-5 text-muted">{{ __('site.footer.explore') }}</p>
                 <ul class="grid gap-3">
                     @foreach ($explore as $item)
@@ -47,7 +48,18 @@
                 </ul>
             </div>
 
-            <div class="rise col-span-6 md:col-span-3" data-delay="3">
+            @if ($more->isNotEmpty())
+                <div class="rise col-span-6 md:col-span-2" data-delay="3">
+                    <p class="t-label mb-5 text-muted">{{ __('site.footer.more') }}</p>
+                    <ul class="grid gap-3">
+                        @foreach ($more as $item)
+                            <li><a href="{{ $item['url'] }}" class="link link-bare">{{ $item['label'] }}</a></li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <div class="rise col-span-12 md:col-span-3 md:col-start-10" data-delay="4">
                 @if ($email || $booking || $address)
                     <p class="t-label mb-5 text-muted">{{ __('site.footer.contact') }}</p>
                     <ul class="grid gap-3">

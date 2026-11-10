@@ -11,6 +11,7 @@ use App\Models\Post;
 use App\Models\PostCategory;
 use App\Models\Project;
 use App\Models\Service;
+use App\Models\Subscriber;
 use App\Models\Testimonial;
 use App\Models\User;
 use App\Policies\ActivityPolicy;
@@ -50,6 +51,7 @@ class AppServiceProvider extends ServiceProvider
             Inquiry::class => InquiryPolicy::class,
             NavigationItem::class => OwnerOnlyPolicy::class,
             User::class => OwnerOnlyPolicy::class,
+            Subscriber::class => OwnerOnlyPolicy::class,
             Activity::class => ActivityPolicy::class,
         ] as $model => $policy) {
             Gate::policy($model, $policy);

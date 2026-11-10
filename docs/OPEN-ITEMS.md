@@ -64,3 +64,12 @@
 - [ ] Rewrite the hero, About and meta description in the CMS and `lang/*/site.php` if the site should read as a personal brand rather than a studio (copy was not changed).
 - [ ] Add cover images and summaries to the projects (ServerScope, ChinaSupply, others) so the case study cards show real work.
 - [ ] Test on Safari, iPhone and iPad; run Lighthouse on production.
+
+## Added after Phase 5
+
+- [ ] Run `php artisan content:propose --replace`, review the drafts, fill in the `[[ OWNER: ... ]]` fields and publish.
+- [ ] GitHub username (Site > Sociale links) if the Open source block should show.
+- [ ] ChinaSupply and ServerScope: kind, summary, images, timeline, changelog, demo address.
+- [ ] Lighthouse numbers for `config/specs.php` (the block stays hidden until then).
+- [ ] Mention the cookieless page-view counter and the newsletter in the privacy statement.
+- [ ] Decide how newsletters are sent (not built).

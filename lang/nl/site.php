@@ -7,9 +7,9 @@
  */
 return [
     'skip' => 'Ga naar inhoud',
-    'descriptor' => 'Digitale studio',
+    'descriptor' => 'Softwareontwikkelaar & ondernemer',
     'tagline' => 'Software die klopt.',
-    'meta_description' => 'Jebbari is een digitale studio in Zwolle en Amsterdam. Wij ontwerpen en bouwen websites en webapplicaties voor Nederlandse bedrijven.',
+    'meta_description' => 'Jebbari is softwareontwikkelaar en ondernemer. Ik ontwerp en bouw websites, webapplicaties en eigen producten.',
     'breadcrumb' => 'Kruimelpad',
 
     'live' => [
@@ -31,6 +31,53 @@ return [
         'light' => 'Licht',
         'dark' => 'Donker',
     ],
+    'github' => [
+        'label' => 'Open source',
+        'intro' => 'Openbare code waar ik aan werk, rechtstreeks van GitHub.',
+        'updated' => 'Bijgewerkt',
+        'all' => 'Alles op GitHub',
+    ],
+    'newsletter' => [
+        'label' => 'Nieuwsbrief',
+        'title' => 'Af en toe een bericht.',
+        'text' => 'Nieuwe artikelen en projecten in je inbox. Geen reclame, en afmelden kan met één klik.',
+        'submit' => 'Aanmelden',
+        'sent' => 'Bijna klaar. Bevestig je aanmelding via de e-mail die onderweg is.',
+        'privacy' => 'Je adres wordt alleen voor deze nieuwsbrief gebruikt.',
+        'confirmed_title' => 'Je bent aangemeld',
+        'confirmed_text' => 'Bedankt voor het bevestigen. Je ontvangt een bericht zodra er iets nieuws is.',
+        'unsubscribed_title' => 'Je bent afgemeld',
+        'unsubscribed_text' => 'Je ontvangt geen berichten meer. Je adres wordt niet verder gebruikt.',
+        'mail_subject' => 'Bevestig je aanmelding voor de nieuwsbrief van Jebbari',
+        'mail_intro' => 'Bevestig je aanmelding voor de nieuwsbrief door deze link te openen:',
+        'mail_ignore' => 'Heb je je niet aangemeld? Dan hoef je niets te doen; zonder bevestiging ontvang je niets.',
+        'mail_unsubscribe' => 'Afmelden kan altijd via:',
+    ],
+    'cv' => [
+        'print' => 'Opslaan als pdf',
+        'print_hint' => 'Opent het afdrukvenster; kies daar "Opslaan als pdf".',
+        'experience' => 'Ervaring',
+        'skills' => 'Vaardigheden',
+        'projects' => 'Projecten',
+    ],
+    'command' => [
+        'title' => 'Zoeken',
+        'placeholder' => 'Zoek een pagina, project of actie',
+        'empty' => 'Niets gevonden.',
+        'navigate' => 'bladeren',
+        'open' => 'openen',
+        'language' => 'Switch to English',
+        'group_pages' => 'Pagina’s',
+        'group_work' => 'Werk',
+        'group_services' => 'Diensten',
+        'group_blog' => 'Artikelen',
+        'group_actions' => 'Acties',
+    ],
+    'egg' => [
+        'blueprint' => 'Blauwdruk: toon het raster',
+        'confetti' => 'Vier iets',
+        'found' => 'Gevonden.',
+    ],
     'hero' => [
         'scroll' => 'Scroll',
     ],
@@ -40,6 +87,9 @@ return [
     ],
 
     'nav' => [
+        'now' => 'Nu',
+        'uses' => 'Stack',
+        'cv' => 'Cv',
         'label' => 'Hoofdmenu',
         'home' => 'Home',
         'work' => 'Werk',
@@ -53,6 +103,7 @@ return [
     ],
 
     'footer' => [
+        'more' => 'Meer',
         'top' => 'Naar boven',
         'time' => 'Zwolle · Amsterdam, NL',
         'explore' => 'Ontdek',
@@ -80,9 +131,19 @@ return [
         'blog' => 'Er zijn nog geen artikelen.',
     ],
 
-    'work' => ['all' => 'Al het werk'],
+    'work' => ['all' => 'Al het werk', 'filter' => 'Filter op technologie', 'filter_empty' => 'Geen projecten met deze technologie.'],
 
     'project' => [
+        'timeline' => 'Tijdlijn',
+        'changelog' => 'Changelog',
+        'demo' => 'Live demo',
+        'demo_load' => 'Demo laden',
+        'demo_open' => 'Open in nieuw tabblad',
+        'demo_note' => 'De demo draait op een andere server en wordt pas geladen als je erom vraagt.',
+        'compare' => 'Voor en na',
+        'before' => 'Voor',
+        'after' => 'Na',
+        'compare_label' => 'Schuif tussen voor en na',
         'category' => 'Categorie',
         'year' => 'Jaar',
         'client' => 'Klant',
@@ -104,7 +165,7 @@ return [
     'service' => [
         'benefits' => 'Voordelen',
         'included' => 'Wat je krijgt',
-        'not_included' => 'Wat we niet doen',
+        'not_included' => 'Wat ik niet doe',
         'timeline' => 'Gebruikelijke doorlooptijd',
         'technology' => 'Technologie',
         'other' => 'Andere diensten',
@@ -118,6 +179,8 @@ return [
     ],
 
     'blog' => [
+        'toc' => 'Op deze pagina',
+        'feed' => 'RSS-feed',
         'articles' => 'Artikelen',
         'categories' => 'Categorieën',
         'all' => 'Alles',
@@ -155,11 +218,11 @@ return [
         'attr_message' => 'je bericht',
         'send' => 'Verstuur bericht',
         'sent_title' => 'Bedankt. Je bericht is aangekomen.',
-        'sent_text' => 'We reageren binnen één werkdag.',
+        'sent_text' => 'Ik reageer binnen één werkdag.',
         'fix_errors' => 'Controleer de gemarkeerde velden.',
         'too_fast' => 'Dat ging erg snel. Controleer je bericht en verstuur het opnieuw.',
         'leave_empty' => 'Laat dit veld leeg',
-        'privacy_note' => 'We gebruiken je gegevens alleen om op je bericht te reageren.',
+        'privacy_note' => 'Ik gebruik je gegevens alleen om op je bericht te reageren.',
         'copy' => 'Kopieer e-mailadres',
         'copied' => 'Gekopieerd',
     ],

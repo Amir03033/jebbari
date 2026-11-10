@@ -15,7 +15,7 @@
     visual on the other. On the homepage these cards stack: each one settles
     under the header and the next slides over it (see .stack in site.css).
 --}}
-<a href="{{ $href }}" {{ $attributes->class('case plate group') }} data-cursor="{{ __('site.cta.view_case') }}" data-reveal="group" @if (! $asset) data-tile @endif>
+<a href="{{ $href }}" {{ $attributes->class('case spot plate group') }} data-cursor="{{ __('site.cta.view_case') }}" data-reveal="group" @if (! $asset) data-tile @endif>
     <div class="case-text">
         <p class="t-label rise flex flex-wrap gap-x-4 gap-y-1 text-muted">
             <span>{{ $number }}</span>

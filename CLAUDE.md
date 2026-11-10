@@ -9,6 +9,7 @@ Read `docs/BRIEF.md` in full before writing any code. It is the design and build
 - Phase 3 (public website, all pages, NL/EN, CMS-driven): built and tested, awaiting owner review. See `docs/PHASE-3.md`. Do not start further phases, open a PR or deploy without explicit approval.
 - Phase 3.5 (visual redesign): built and tested, awaiting owner review. See `docs/VISUAL-REDESIGN.md` and `docs/VISUAL-COMPARISON.md`. Do not start further phases.
 - Phase 4 (premium redesign: Geist, full light and dark themes, new motion layer): built and tested, awaiting owner review. See `docs/PREMIUM-REDESIGN.md`; where it differs from `docs/BRIEF.md`, it wins.
+- Phase 5 (now / uses / CV pages, FAQ, GitHub, newsletter, command menu, statistics, cobalt accent): built and tested, awaiting owner review. See `docs/PHASE-5.md`.
 - Do not deploy or open a PR without the owner's approval.
 
 ## Stack
@@ -23,6 +24,8 @@ Laravel 13 (PHP 8.3+), Blade, Tailwind CSS 4 (tokens in `resources/css/app.css`)
 - Fonts: Geist and Geist Mono, self-hosted (`resources/fonts/README.md`).
 - Run `vendor/bin/pint` and `php artisan test` before committing.
 - Open items for the owner are tracked in `docs/OPEN-ITEMS.md` (brief section 12).
+- Proposed texts live in `database/seeders/PersonalBrandSeeder.php` (`php artisan content:propose`); they are drafts, and unknown facts stay `[[ OWNER: ... ]]`.
+- Values put in the cache must be plain arrays or scalars (the cache does not restore objects).
 
 - Motion: follow `docs/MOTION.md` and `docs/PREMIUM-REDESIGN.md`. Only transform, opacity and clip-path animate; no animation library.
 - Colours come from the tokens in `resources/css/app.css` only, so both themes follow; never hard-code a colour in a component.

@@ -47,8 +47,8 @@ class SeoTest extends TestCase
         }
 
         $this->assertSame(count($urls), count(array_unique($titles)), 'titles are unique: '.json_encode($titles));
-        $this->assertSame('Jebbari · Digitale studio', $titles['/nl']);
-        $this->assertSame('Jebbari · Digital studio', preg_replace('#.*<title>([^<]+)</title>.*#s', '$1', $this->get('/en')->getContent()));
+        $this->assertSame('Jebbari · Softwareontwikkelaar & ondernemer', $titles['/nl']);
+        $this->assertSame('Jebbari · Software developer &amp; entrepreneur', preg_replace('#.*<title>([^<]+)</title>.*#s', '$1', $this->get('/en')->getContent()));
     }
 
     public function test_titles_follow_the_cms_template_and_description_defaults(): void

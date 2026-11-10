@@ -73,6 +73,19 @@ class StructuredData
         ];
     }
 
+    /** @param  list<array{question: string, answer: string}>  $items */
+    public static function faq(array $items): array
+    {
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'FAQPage',
+            'mainEntity' => collect($items)->map(fn ($item) => [
+                '@type' => 'Question', 'name' => $item['question'],
+                'acceptedAnswer' => ['@type' => 'Answer', 'text' => $item['answer']],
+            ])->values()->all(),
+        ];
+    }
+
     public static function article(Post $post, string $url, ?string $image): array
     {
         $data = [

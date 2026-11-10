@@ -11,12 +11,11 @@
     handler (motion.js); nothing takes over scrolling.
 --}}
 <section class="process" data-process>
-    <x-section-label :number="$number" :label="$label" :meta="'('.$steps->count().')'" />
-    <div class="page py-14 md:py-28">
+    <x-section-label :number="$number" :label="loc($data['heading'] ?? null) ?: $label" :meta="'('.$steps->count().')'" />
+    <div class="page section-body">
         <div class="grid-12 gap-y-12">
             <div class="col-span-12 md:col-span-5">
                 <div class="md:sticky md:top-28" data-reveal="group">
-                    <h2 class="t-label mb-8 text-muted">{{ loc($data['heading'] ?? null) ?: $label }}</h2>
                     <div class="process-numerals" aria-hidden="true">
                         @foreach ($steps as $step)<span class="process-num">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>@endforeach
                     </div>

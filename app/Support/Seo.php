@@ -18,7 +18,7 @@ class Seo
      * @param  array{
      *   record?: ?Model, title?: ?string, description?: ?string, canonical: string,
      *   alternates?: array<string, string>, image?: ?MediaAsset, type?: string,
-     *   noindex?: bool, jsonld?: list<array>, raw_title?: bool
+     *   noindex?: bool, jsonld?: list<array>, raw_title?: bool, share?: ?string
      * }  $in
      * @return array<string, mixed>
      */
@@ -42,7 +42,8 @@ class Seo
         $image = isset($own['og_media_id']) ? MediaAsset::find($own['og_media_id']) : null;
         $image ??= $in['image'] ?? null;
         $image ??= ($id = Settings::get('seo.default_og_media_id')) ? MediaAsset::find($id) : null;
-        $imageUrl = $image?->shareUrl() ?: asset(self::DEFAULT_IMAGE);
+        // No image chosen: a generated title card where the page has one, else the site default.
+        $imageUrl = $image?->shareUrl() ?: (ShareImage::available() ? ($in['share'] ?? null) : null) ?: asset(self::DEFAULT_IMAGE);
 
         $alternates = $in['alternates'] ?? [];
         $other = Locale::other($locale);

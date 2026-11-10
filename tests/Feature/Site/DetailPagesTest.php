@@ -165,9 +165,9 @@ class DetailPagesTest extends TestCase
         $post = $this->makePost(['category_id' => $cat->id, 'body' => ['nl' => '<h2>Kop</h2><p>'.str_repeat('woord ', 450).'</p>', 'en' => '<h2>Head</h2><p>'.str_repeat('word ', 450).'</p>']]);
         $this->makePost(['title' => ['nl' => 'Tweede artikel', 'en' => 'Second article'], 'category_id' => $cat->id]);
 
-        $this->get("/nl/blog/{$post->slug_nl}")->assertOk()->assertSee('<h2>Kop</h2>', false)->assertSee('3 minuten lezen')
+        $this->get("/nl/blog/{$post->slug_nl}")->assertOk()->assertSee('<h2 id="kop">Kop</h2>', false)->assertSee('3 minuten lezen')
             ->assertSee('Nieuws')->assertSee('Lees verder')->assertSee('Tweede artikel');
-        $this->get("/en/blog/{$post->slug_en}")->assertSee('<h2>Head</h2>', false)->assertSee('3 minute read');
+        $this->get("/en/blog/{$post->slug_en}")->assertSee('<h2 id="head">Head</h2>', false)->assertSee('3 minute read');
     }
 
     public function test_article_text_is_sanitised_when_rendered(): void
@@ -189,8 +189,10 @@ class DetailPagesTest extends TestCase
         $this->makePost(['title' => ['nl' => 'Nieuwsbericht', 'en' => 'News item'], 'category_id' => $news->id]);
         $this->makePost(['title' => ['nl' => 'Techbericht', 'en' => 'Tech item'], 'category_id' => $tech->id]);
 
-        $this->get("/nl/blog/categorie/{$news->slug_nl}")->assertOk()->assertSee('Nieuwsbericht')->assertDontSee('Techbericht');
-        $this->get("/en/blog/category/{$tech->slug_en}")->assertOk()->assertSee('Tech item')->assertDontSee('News item');
+        $this->assertStringContainsString('Nieuwsbericht', $nl = $this->body("/nl/blog/categorie/{$news->slug_nl}"));
+        $this->assertStringNotContainsString('Techbericht', $nl);
+        $this->assertStringContainsString('Tech item', $en = $this->body("/en/blog/category/{$tech->slug_en}"));
+        $this->assertStringNotContainsString('News item', $en);
     }
 
     public function test_categories_without_visible_posts_are_not_offered(): void
@@ -207,7 +209,11 @@ class DetailPagesTest extends TestCase
             $this->makePost(['title' => ['nl' => "Artikel $i", 'en' => "Article $i"], 'published_at' => now()->subMinutes($i)]);
         }
 
-        $this->get('/nl/blog')->assertSee('Artikel 1<', false)->assertDontSee('Artikel 11<', false)->assertSee('1 / 2')->assertSee('rel="next"', false);
+        $first = $this->body('/nl/blog');
+        $this->assertStringContainsString('Artikel 1<', $first);
+        $this->assertStringNotContainsString('Artikel 11<', $first);
+        $this->assertStringContainsString('1 / 2', $first);
+        $this->assertStringContainsString('rel="next"', $first);
         $this->get('/nl/blog?page=2')->assertSee('Artikel 11<', false)->assertSee('rel="prev"', false);
     }
 

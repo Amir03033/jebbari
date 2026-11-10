@@ -3,7 +3,7 @@
 {{-- Packages as rounded cards. A package without a price says so; no price is ever guessed. --}}
 <div class="grid-12 gap-y-6">
     @foreach ($rows as $row)
-        <div @class(['card col-span-12 flex flex-col justify-between gap-10 p-7 md:p-10', 'md:col-span-6' => $rows->count() > 1, 'lg:col-span-4' => $rows->count() > 2]) data-reveal="up" data-delay="{{ min($loop->index, 3) }}">
+        <div @class(['card spot col-span-12 flex flex-col justify-between gap-10 p-7 md:p-10', 'md:col-span-6' => $rows->count() > 1, 'lg:col-span-4' => $rows->count() > 2]) data-reveal="up" data-delay="{{ min($loop->index, 3) }}">
             <div>
                 @if ($showService)
                     <p class="t-label text-muted"><a href="{{ $row['url'] }}" class="link link-bare">{{ $row['service'] }}</a></p>

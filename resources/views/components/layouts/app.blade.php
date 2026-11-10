@@ -47,8 +47,8 @@
     <title>{{ $meta['title'] }}</title>
     <meta name="description" content="{{ $meta['description'] }}">
     <meta name="color-scheme" content="light dark">
-    <meta name="theme-color" content="#FAF9F6" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#0B0B0C" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#FAFAF8" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0A0A0C" media="(prefers-color-scheme: dark)">
     @if ($meta['robots'])
         <meta name="robots" content="{{ $meta['robots'] }}">
     @endif
@@ -80,6 +80,9 @@
         <meta name="twitter:description" content="{{ $meta['description'] }}">
         <meta name="twitter:image" content="{{ $meta['image'] }}">
     @endif
+    @if (\App\Content\Site::page('blog'))
+        <link rel="alternate" type="application/rss+xml" title="{{ config('site.name') }} · {{ __('site.nav.blog') }}" href="{{ Locale::route('blog.feed') }}">
+    @endif
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
     <link rel="preload" as="font" type="font/woff2" crossorigin href="{{ Vite::asset('resources/fonts/geist-latin-wght-normal.woff2') }}">
     <link rel="preload" as="font" type="font/woff2" crossorigin href="{{ Vite::asset('resources/fonts/geist-mono-latin-400-normal.woff2') }}">
@@ -103,5 +106,7 @@
     </main>
 
     @include('partials.footer')
+
+    @include('partials.command-menu')
 </body>
 </html>

@@ -19,6 +19,9 @@ class Locale
         'about' => ['nl' => 'over-ons', 'en' => 'about'],
         'blog' => ['nl' => 'blog', 'en' => 'blog'],
         'contact' => ['nl' => 'contact', 'en' => 'contact'],
+        'now' => ['nl' => 'nu', 'en' => 'now'],
+        'uses' => ['nl' => 'stack', 'en' => 'uses'],
+        'cv' => ['nl' => 'cv', 'en' => 'cv'],
     ];
 
     /** URL segment that precedes a blog category slug. */

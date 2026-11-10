@@ -7,12 +7,9 @@
 --}}
 <section>
     @if ($label)
-        <x-section-label :number="$number" :label="$label" :meta="'('.$services->count().')'" />
+        <x-section-label :number="$number" :label="$label" :intro="$intro" :meta="'('.$services->count().')'" />
     @endif
-    <div class="page py-14 md:py-24">
-        @if ($intro)
-            <p class="t-statement mb-12 max-w-[30ch] text-muted md:mb-20" data-reveal="up">{{ $intro }}</p>
-        @endif
+    <div class="page section-body">
 
         <ul class="svc-list">
             @foreach ($services as $service)

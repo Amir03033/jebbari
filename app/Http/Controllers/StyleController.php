@@ -11,7 +11,7 @@ class StyleController extends Controller
         'paper-2' => ['#ECE9E2', 'Subtle surfaces, image placeholders'],
         'ink' => ['#0E0E0F', 'Primary text, dark sections'],
         'ink-2' => ['#686763', 'Secondary text'],
-        'signal' => ['#FF4B1F', 'The one accent'],
+        'signal' => ['#2B4EF5', 'The one accent'],
     ];
 
     public function __invoke(): View
@@ -25,10 +25,10 @@ class StyleController extends Controller
             ['ink on paper', '#0E0E0F', $paper],
             ['ink-2 on paper', '#686763', $paper],
             ['ink-2 on paper-2', '#686763', '#ECE9E2'],
-            ['signal on paper (focus ring, non-text)', '#FF4B1F', $paper],
+            ['signal on paper (focus ring, non-text)', '#2B4EF5', $paper],
             ['paper on ink', $paper, '#0E0E0F'],
             ['muted on ink (paper at 64%)', $this->blend($paper, '#0E0E0F', 0.64), '#0E0E0F'],
-            ['ink on signal (text selection)', '#0E0E0F', '#FF4B1F'],
+            ['ink on signal (text selection)', '#0E0E0F', '#2B4EF5'],
         ];
 
         return view('pages.style', [

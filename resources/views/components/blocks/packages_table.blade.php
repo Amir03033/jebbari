@@ -8,7 +8,7 @@
 
 <section>
     <x-section-label :number="$number" :label="__('site.packages.label')" :meta="'('.$rows->count().')'" />
-    <div class="page py-16 md:py-28">
+    <div class="page section-body">
         <x-package-table :rows="$rows" :show-service="true" />
     </div>
 </section>

@@ -12,17 +12,9 @@
 @endphp
 
 <section>
-    <x-section-label :number="$number" :label="loc($data['label'] ?? null)" :meta="'('.$count.')'" />
-    <div class="page pb-10 pt-14 md:pb-16 md:pt-24">
-        <div class="grid-12 items-end gap-y-6" data-reveal="group">
-            <h2 class="t-display col-span-12 md:col-span-6"><x-lines :lines="[loc($data['label'] ?? null)]" /></h2>
-            @if (loc($data['intro'] ?? null))
-                <p class="t-statement rise col-span-12 max-w-[30ch] md:col-span-6 md:col-start-7" data-delay="4" data-fill>{{ loc($data['intro']) }}</p>
-            @endif
-        </div>
-    </div>
+    <x-section-label :number="$number" :label="loc($data['label'] ?? null)" :intro="loc($data['intro'] ?? null)" :meta="'('.$count.')'" />
 
-    <div class="page">
+    <div class="page section-body-top">
         @if ($count > 1)
             {{--
                 Several projects: a stack of case study cards. On a laptop each
@@ -53,7 +45,7 @@
     </div>
 
     @if ($workIndex)
-        <div class="page pb-20 pt-10 md:pb-32 md:pt-16">
+        <div class="page section-body-bottom">
             <p data-reveal="up"><x-button variant="secondary" :href="$workIndex">{{ __('site.cta.all_work') }}<span class="arrow" aria-hidden="true">→</span></x-button></p>
         </div>
     @endif

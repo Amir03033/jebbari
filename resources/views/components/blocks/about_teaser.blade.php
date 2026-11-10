@@ -11,11 +11,11 @@
 
 {{-- Personal: the owner's own words at display scale, and a place with its live local time. --}}
 <section class="bg-paper-2">
-    <x-section-label :number="$number" :label="loc($data['label'] ?? null)" />
-    <div class="page py-20 md:py-36" data-reveal="group">
-        <h2 class="t-display md:max-w-[88%]"><x-lines :lines="[loc($data['heading'])]" /></h2>
+    <x-section-label :number="$number" :label="loc($data['label'] ?? null)" plain />
+    <div class="page py-14 md:py-24" data-reveal="group">
+        <h2 class="t-display md:max-w-[80%]"><x-lines :lines="[loc($data['heading'])]" /></h2>
 
-        <div class="grid-12 mt-16 items-start gap-y-12 md:mt-28">
+        <div class="grid-12 mt-12 items-start gap-y-12 md:mt-20">
             @if ($asset)
                 <div class="col-span-12 md:col-span-4">
                     <div class="plate-frame rise" data-ratio="tall" data-delay="3"><x-picture :asset="$asset" sizes="(min-width: 768px) 30vw, 100vw" /></div>

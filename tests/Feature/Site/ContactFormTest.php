@@ -89,7 +89,7 @@ class ContactFormTest extends TestCase
 
     public function test_the_confirmation_replaces_the_form(): void
     {
-        $this->followingRedirects()->submit('/nl/contact', $this->payload())->assertSee('Bedankt. Je bericht is aangekomen.')->assertSee('We reageren binnen één werkdag.')
+        $this->followingRedirects()->submit('/nl/contact', $this->payload())->assertSee('Bedankt. Je bericht is aangekomen.')->assertSee('Ik reageer binnen één werkdag.')
             ->assertDontSee('Verstuur bericht');
         $this->followingRedirects()->submit('/en/contact', $this->payload())->assertSee('Thank you. Your message has arrived.');
 

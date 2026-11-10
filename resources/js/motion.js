@@ -240,6 +240,349 @@ function initToTop() {
     });
 }
 
+/*
+ * Command menu: Ctrl/Cmd + K or "/" opens a native dialog; typing filters the
+ * list, arrows move through it, Enter opens. A few entries stay hidden until
+ * their name is typed.
+ */
+function initCommand() {
+    const dialog = document.querySelector('[data-cmd]');
+
+    if (!dialog || typeof dialog.showModal !== 'function') {
+        document.querySelectorAll('[data-cmd-open]').forEach((el) => (el.hidden = true));
+        return;
+    }
+
+    const input = dialog.querySelector('[data-cmd-input]');
+    const items = [...dialog.querySelectorAll('[data-cmd-item]')];
+    const groups = [...dialog.querySelectorAll('[data-cmd-group]')];
+    const empty = dialog.querySelector('[data-cmd-empty]');
+    let active = -1;
+
+    const visible = () => items.filter((item) => !item.hidden);
+
+    const mark = (index) => {
+        const list = visible();
+
+        active = list.length ? (index + list.length) % list.length : -1;
+        items.forEach((item) => item.classList.remove('is-active'));
+        list[active]?.classList.add('is-active');
+        list[active]?.scrollIntoView({ block: 'nearest' });
+    };
+
+    const filter = () => {
+        const query = input.value.trim().toLowerCase();
+
+        items.forEach((item) => {
+            const secret = item.dataset.cmdSecret;
+            const text = (secret ?? item.textContent).toLowerCase();
+
+            item.hidden = secret ? query.length < 3 || !text.split(' ').some((word) => word.startsWith(query)) : !text.includes(query);
+        });
+        groups.forEach((group) => (group.hidden = !group.querySelector('[data-cmd-item]:not([hidden])')));
+        empty.hidden = visible().length > 0;
+        mark(0);
+    };
+
+    const open = () => {
+        if (dialog.open) {
+            return;
+        }
+
+        // The mobile menu steps aside first.
+        document.querySelector('.menu-toggle[aria-expanded="true"]')?.click();
+        input.value = '';
+        dialog.showModal();
+        filter();
+        input.focus();
+    };
+
+    document.addEventListener('click', (event) => {
+        if (event.target.closest('[data-cmd-open]')) {
+            open();
+        } else if (event.target === dialog || event.target.closest('[data-cmd] [data-egg]')) {
+            dialog.close();
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        const typing = event.target.closest?.('input, textarea, select, [contenteditable]');
+
+        if ((event.key === 'k' && (event.metaKey || event.ctrlKey)) || (event.key === '/' && !typing)) {
+            event.preventDefault();
+            dialog.open ? dialog.close() : open();
+        }
+    });
+
+    input.addEventListener('input', filter);
+    dialog.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            mark(active + (event.key === 'ArrowDown' ? 1 : -1));
+        } else if (event.key === 'Enter' && document.activeElement === input) {
+            event.preventDefault();
+            visible()[active]?.click();
+        }
+    });
+
+    // The shortcut hint matches the visitor's keyboard.
+    if (!/Mac|iPhone|iPad/.test(navigator.platform)) {
+        document.querySelectorAll('.cmd-kbd').forEach((el) => (el.textContent = 'Ctrl K'));
+    }
+}
+
+/* Work index: show the projects that use the chosen technology. Others fade out, then leave the grid. */
+function initFilter() {
+    document.querySelectorAll('[data-filter-root]').forEach((root) => {
+        const chips = [...root.querySelectorAll('[data-filter]')];
+        const cards = [...root.querySelectorAll('[data-tags]')];
+        const empty = root.querySelector('[data-filter-empty]');
+
+        chips.forEach((chip) =>
+            chip.addEventListener('click', () => {
+                const tag = chip.dataset.filter;
+                let shown = 0;
+
+                chips.forEach((other) => other.setAttribute('aria-pressed', String(other === chip)));
+
+                cards.forEach((card) => {
+                    const match = !tag || card.dataset.tags.split('|').includes(tag);
+
+                    shown += match ? 1 : 0;
+
+                    if (match) {
+                        card.hidden = false;
+                        requestAnimationFrame(() => card.classList.remove('is-out'));
+                    } else {
+                        card.classList.add('is-out');
+                        setTimeout(() => (card.hidden = card.classList.contains('is-out')), reduceQuery.matches ? 0 : 400);
+                    }
+                });
+
+                if (empty) {
+                    empty.hidden = shown > 0;
+                }
+            }),
+        );
+    });
+}
+
+/* Before and after: the range input is the control; the frame only mirrors its value. */
+function initCompare() {
+    document.querySelectorAll('[data-compare]').forEach((root) => {
+        const range = root.querySelector('.compare-range');
+        const sync = () => root.style.setProperty('--cut', `${range.value}%`);
+
+        range.addEventListener('input', sync);
+        sync();
+    });
+}
+
+/* Live demo: the frame is created only when the visitor asks for it. */
+function initDemo() {
+    document.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-demo-load]');
+        const root = button?.closest('[data-demo]');
+
+        if (!root) {
+            return;
+        }
+
+        const frame = document.createElement('iframe');
+
+        frame.src = root.dataset.demo;
+        frame.title = root.dataset.demoTitle;
+        frame.loading = 'lazy';
+        frame.referrerPolicy = 'no-referrer';
+        frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups');
+        root.querySelector('.demo-stage').replaceChildren(frame);
+    });
+}
+
+/* Article contents: the heading you are reading is marked in the list. */
+function initToc() {
+    const toc = document.querySelector('[data-toc]');
+
+    if (!toc || !('IntersectionObserver' in window)) {
+        return;
+    }
+
+    const links = new Map([...toc.querySelectorAll('a')].map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+    const headings = [...links.keys()].map((id) => document.getElementById(id)).filter(Boolean);
+
+    const observer = new IntersectionObserver(
+        () => {
+            const line = window.innerHeight * 0.3;
+            const current = headings.filter((heading) => heading.getBoundingClientRect().top < line).pop() ?? headings[0];
+
+            links.forEach((link, id) => (id === current?.id ? link.setAttribute('aria-current', 'true') : link.removeAttribute('aria-current')));
+        },
+        { rootMargin: '0px 0px -70% 0px', threshold: [0, 1] },
+    );
+
+    headings.forEach((heading) => observer.observe(heading));
+}
+
+/*
+ * Pointer light and lean. Cards marked .spot get a pool of light under the
+ * pointer; case visuals lean a few degrees toward it. One listener per card,
+ * writes custom properties only. Fine pointers, full motion only.
+ */
+function initSpot() {
+    if (!finePointer.matches || reduceQuery.matches) {
+        return;
+    }
+
+    document.querySelectorAll('.spot').forEach((el) => {
+        el.addEventListener('pointermove', (event) => {
+            const rect = el.getBoundingClientRect();
+
+            el.style.setProperty('--sx', `${(event.clientX - rect.left).toFixed(0)}px`);
+            el.style.setProperty('--sy', `${(event.clientY - rect.top).toFixed(0)}px`);
+        });
+    });
+
+    document.querySelectorAll('.case').forEach((card) => {
+        const visual = card.querySelector('.case-visual');
+
+        card.addEventListener('pointermove', (event) => {
+            const rect = card.getBoundingClientRect();
+
+            visual.style.setProperty('--ry', `${(((event.clientX - rect.left) / rect.width - 0.5) * 5).toFixed(2)}deg`);
+            visual.style.setProperty('--rx', `${(((event.clientY - rect.top) / rect.height - 0.5) * -4).toFixed(2)}deg`);
+        });
+        card.addEventListener('pointerleave', () => {
+            visual.style.setProperty('--rx', '0deg');
+            visual.style.setProperty('--ry', '0deg');
+        });
+    });
+}
+
+function initPrint() {
+    document.addEventListener('click', (event) => event.target.closest('[data-print]') && window.print());
+}
+
+/*
+ * Easter eggs. None of them is needed to use the site, and each one is off or
+ * instant under reduced motion.
+ *  - The Konami code (or "blueprint" in the command menu) draws the layout grid.
+ *  - Typing the name of the site (or "confetti" in the command menu) celebrates.
+ *  - The console says hello.
+ */
+function initEggs() {
+    const found = document.querySelector('[data-egg="blueprint"]')?.closest('[data-cmd]')?.dataset.found ?? '';
+    let toastTimer = 0;
+
+    const toast = (text) => {
+        let el = document.querySelector('.toast');
+
+        if (!el) {
+            el = document.createElement('p');
+            el.className = 'toast t-label';
+            el.setAttribute('role', 'status');
+            document.body.append(el);
+        }
+
+        el.textContent = text;
+        requestAnimationFrame(() => el.classList.add('is-on'));
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => el.classList.remove('is-on'), 2200);
+    };
+
+    const blueprint = () => {
+        const existing = document.querySelector('.blueprint');
+
+        if (existing) {
+            existing.remove();
+            document.querySelector('.blueprint-read')?.remove();
+            return;
+        }
+
+        const grid = document.createElement('div');
+        const read = document.createElement('p');
+
+        grid.className = 'blueprint';
+        grid.setAttribute('aria-hidden', 'true');
+        grid.append(...Array.from({ length: 12 }, () => document.createElement('span')));
+        read.className = 'blueprint-read t-label';
+        read.setAttribute('aria-hidden', 'true');
+
+        const size = () => (read.textContent = `${window.innerWidth} × ${window.innerHeight} · 12 col`);
+
+        size();
+        window.addEventListener('resize', size, { passive: true });
+        document.body.append(grid, read);
+        toast(found);
+    };
+
+    const confetti = () => {
+        toast(found);
+
+        if (reduceQuery.matches || !Element.prototype.animate) {
+            return;
+        }
+
+        const holder = document.createElement('div');
+
+        holder.setAttribute('aria-hidden', 'true');
+        document.body.append(holder);
+
+        for (let i = 0; i < 36; i++) {
+            const bit = document.createElement('span');
+            const angle = (Math.PI * 2 * i) / 36 + Math.random() * 0.4;
+            const reach = 140 + Math.random() * 260;
+            const x = window.innerWidth / 2;
+            const y = window.innerHeight * 0.55;
+
+            bit.className = 'egg-bit';
+            holder.append(bit);
+            bit.animate(
+                [
+                    { transform: `translate(${x}px, ${y}px) scale(0.4)`, opacity: 1 },
+                    { transform: `translate(${x + Math.cos(angle) * reach}px, ${y + Math.sin(angle) * reach - 120}px) scale(1)`, opacity: 1, offset: 0.55 },
+                    { transform: `translate(${x + Math.cos(angle) * reach * 1.15}px, ${y + Math.sin(angle) * reach + 260}px) scale(0.6)`, opacity: 0 },
+                ],
+                { duration: 1500 + Math.random() * 500, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'forwards' },
+            );
+        }
+
+        setTimeout(() => holder.remove(), 2200);
+    };
+
+    const run = { blueprint, confetti };
+
+    document.addEventListener('click', (event) => {
+        const name = event.target.closest('[data-egg]')?.dataset.egg;
+
+        run[name]?.();
+    });
+
+    const konami = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+    const word = 'jebbari';
+    let keys = [];
+    let typed = '';
+
+    document.addEventListener('keydown', (event) => {
+        if (event.target.closest?.('input, textarea, select, [contenteditable]')) {
+            return;
+        }
+
+        keys = [...keys, event.key].slice(-konami.length);
+        typed = (typed + event.key.toLowerCase()).slice(-word.length);
+
+        if (keys.join() === konami.join()) {
+            keys = [];
+            blueprint();
+        } else if (typed === word) {
+            typed = '';
+            confetti();
+        }
+    });
+
+    console.log('%cjebbari%c.', 'font: 500 28px system-ui; letter-spacing: -0.04em', 'font: 500 28px system-ui; color: #8ea2ff');
+    console.log('Curious how it is built? Blade, Tailwind and one small script. Try Ctrl/Cmd + K, and type "blueprint".');
+}
+
 /* Words that fill from faint to full as the paragraph passes through the viewport. */
 function initFill() {
     if (reduceQuery.matches) {
@@ -328,6 +671,8 @@ function initScrollLinked() {
         switch (mode) {
             case 'exit':
                 return -rect.top / Math.max(rect.height, 1);
+            case 'read':
+                return (vh * 0.5 - rect.top) / Math.max(rect.height, 1);
             case 'stack': {
                 // How far the next card has slid over this one.
                 const next = el.nextElementSibling;
@@ -603,6 +948,14 @@ export function initMotion() {
     initCursor();
     initMagnet();
     initToTop();
+    initCommand();
+    initFilter();
+    initCompare();
+    initDemo();
+    initToc();
+    initSpot();
+    initPrint();
+    initEggs();
     initFill();
     initProcess();
     initScrollLinked();

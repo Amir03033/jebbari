@@ -8,7 +8,7 @@
 {{-- Real, permitted quotes only, shown as plain static text. No carousel. --}}
 <section>
     <x-section-label :number="$number" :label="loc($data['label'] ?? null)" />
-    <div class="page py-16 md:py-28">
+    <div class="page section-body">
         <ul class="grid gap-16">
             @foreach ($items as $item)
                 <li data-reveal="group">

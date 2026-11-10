@@ -12,27 +12,32 @@
    --surface, --card, --line), never the raw values.
    ------------------------------------------------------------------ */
 :root {
-    /* Light theme: warm white, near-black, quiet greys. */
-    --paper: #faf9f6;
-    --paper-2: #f2f0eb;
-    --paper-3: #e9e7e1;
-    --ink: #0c0c0d;
-    --ink-2: #63625d; /* 5.9:1 on paper, 5.4:1 on paper-2 */
-    --line: rgba(12, 12, 13, 0.1);
-    --line-strong: rgba(12, 12, 13, 0.22);
-    --signal: #ff4b1f; /* the one accent: the full stop */
+    /* Light theme: a clean, slightly cool white, near-black ink, quiet greys. */
+    --paper: #fafaf8;
+    --paper-2: #f1f1ee;
+    --paper-3: #e7e7e3;
+    --ink: #0b0c0e;
+    --ink-2: #5d5e64; /* 6.3:1 on paper, 5.8:1 on paper-2 */
+    --line: rgba(11, 12, 14, 0.1);
+    --line-strong: rgba(11, 12, 14, 0.22);
+
+    /* The one accent: a deep cobalt. 6.6:1 on paper, so it also works as text. */
+    --signal: #2b4ef5;
+    --on-signal: #ffffff;
 
     /* The contrast panel (closing sections, typographic tiles). */
-    --panel: #0c0c0d;
-    --panel-2: #161617;
-    --panel-fg: #f4f3ef;
-    --panel-muted: rgba(244, 243, 239, 0.64);
-    --panel-line: rgba(244, 243, 239, 0.14);
+    --panel: #0b0c0e;
+    --panel-2: #15161a;
+    --panel-fg: #f3f3f1;
+    --panel-muted: rgba(243, 243, 241, 0.64);
+    --panel-line: rgba(243, 243, 241, 0.14);
+    --panel-signal: #8ea2ff;
 
     /* Soft light used behind the hero and inside panels. */
-    --glow: rgba(255, 75, 31, 0.11);
-    --glow-2: rgba(12, 12, 13, 0.06);
-    --shadow: 0 1px 2px rgba(12, 12, 13, 0.04), 0 24px 60px -30px rgba(12, 12, 13, 0.22);
+    --glow: rgba(43, 78, 245, 0.1);
+    --glow-2: rgba(11, 12, 14, 0.05);
+    --glow-panel: rgba(110, 135, 255, 0.2);
+    --shadow: 0 1px 2px rgba(11, 12, 14, 0.04), 0 24px 60px -30px rgba(11, 12, 14, 0.22);
 
     /* Semantic roles. Remapped inside .on-ink. */
     --fg: var(--ink);
@@ -71,39 +76,44 @@
     }
 }
 
-/* Dark theme: deep charcoal, white, muted greys. Follows the visitor's system
-   unless they chose (the header switch, remembered in this browser). */
+/* Dark theme: deep charcoal, white, muted greys, the accent lifted so it stays
+   legible (7.6:1). Follows the visitor's system unless they chose (the header
+   switch, remembered in this browser). */
 :root[data-theme='dark'] {
-    --paper: #0b0b0c;
-    --paper-2: #141415;
-    --paper-3: #1c1c1e;
-    --ink: #f4f3ef;
-    --ink-2: #9d9b95; /* 7.3:1 on paper */
-    --line: rgba(244, 243, 239, 0.11);
-    --line-strong: rgba(244, 243, 239, 0.26);
-    --panel: #151516;
-    --panel-2: #1e1e20;
-    --glow: rgba(255, 75, 31, 0.1);
-    --glow-2: rgba(244, 243, 239, 0.05);
-    --shadow: 0 1px 0 rgba(244, 243, 239, 0.04) inset, 0 30px 70px -30px rgba(0, 0, 0, 0.7);
+    --paper: #0a0a0c;
+    --paper-2: #131316;
+    --paper-3: #1b1b1f;
+    --ink: #f3f3f1;
+    --ink-2: #9a9aa1; /* 7.2:1 on paper */
+    --line: rgba(243, 243, 241, 0.11);
+    --line-strong: rgba(243, 243, 241, 0.26);
+    --signal: #8ea2ff;
+    --on-signal: #0a0a0c;
+    --panel: #141417;
+    --panel-2: #1d1d21;
+    --glow: rgba(110, 135, 255, 0.14);
+    --glow-2: rgba(243, 243, 241, 0.04);
+    --shadow: 0 1px 0 rgba(243, 243, 241, 0.04) inset, 0 30px 70px -30px rgba(0, 0, 0, 0.7);
 
     color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme='light']) {
-        --paper: #0b0b0c;
-        --paper-2: #141415;
-        --paper-3: #1c1c1e;
-        --ink: #f4f3ef;
-        --ink-2: #9d9b95;
-        --line: rgba(244, 243, 239, 0.11);
-        --line-strong: rgba(244, 243, 239, 0.26);
-        --panel: #151516;
-        --panel-2: #1e1e20;
-        --glow: rgba(255, 75, 31, 0.1);
-        --glow-2: rgba(244, 243, 239, 0.05);
-        --shadow: 0 1px 0 rgba(244, 243, 239, 0.04) inset, 0 30px 70px -30px rgba(0, 0, 0, 0.7);
+        --paper: #0a0a0c;
+        --paper-2: #131316;
+        --paper-3: #1b1b1f;
+        --ink: #f3f3f1;
+        --ink-2: #9a9aa1;
+        --line: rgba(243, 243, 241, 0.11);
+        --line-strong: rgba(243, 243, 241, 0.26);
+        --signal: #8ea2ff;
+        --on-signal: #0a0a0c;
+        --panel: #141417;
+        --panel-2: #1d1d21;
+        --glow: rgba(110, 135, 255, 0.14);
+        --glow-2: rgba(243, 243, 241, 0.04);
+        --shadow: 0 1px 0 rgba(243, 243, 241, 0.04) inset, 0 30px 70px -30px rgba(0, 0, 0, 0.7);
 
         color-scheme: dark;
     }
@@ -115,9 +125,12 @@
     --fg: var(--panel-fg);
     --muted: var(--panel-muted);
     --line: var(--panel-line);
-    --line-strong: rgba(244, 243, 239, 0.3);
+    --line-strong: rgba(243, 243, 241, 0.3);
     --surface: var(--panel);
     --card: var(--panel-2);
+    --signal: var(--panel-signal);
+    --on-signal: #0a0a0c;
+    --glow: var(--glow-panel);
 
     background-color: var(--panel);
     color: var(--panel-fg);
@@ -192,7 +205,7 @@
 
     ::selection {
         background-color: var(--signal);
-        color: #0c0c0d;
+        color: var(--on-signal);
     }
 
     :focus-visible {

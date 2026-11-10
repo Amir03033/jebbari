@@ -13,6 +13,7 @@
     'large' => false,
     'sizes' => '(min-width: 768px) 50vw, 100vw',
     'eager' => false,
+    'tags' => null,
 ])
 
 {{--
@@ -20,7 +21,7 @@
     then the name and one line. With a real image the frame shows it; without
     one it is a typographic tile (x-tile). The whole plate is one link.
 --}}
-<a href="{{ $href }}" {{ $attributes->class('plate group block') }} data-cursor="{{ $cursor ?? __('site.cta.view_case') }}" data-reveal="group" @if (! $asset && ! $placeholder) data-tile @endif>
+<a href="{{ $href }}" {{ $attributes->class('plate group block') }} data-cursor="{{ $cursor ?? __('site.cta.view_case') }}" data-reveal="group" @if (! $asset && ! $placeholder) data-tile @endif @if ($tags !== null) data-tags="{{ $tags }}" @endif>
     <div class="plate-frame" data-ratio="{{ $ratio }}">
         <div class="plate-clip">
             <div class="plate-reveal">

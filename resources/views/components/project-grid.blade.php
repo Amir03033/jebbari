@@ -13,6 +13,7 @@
         @php([$span, $ratio] = $layout[$loop->index % count($layout)])
         <x-plate
             :class="$span"
+            :tags="collect($project->stack ?? [])->map(fn ($t) => mb_strtolower(trim((string) $t)))->implode('|')"
             :ratio="$ratio"
             :large="$loop->first"
             :href="Locale::route('work.show', ['slug' => $project->slugFor($locale)])"

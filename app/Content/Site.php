@@ -9,10 +9,14 @@ use App\Models\PostCategory;
 use App\Models\Project;
 use App\Models\Service;
 use App\Models\Testimonial;
+use App\Support\ContentCache;
 use App\Support\Locale;
 use App\Support\Settings;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Throwable;
 
 /**
  * Everything the public website reads. The one rule that matters: a visitor
@@ -134,7 +138,7 @@ class Site
 
     public static function project(string $slug, ?string $locale = null): ?Project
     {
-        return self::findBySlug(Project::class, $slug, $locale, ['cover.media']);
+        return self::findBySlug(Project::class, $slug, $locale, ['cover.media', 'before.media', 'after.media']);
     }
 
     public static function post(string $slug, ?string $locale = null): ?Post
@@ -215,6 +219,82 @@ class Site
                 return $url && $label ? ['label' => $label, 'url' => $url, 'key' => $item->page_key] : null;
             })
             ->filter()->values();
+    }
+
+    // ---------------------------------------------------------------- search
+
+    /**
+     * Everything the command menu can jump to: live pages, projects and articles.
+     *
+     * @return Collection<int, array{group: string, label: string, hint: ?string, url: string}>
+     */
+    public static function commandItems(): Collection
+    {
+        $locale = app()->getLocale();
+
+        // Cached as a plain array: the cache does not restore objects.
+        return collect(Cache::remember('command.'.$locale.'.'.ContentCache::version(), 3600, function () use ($locale) {
+            $pages = collect(array_keys(Locale::PAGES))
+                ->map(fn ($key) => ($page = self::page($key)) ? ['group' => 'pages', 'label' => $key === 'home' ? __('site.nav.home') : loc($page->title), 'hint' => null, 'url' => Locale::url($key)] : null)
+                ->filter();
+
+            $projects = self::projects()->map(fn ($p) => ['group' => 'work', 'label' => loc($p->title), 'hint' => loc($p->kind), 'url' => Locale::route('work.show', ['slug' => $p->slugFor($locale)])]);
+            $services = self::services()->map(fn ($s) => ['group' => 'services', 'label' => loc($s->title), 'hint' => null, 'url' => Locale::route('services.show', ['slug' => $s->slugFor($locale)])]);
+            $posts = self::visible(self::postsQuery()->limit(20)->get())->map(fn ($p) => ['group' => 'blog', 'label' => loc($p->title), 'hint' => $p->category ? loc($p->category->name) : null, 'url' => Locale::route('blog.show', ['slug' => $p->slugFor($locale)])]);
+
+            return $pages->concat($projects)->concat($services)->concat($posts)->values()->all();
+        }));
+    }
+
+    // ---------------------------------------------------------------- github
+
+    /**
+     * Public repositories of the GitHub account set in the CMS, most recently
+     * pushed first. Fetched by the server and cached, so a visitor's browser
+     * never talks to GitHub. Empty when no account is set or GitHub is unreachable.
+     *
+     * @return Collection<int, array{name: string, description: ?string, language: ?string, stars: int, url: string, pushed_at: ?string}>
+     */
+    public static function github(): Collection
+    {
+        $user = trim((string) self::setting('social.github_username'));
+
+        if ($user === '' || ! preg_match('/^[A-Za-z0-9-]{1,39}$/', $user)) {
+            return collect();
+        }
+
+        $key = 'github.'.strtolower($user);
+
+        if (Cache::has($key)) {
+            return collect(Cache::get($key));
+        }
+
+        try {
+            $response = Http::timeout(4)->acceptJson()->withUserAgent('website')->get("https://api.github.com/users/{$user}/repos", ['sort' => 'pushed', 'per_page' => 30, 'type' => 'owner']);
+            $repos = $response->successful() ? collect($response->json())
+                ->reject(fn ($r) => ($r['fork'] ?? false) || ($r['archived'] ?? false) || ($r['private'] ?? false))
+                ->take(6)
+                ->map(fn ($r) => [
+                    'name' => (string) $r['name'], 'description' => $r['description'] ?? null, 'language' => $r['language'] ?? null,
+                    'stars' => (int) ($r['stargazers_count'] ?? 0), 'url' => (string) $r['html_url'], 'pushed_at' => $r['pushed_at'] ?? null,
+                ])->values()->all() : null;
+        } catch (Throwable $e) {
+            report($e);
+            $repos = null;
+        }
+
+        // A failed lookup is remembered briefly, so a GitHub outage never slows the site down.
+        Cache::put($key, $repos ?? [], $repos === null ? 900 : 21600);
+
+        return collect($repos ?? []);
+    }
+
+    /** Hosts of live demos on published projects: the only sites the pages may embed. */
+    public static function demoHosts(): array
+    {
+        return Cache::remember('demo.hosts.'.ContentCache::version(), 86400, fn () => Project::query()->published()->whereNotNull('demo_url')->pluck('demo_url')
+            ->map(fn ($url) => parse_url((string) $url, PHP_URL_SCHEME) === 'https' ? parse_url((string) $url, PHP_URL_HOST) : null)
+            ->filter()->unique()->values()->all());
     }
 
     // -------------------------------------------------------------- settings

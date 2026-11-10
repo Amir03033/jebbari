@@ -40,6 +40,9 @@
         </nav>
 
         <div class="site-tools hidden md:flex">
+            <button type="button" class="cmd-open t-label" data-cmd-open aria-haspopup="dialog" aria-controls="command-menu">
+                <span>{{ __('site.command.title') }}</span><kbd class="cmd-kbd" aria-hidden="true">⌘K</kbd>
+            </button>
             <a href="{{ $switchUrl }}" hreflang="{{ $other }}" lang="{{ $other }}" class="lang-switch t-label" aria-label="{{ __('site.nav.language') }}: {{ strtoupper($other) }}">
                 <span class="text-muted">{{ strtoupper(app()->getLocale()) }}</span> / {{ strtoupper($other) }}
             </a>
@@ -86,6 +89,8 @@
                 @if ($contactUrl = Site::pageUrl('contact'))
                     <p class="menu-item menu-item-plain mt-10"><x-button :href="$contactUrl" class="w-full">{{ __('site.cta.contact') }}<span class="arrow" aria-hidden="true">→</span></x-button></p>
                 @endif
+
+                <p class="menu-item menu-item-plain mt-3"><x-button variant="secondary" type="button" class="w-full" data-cmd-open>{{ __('site.command.title') }}</x-button></p>
 
                 <div class="mt-6 flex items-center justify-between gap-4">
                     <x-status class="text-muted" />

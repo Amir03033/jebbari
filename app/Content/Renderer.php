@@ -8,10 +8,12 @@ use App\Models\Post;
 use App\Models\PostCategory;
 use App\Models\Project;
 use App\Models\Service;
+use App\Support\HtmlSanitizer;
 use App\Support\Locale;
 use App\Support\Seo;
 use App\Support\Settings;
 use App\Support\StructuredData;
+use App\Support\Toc;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -41,6 +43,15 @@ class Renderer
             ? [StructuredData::organization($canonical), StructuredData::website($canonical)]
             : [StructuredData::breadcrumbs([['name' => __('site.nav.home'), 'url' => Locale::url('home')], ['name' => $title, 'url' => $canonical]])];
 
+        // Questions and answers on the page are also offered to search engines.
+        $faq = BlockRenderer::blocks($page)->where('type', 'faq')
+            ->flatMap(fn ($b) => collect($b['data']['items'] ?? [])->map(fn ($i) => ['question' => loc($i['question'] ?? null), 'answer' => loc($i['answer'] ?? null)]))
+            ->filter(fn ($i) => $i['question'] && $i['answer'])->values();
+
+        if ($faq->isNotEmpty()) {
+            $jsonld[] = StructuredData::faq($faq->all());
+        }
+
         $hero = $key === 'home' ? collect($page->blocks ?? [])->firstWhere('type', 'hero') : null;
 
         $seo = Seo::make([
@@ -64,6 +75,7 @@ class Renderer
             $key === 'work' => view('pages.work', $data + ['projects' => Site::projects()]),
             $key === 'blog' => view('pages.blog', $data + self::blogListing(null)),
             $key === 'contact' => view('pages.contact', $data),
+            $key === 'cv' => view('pages.cv', $data + self::cv()),
             $page->kind === 'legal' => view('pages.legal', $data),
             default => view('pages.generic', $data),
         };
@@ -86,6 +98,7 @@ class Renderer
             'canonical' => $canonical,
             'alternates' => $alternates,
             'image' => $project->cover,
+            'share' => route('share', ['locale' => $locale, 'type' => 'work', 'slug' => $project->slugFor($locale)]),
             'jsonld' => [
                 StructuredData::project($project, $canonical, $project->cover?->shareUrl()),
                 StructuredData::breadcrumbs([['name' => __('site.nav.home'), 'url' => Locale::url('home')], ['name' => __('site.nav.work'), 'url' => $workUrl], ['name' => $title, 'url' => $canonical]]),
@@ -150,6 +163,7 @@ class Renderer
             'canonical' => $canonical,
             'alternates' => $alternates,
             'image' => $post->cover,
+            'share' => route('share', ['locale' => $locale, 'type' => 'blog', 'slug' => $post->slugFor($locale)]),
             'type' => 'article',
             'jsonld' => [
                 StructuredData::article($post, $canonical, $post->cover?->shareUrl()),
@@ -164,7 +178,9 @@ class Renderer
         $words = str_word_count(strip_tags((string) loc($post->body)));
         $minutes = max(1, (int) ceil($words / 200));
 
-        return view('pages.post', compact('post', 'seo', 'preview', 'related', 'minutes', 'title'));
+        $toc = Toc::build(HtmlSanitizer::clean(loc($post->body)));
+
+        return view('pages.post', compact('post', 'seo', 'preview', 'related', 'minutes', 'title', 'toc'));
     }
 
     public static function category(PostCategory $category): View
@@ -186,6 +202,26 @@ class Renderer
     }
 
     // --------------------------------------------------------------- helpers
+
+    /**
+     * The CV is assembled from what is already published: experience, skills
+     * and the introduction from the About page, plus the projects.
+     *
+     * @return array{experience: Collection, skills: Collection, about: ?string, projects: Collection}
+     */
+    private static function cv(): array
+    {
+        $about = Site::page('about');
+        $blocks = $about ? BlockRenderer::blocks($about) : collect();
+        $items = fn (string $type) => collect($blocks->firstWhere('type', $type)['data']['items'] ?? []);
+
+        return [
+            'experience' => $items('experience')->filter(fn ($i) => loc($i['role'] ?? null)),
+            'skills' => $items('skills')->filter(fn ($i) => loc($i['name'] ?? null)),
+            'about' => loc($blocks->firstWhere('type', 'intro')['data']['body'] ?? null),
+            'projects' => Site::projects(),
+        ];
+    }
 
     /** @return array{posts: LengthAwarePaginator, categories: Collection, activeCategory: ?PostCategory} */
     public static function blogListing(?PostCategory $category): array
