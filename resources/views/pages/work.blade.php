@@ -6,7 +6,7 @@
     $next = $start + BlockRenderer::blocks($page, $start)->reject(fn ($b) => in_array($b['type'], ['meeting_line', 'reply_promise', 'image'], true))->count();
 @endphp
 
-<x-layouts.app :seo="$seo" :preview="$preview" header-theme="dark">
+<x-layouts.app :seo="$seo" :preview="$preview">
     @unless ($hasIntro)
         <x-page-header :page="$page" />
     @endunless

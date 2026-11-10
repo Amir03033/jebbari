@@ -7,21 +7,32 @@
 
 /* ------------------------------------------------------------------
    Design tokens
+   One neutral palette in two themes, one accent, one corner system,
+   one easing. Components read the semantic roles (--fg, --muted,
+   --surface, --card, --line), never the raw values.
    ------------------------------------------------------------------ */
 :root {
-    --paper: #f5f3ee;
-    --paper-2: #ece9e2;
-    --ink: #0e0e0f;
-    --ink-2: #686763;
-    --ink-3: #161617; /* lifted black: cards on black */
-    --line: rgba(14, 14, 15, 0.14);
-    --line-dark: rgba(245, 243, 238, 0.16);
-    --signal: #ff4b1f;
+    /* Light theme: warm white, near-black, quiet greys. */
+    --paper: #faf9f6;
+    --paper-2: #f2f0eb;
+    --paper-3: #e9e7e1;
+    --ink: #0c0c0d;
+    --ink-2: #63625d; /* 5.9:1 on paper, 5.4:1 on paper-2 */
+    --line: rgba(12, 12, 13, 0.1);
+    --line-strong: rgba(12, 12, 13, 0.22);
+    --signal: #ff4b1f; /* the one accent: the full stop */
 
-    /* Fixed surfaces: the dark and light of the brand, whatever the theme. */
-    --white: #f5f3ee;
-    --black: #0e0e0f;
-    --black-2: #161617;
+    /* The contrast panel (closing sections, typographic tiles). */
+    --panel: #0c0c0d;
+    --panel-2: #161617;
+    --panel-fg: #f4f3ef;
+    --panel-muted: rgba(244, 243, 239, 0.64);
+    --panel-line: rgba(244, 243, 239, 0.14);
+
+    /* Soft light used behind the hero and inside panels. */
+    --glow: rgba(255, 75, 31, 0.11);
+    --glow-2: rgba(12, 12, 13, 0.06);
+    --shadow: 0 1px 2px rgba(12, 12, 13, 0.04), 0 24px 60px -30px rgba(12, 12, 13, 0.22);
 
     /* Semantic roles. Remapped inside .on-ink. */
     --fg: var(--ink);
@@ -30,78 +41,86 @@
     --card: var(--paper-2);
 
     /* One corner system */
-    --radius-sm: 12px;
-    --radius-card: 28px;
+    --radius-sm: 10px;
+    --radius-card: 18px;
     --radius-pill: 999px;
 
     /* Motion tokens (docs/MOTION.md) */
     --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
     --dur-fast: 200ms;
     --dur-base: 400ms;
     --dur-slow: 600ms;
-    --dur-reveal: 700ms;
-    --dur-hero: 900ms;
-    --stagger: 60ms;
-    --shift: 16px;
+    --dur-reveal: 800ms;
+    --dur-hero: 1000ms;
+    --stagger: 70ms;
+    --shift: 20px;
 
     --gutter: 16px;
-    --margin: 24px;
-    --content-max: 1360px;
+    --margin: 20px;
+    --content-max: 1320px;
+    --header-h: 4rem;
 }
 
 @media (min-width: 768px) {
     :root {
         --gutter: 24px;
-        --margin: 48px;
-        --radius-card: 32px;
+        --margin: 40px;
+        --radius-card: 24px;
+        --header-h: 4.5rem;
     }
 }
 
-/* Dark section: deep black, off-white text. Hairlines, muted text and cards follow. */
-.on-ink {
-    --fg: var(--white);
-    --muted: rgba(245, 243, 238, 0.64);
-    --line: var(--line-dark);
-    --surface: var(--black);
-    --card: var(--black-2);
-
-    background-color: var(--black);
-    color: var(--white);
-}
-
-/* Dark theme. Follows the visitor's system unless they chose (the header
-   switch, remembered in this browser). Dark sections stay the deepest black,
-   so the light and dark rhythm of the page survives. */
+/* Dark theme: deep charcoal, white, muted greys. Follows the visitor's system
+   unless they chose (the header switch, remembered in this browser). */
 :root[data-theme='dark'] {
-    --paper: #151516;
-    --paper-2: #1d1d1f;
-    --ink: #f5f3ee;
-    --ink-2: #a9a7a1;
-    --ink-3: #242426;
-    --line: rgba(245, 243, 238, 0.14);
-    --fg: var(--ink);
-    --muted: var(--ink-2);
-    --surface: var(--paper);
-    --card: var(--paper-2);
+    --paper: #0b0b0c;
+    --paper-2: #141415;
+    --paper-3: #1c1c1e;
+    --ink: #f4f3ef;
+    --ink-2: #9d9b95; /* 7.3:1 on paper */
+    --line: rgba(244, 243, 239, 0.11);
+    --line-strong: rgba(244, 243, 239, 0.26);
+    --panel: #151516;
+    --panel-2: #1e1e20;
+    --glow: rgba(255, 75, 31, 0.1);
+    --glow-2: rgba(244, 243, 239, 0.05);
+    --shadow: 0 1px 0 rgba(244, 243, 239, 0.04) inset, 0 30px 70px -30px rgba(0, 0, 0, 0.7);
 
     color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
     :root:not([data-theme='light']) {
-        --paper: #151516;
-        --paper-2: #1d1d1f;
-        --ink: #f5f3ee;
-        --ink-2: #a9a7a1;
-        --ink-3: #242426;
-        --line: rgba(245, 243, 238, 0.14);
-        --fg: var(--ink);
-        --muted: var(--ink-2);
-        --surface: var(--paper);
-        --card: var(--paper-2);
+        --paper: #0b0b0c;
+        --paper-2: #141415;
+        --paper-3: #1c1c1e;
+        --ink: #f4f3ef;
+        --ink-2: #9d9b95;
+        --line: rgba(244, 243, 239, 0.11);
+        --line-strong: rgba(244, 243, 239, 0.26);
+        --panel: #151516;
+        --panel-2: #1e1e20;
+        --glow: rgba(255, 75, 31, 0.1);
+        --glow-2: rgba(244, 243, 239, 0.05);
+        --shadow: 0 1px 0 rgba(244, 243, 239, 0.04) inset, 0 30px 70px -30px rgba(0, 0, 0, 0.7);
 
         color-scheme: dark;
     }
+}
+
+/* Contrast panel: near-black in the light theme, lifted charcoal in the dark
+   one. Text, hairlines, muted text and cards inside it follow. */
+.on-ink {
+    --fg: var(--panel-fg);
+    --muted: var(--panel-muted);
+    --line: var(--panel-line);
+    --line-strong: rgba(244, 243, 239, 0.3);
+    --surface: var(--panel);
+    --card: var(--panel-2);
+
+    background-color: var(--panel);
+    color: var(--panel-fg);
 }
 
 /*
@@ -112,11 +131,10 @@
     --color-*: initial;
     --color-paper: var(--paper);
     --color-paper-2: var(--paper-2);
+    --color-paper-3: var(--paper-3);
     --color-ink: var(--ink);
     --color-ink-2: var(--ink-2);
-    --color-ink-3: var(--ink-3);
     --color-line: var(--line);
-    --color-line-dark: var(--line-dark);
     --color-signal: var(--signal);
     --color-fg: var(--fg);
     --color-muted: var(--muted);
@@ -125,7 +143,7 @@
     --color-current: currentColor;
 
     --font-*: initial;
-    --font-sans: 'Satoshi', 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
     --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
     --radius-*: initial;
@@ -148,16 +166,16 @@
         background-color: var(--paper);
         color: var(--ink);
         -webkit-text-size-adjust: 100%;
-        scroll-padding-top: 96px;
+        scroll-padding-top: calc(var(--header-h) + 1.5rem);
     }
 
     body {
         min-height: 100vh;
         font-family: var(--font-sans);
-        font-size: clamp(1.0625rem, 1.03rem + 0.18vw, 1.1875rem);
+        font-size: clamp(1rem, 0.97rem + 0.16vw, 1.125rem);
         font-weight: 400;
-        line-height: 1.55;
-        letter-spacing: -0.005em;
+        line-height: 1.6;
+        letter-spacing: -0.011em;
         font-feature-settings: 'ss01', 'tnum';
         text-wrap: pretty;
         -webkit-font-smoothing: antialiased;
@@ -174,7 +192,7 @@
 
     ::selection {
         background-color: var(--signal);
-        color: var(--black);
+        color: #0c0c0d;
     }
 
     :focus-visible {
@@ -196,17 +214,17 @@
    Layout and type
    ------------------------------------------------------------------ */
 @layer components {
-    .page {
+    .page,
+    .page-wide {
         width: 100%;
         max-width: calc(var(--content-max) + var(--margin) * 2);
         margin-inline: auto;
         padding-inline: var(--margin);
     }
 
-    /* Full-bleed stage: type scales with the viewport instead of the container. */
+    /* The wide measure: openings and closings breathe a little further out. */
     .page-wide {
-        width: 100%;
-        padding-inline: var(--margin);
+        max-width: calc(1560px + var(--margin) * 2);
     }
 
     .grid-12 {
@@ -215,71 +233,81 @@
         column-gap: var(--gutter);
     }
 
+    /* One vertical rhythm for every section. */
     .section {
-        padding-block: clamp(72px, 11vw, 140px);
+        padding-block: clamp(4.5rem, 10vw, 9rem);
+    }
+
+    .section-tight {
+        padding-block: clamp(3rem, 6vw, 5.5rem);
+    }
+
+    /* Clears the fixed header on pages that do not open with a stage. */
+    .header-space {
+        height: var(--header-h);
     }
 
     /* ---------------- Type scale ----------------
-       Display and supporting text differ in size, weight and tone: large and
-       tight, next to small and quiet. */
+       Fluid, tight and confident at display size; calm and open at text size.
+       Weight stays at 400 and 500: size and space carry the hierarchy. */
     .t-hero {
-        font-size: clamp(2.5rem, 5.6vw, 6rem);
-        line-height: 0.94;
-        letter-spacing: -0.05em;
+        font-size: clamp(2.75rem, 1.2rem + 7.4vw, 8.25rem);
+        line-height: 0.96;
+        letter-spacing: -0.055em;
         font-weight: 500;
     }
 
     .t-display {
-        font-size: clamp(2.75rem, 7vw, 6.75rem);
-        line-height: 0.92;
-        letter-spacing: -0.048em;
+        font-size: clamp(2.5rem, 1.4rem + 5.2vw, 6.25rem);
+        line-height: 0.98;
+        letter-spacing: -0.05em;
         font-weight: 500;
         text-align: left;
     }
 
     .t-h2 {
-        font-size: clamp(2rem, 4.2vw, 3.75rem);
-        line-height: 0.98;
-        letter-spacing: -0.04em;
+        font-size: clamp(1.875rem, 1.3rem + 2.6vw, 3.5rem);
+        line-height: 1.04;
+        letter-spacing: -0.042em;
         font-weight: 500;
     }
 
     .t-h3 {
-        font-size: clamp(1.375rem, 1.1rem + 0.9vw, 1.875rem);
-        line-height: 1.12;
-        letter-spacing: -0.025em;
+        font-size: clamp(1.25rem, 1.1rem + 0.7vw, 1.75rem);
+        line-height: 1.18;
+        letter-spacing: -0.028em;
         font-weight: 500;
     }
 
     /* A large, calm paragraph: introductions and overviews. */
     .t-statement {
-        font-size: clamp(1.375rem, 1rem + 1.3vw, 2rem);
-        line-height: 1.18;
-        letter-spacing: -0.028em;
+        font-size: clamp(1.3125rem, 1.05rem + 1.1vw, 2rem);
+        line-height: 1.24;
+        letter-spacing: -0.03em;
         font-weight: 400;
     }
 
     .t-body {
         max-width: 62ch;
         font-size: 1em;
-        line-height: 1.55;
+        line-height: 1.6;
     }
 
     .t-label {
         font-family: var(--font-mono);
-        font-size: 0.75rem;
+        font-size: 0.6875rem;
         line-height: 1.4;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
         font-weight: 400;
     }
 
-    /* The brand full stop, drawn as a circle (the font's own period is square). */
+    /* The brand full stop, drawn as a circle. */
     .dot {
         display: inline-block;
         width: 0.17em;
         height: 0.17em;
-        margin-left: 0.035em;
+        margin-left: 0.04em;
         border-radius: 50%;
         background-color: currentColor;
         vertical-align: baseline;
@@ -287,9 +315,19 @@
 
     /* ---------------- Surfaces ---------------- */
     .card {
+        border: 1px solid var(--line);
         border-radius: var(--radius-card);
         background-color: var(--card);
         overflow: clip;
+    }
+
+    /* A contrast panel set into the page: rounded, with the page margin around it. */
+    .panel {
+        position: relative;
+        margin-inline: clamp(8px, 1.4vw, 20px);
+        border-radius: clamp(20px, 2.6vw, 36px);
+        overflow: clip;
+        isolation: isolate;
     }
 
     /* Circle with an arrow: fills on hover of its link. */
@@ -298,9 +336,9 @@
         flex: none;
         align-items: center;
         justify-content: center;
-        width: 3.5rem;
-        height: 3.5rem;
-        border: 1px solid var(--line);
+        width: 3rem;
+        height: 3rem;
+        border: 1px solid var(--line-strong);
         border-radius: 50%;
         transition:
             background-color var(--dur-base) var(--ease),
@@ -309,17 +347,18 @@
     }
 
     .arrow-ring svg {
-        width: 1.125rem;
-        height: 1.125rem;
+        width: 1rem;
+        height: 1rem;
         transition: transform var(--dur-base) var(--ease);
     }
 
     /* ---------------- Links ----------------
-       Resting hairline underline; on hover a signal line draws left to right. */
+       Resting hairline underline; on hover a line in the text colour draws
+       left to right, with the accent reserved for the brand mark. */
     .link {
         position: relative;
         display: inline-block;
-        padding-bottom: 0.1em;
+        padding-bottom: 0.12em;
         color: inherit;
         text-decoration: none;
     }
@@ -335,19 +374,20 @@
 
     .link::before {
         background-color: currentColor;
-        opacity: 0.35;
+        opacity: 0.28;
     }
 
     .link::after {
-        background-color: var(--signal);
+        background-color: currentColor;
         transform: scaleX(0);
-        transform-origin: left center;
-        transition: transform 200ms var(--ease);
+        transform-origin: right center;
+        transition: transform var(--dur-base) var(--ease);
     }
 
     .link:hover::after,
     .link:focus-visible::after {
         transform: scaleX(1);
+        transform-origin: left center;
     }
 
     /* Navigation links: no resting line. */
@@ -356,24 +396,27 @@
     }
 
     /* ---------------- Buttons ----------------
-       Pills. Never filled with the accent: paper or ink fill, or a hairline outline. */
+       Pills. Never filled with the accent: ink fill, or a hairline outline. */
     .btn {
+        position: relative;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 0.75rem;
-        min-height: 3.5rem;
-        padding: 0.75rem 1.75rem;
+        gap: 0.625rem;
+        min-height: 3.25rem;
+        padding: 0.75rem 1.5rem;
         border: 1px solid var(--fg);
         border-radius: var(--radius-pill);
-        font-size: 1rem;
+        font-size: 0.9375rem;
         font-weight: 500;
         line-height: 1.2;
+        letter-spacing: -0.01em;
+        white-space: nowrap;
         cursor: pointer;
         transition:
-            background-color 200ms var(--ease),
-            color 200ms var(--ease),
-            border-color 200ms var(--ease);
+            background-color var(--dur-fast) var(--ease),
+            color var(--dur-fast) var(--ease),
+            border-color var(--dur-fast) var(--ease);
     }
 
     .btn-primary {
@@ -382,18 +425,19 @@
     }
 
     .btn-primary:hover {
-        background-color: transparent;
-        color: var(--fg);
+        background-color: color-mix(in srgb, var(--fg) 84%, var(--surface));
+        border-color: color-mix(in srgb, var(--fg) 84%, var(--surface));
     }
 
     .btn-secondary {
         background-color: transparent;
         color: var(--fg);
-        border-color: var(--line);
+        border-color: var(--line-strong);
     }
 
     .btn-secondary:hover {
         border-color: var(--fg);
+        background-color: color-mix(in srgb, var(--fg) 5%, transparent);
     }
 
     .btn:disabled,
@@ -408,32 +452,29 @@
     .field-control {
         display: block;
         width: 100%;
-        min-height: 3.5rem;
-        padding: 0.875rem 1.125rem;
-        border: 1px solid transparent;
+        min-height: 3.25rem;
+        padding: 0.8125rem 1rem;
+        border: 1px solid var(--line);
         border-radius: var(--radius-sm);
-        background-color: var(--card);
+        background-color: var(--surface);
         color: var(--fg);
         font: inherit;
         font-size: 1rem;
         line-height: 1.4;
         transition:
-            border-color 200ms var(--ease),
-            background-color 200ms var(--ease);
-    }
-
-    /* Inside a card the field steps back to the page surface so it reads as a field. */
-    .card .field-control {
-        background-color: var(--surface);
+            border-color var(--dur-fast) var(--ease),
+            background-color var(--dur-fast) var(--ease),
+            box-shadow var(--dur-fast) var(--ease);
     }
 
     .field-control:hover {
-        border-color: var(--line);
+        border-color: var(--line-strong);
     }
 
     .field-control:focus-visible {
         border-color: var(--fg);
-        outline-offset: 2px;
+        outline: none;
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--fg) 12%, transparent);
     }
 
     .field-control::placeholder {
@@ -441,7 +482,7 @@
     }
 
     .field-control[aria-invalid='true'] {
-        border-color: var(--fg);
+        border-color: var(--signal);
     }
 
     textarea.field-control {
@@ -453,21 +494,5 @@
         appearance: none;
         padding-right: 2.75rem;
         cursor: pointer;
-    }
-
-    /* ---------------- Header ----------------
-       Takes the surface beneath it (see motion.js); colours ease, nothing blurs. */
-    .site-header {
-        background-color: var(--paper);
-        color: var(--ink);
-        transition:
-            transform 300ms var(--ease),
-            background-color var(--dur-base) var(--ease),
-            color var(--dur-base) var(--ease),
-            border-color var(--dur-base) var(--ease);
-    }
-
-    .site-header[data-hidden='true'] {
-        transform: translateY(-100%);
     }
 }

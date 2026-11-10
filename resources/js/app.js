@@ -2,26 +2,30 @@ import Alpine from '@alpinejs/csp';
 import { initMotion } from './motion';
 
 /*
- * Header: hides on scroll down, returns on scroll up (300ms, see app.css).
- * Also owns the full-screen mobile menu.
+ * Header: clear at the top of the page, frosted once it moves, hidden while
+ * reading down and back on the way up. Also owns the full-screen mobile menu.
  */
 Alpine.data('siteHeader', () => ({
     open: false,
     hidden: false,
+    scrolled: false,
     lastY: 0,
 
     init() {
         this.lastY = window.scrollY;
+        this.scrolled = this.lastY > 8;
     },
 
     onScroll() {
         const y = window.scrollY;
 
+        this.scrolled = y > 8;
+
         if (this.open || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
             return;
         }
 
-        this.hidden = y > this.lastY && y > 96;
+        this.hidden = y > this.lastY && y > 320;
         this.lastY = y;
     },
 
@@ -44,6 +48,10 @@ Alpine.data('siteHeader', () => ({
         if (this.open) {
             this.toggle();
         }
+    },
+
+    isScrolled() {
+        return this.scrolled ? 'true' : 'false';
     },
 
     isHidden() {

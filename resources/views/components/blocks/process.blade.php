@@ -12,7 +12,7 @@
 --}}
 <section class="process" data-process>
     <x-section-label :number="$number" :label="$label" :meta="'('.$steps->count().')'" />
-    <div class="page py-20 md:py-36">
+    <div class="page py-14 md:py-28">
         <div class="grid-12 gap-y-12">
             <div class="col-span-12 md:col-span-5">
                 <div class="md:sticky md:top-28" data-reveal="group">
@@ -25,7 +25,7 @@
             <div class="relative col-span-12 pl-8 md:col-span-6 md:col-start-7 md:pl-14">
                 <span class="process-track" aria-hidden="true"><span class="process-fill"></span></span>
                 @foreach ($steps as $step)
-                    <div class="process-step py-14 md:py-32" data-step>
+                    <div class="process-step py-10 md:py-20" data-step>
                         <p class="t-label">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</p>
                         <h3 class="t-h2 mt-4">{{ loc($step['title']) }}</h3>
                         @if (loc($step['description'] ?? null))

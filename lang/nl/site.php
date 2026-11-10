@@ -31,8 +31,8 @@ return [
         'light' => 'Licht',
         'dark' => 'Donker',
     ],
-    'hscroll' => [
-        'progress' => 'Voortgang door de projecten',
+    'hero' => [
+        'scroll' => 'Scroll',
     ],
     'status' => [
         'open' => 'Neemt projecten aan',
@@ -53,6 +53,7 @@ return [
     ],
 
     'footer' => [
+        'top' => 'Naar boven',
         'time' => 'Zwolle · Amsterdam, NL',
         'explore' => 'Ontdek',
         'contact' => 'Contact',

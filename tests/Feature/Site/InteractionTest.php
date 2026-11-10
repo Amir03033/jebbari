@@ -70,22 +70,21 @@ class InteractionTest extends TestCase
         $this->get('/en')->assertSee('Years of experience')->assertSee('In numbers');
     }
 
-    public function test_several_projects_become_a_sideways_run_and_one_project_stays_a_grid(): void
+    public function test_several_projects_become_a_card_stack_and_one_project_stays_a_grid(): void
     {
         $this->makeProject();
-        $this->get('/nl')->assertDontSee('data-hs', false);
+        $this->get('/nl')->assertDontSee('data-stack', false);
 
         $this->makeProject(['title' => ['nl' => 'Tweede', 'en' => 'Second']]);
-        $html = $this->get('/nl')->assertSee('data-hs', false)->getContent();
-        $this->assertStringContainsString('data-scroll="pin"', $html);
-        $this->assertSame(2, substr_count($html, 'class="hs-card"'));
+        $html = $this->get('/nl')->assertSee('data-stack', false)->getContent();
+        $this->assertSame(2, substr_count($html, 'class="stack-item" data-scroll="stack"'));
     }
 
     public function test_the_homepage_carries_the_motion_hooks_without_inline_styles(): void
     {
         $html = $this->get('/nl')->getContent();
 
-        foreach (['data-scroll="exit"', 'data-scroll="cross"', 'class="dot-bridge"'] as $hook) {
+        foreach (['data-scroll="exit"', 'data-scroll="enter"', 'data-field', 'data-nav'] as $hook) {
             $this->assertStringContainsString($hook, $html, $hook);
         }
         $this->assertDoesNotMatchRegularExpression('/\sstyle="/i', $html, 'CSP: no inline style attributes');

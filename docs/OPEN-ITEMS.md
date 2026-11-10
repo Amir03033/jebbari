@@ -57,3 +57,10 @@
 - [ ] Capital I looks like lowercase l in "Iets te bouwen?" (also in Instrument Sans). Options: keep, or reword the closing question in the CMS.
 - [ ] Real screenshots, objectives and features for each case study (new fields in the project form); until then ServerScope uses a typographic tile.
 - [ ] Optional owner photo for About (the layout works without one).
+
+## Added after Phase 4 (premium redesign)
+
+- [ ] Review the new direction (`docs/PREMIUM-REDESIGN.md`, screenshots in `docs/screenshots/phase-4/`).
+- [ ] Rewrite the hero, About and meta description in the CMS and `lang/*/site.php` if the site should read as a personal brand rather than a studio (copy was not changed).
+- [ ] Add cover images and summaries to the projects (ServerScope, ChinaSupply, others) so the case study cards show real work.
+- [ ] Test on Safari, iPhone and iPad; run Lighthouse on production.

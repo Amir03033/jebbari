@@ -139,8 +139,8 @@ function initMagnet() {
         return;
     }
 
-    document.querySelectorAll('.btn:not([disabled]), .plate .arrow-ring').forEach((el) => {
-        const strength = el.classList.contains('btn') ? 0.2 : 0.35;
+    document.querySelectorAll('.btn:not([disabled]), .theme-toggle').forEach((el) => {
+        const strength = el.classList.contains('btn') ? 0.18 : 0.3;
 
         el.addEventListener('pointermove', (event) => {
             const rect = el.getBoundingClientRect();
@@ -154,53 +154,89 @@ function initMagnet() {
 }
 
 /*
- * Hero wordmark: with a mouse the letters lean toward the pointer (strongest
- * for the nearest letter); a click on the full stop sends a wave through the
- * rings. In the footer the same dot takes you back to the top.
+ * Navigation indicator: a hairline rests under the current page and glides to
+ * the link under the pointer or keyboard focus. Only its transform changes.
  */
-function initWordmark() {
-    const hero = document.querySelector('.hero');
-    const letters = hero ? [...hero.querySelectorAll('.wm-ch')] : [];
+function initNav() {
+    const nav = document.querySelector('[data-nav]');
+    const line = nav?.querySelector('.nav-line');
 
-    if (letters.length && finePointer.matches && !reduceQuery.matches) {
-        let frame = 0;
-        let px = 0;
-
-        const paint = () => {
-            frame = 0;
-
-            letters.forEach((letter) => {
-                const rect = letter.getBoundingClientRect();
-                const dx = (px - (rect.left + rect.width / 2)) / rect.width;
-                const lean = Math.max(-1.6, Math.min(1.6, dx)) * Math.exp(-((dx / 2.4) ** 2));
-
-                letter.style.setProperty('--lean', lean.toFixed(3));
-            });
-        };
-
-        hero.addEventListener('pointermove', (event) => {
-            px = event.clientX;
-            frame ||= requestAnimationFrame(paint);
-        });
-        hero.addEventListener('pointerleave', () => letters.forEach((letter) => letter.style.setProperty('--lean', '0')));
+    if (!nav || !line) {
+        return;
     }
 
-    document.addEventListener('click', (event) => {
-        const stop = event.target.closest?.('.wordmark-xl .stop, .footer-mark .stop');
+    const links = [...nav.querySelectorAll('a')];
+    const current = () => nav.querySelector('[aria-current="page"]');
 
-        if (!stop) {
+    const moveTo = (link) => {
+        if (!link) {
+            line.style.setProperty('--no', '0');
             return;
         }
 
-        const rings = document.querySelector('.hero .rings');
+        line.style.setProperty('--nx', `${link.offsetLeft}px`);
+        line.style.setProperty('--nw', String(link.offsetWidth));
+        line.style.setProperty('--no', '1');
+    };
 
-        if (stop.closest('.footer-mark')) {
-            window.scrollTo({ top: 0, behavior: reduceQuery.matches ? 'auto' : 'smooth' });
-        } else if (rings) {
-            rings.classList.remove('is-wave');
-            void rings.offsetWidth;
-            rings.classList.add('is-wave');
+    links.forEach((link) => {
+        link.addEventListener('pointerenter', () => moveTo(link));
+        link.addEventListener('focus', () => moveTo(link));
+    });
+    nav.addEventListener('pointerleave', () => moveTo(current()));
+    nav.addEventListener('focusout', (event) => nav.contains(event.relatedTarget) || moveTo(current()));
+    window.addEventListener('resize', () => moveTo(current()), { passive: true });
+    document.fonts?.ready.then(() => moveTo(current()));
+    moveTo(current());
+}
+
+/*
+ * Hero light: the pool of light behind the headline leans a little toward the
+ * pointer. One rAF-throttled write of two custom properties; the easing is a
+ * CSS transition, so nothing runs while the pointer rests.
+ */
+function initField() {
+    const field = document.querySelector('[data-field]');
+    const stage = field?.parentElement;
+
+    if (!field || !finePointer.matches || reduceQuery.matches) {
+        return;
+    }
+
+    let frame = 0;
+    let x = 0;
+    let y = 0;
+
+    const paint = () => {
+        frame = 0;
+        field.style.setProperty('--gx', `${x.toFixed(1)}px`);
+        field.style.setProperty('--gy', `${y.toFixed(1)}px`);
+    };
+
+    stage.addEventListener('pointermove', (event) => {
+        const rect = stage.getBoundingClientRect();
+
+        x = (event.clientX / rect.width - 0.5) * 90;
+        y = ((event.clientY - rect.top) / rect.height - 0.5) * 70;
+        frame ||= requestAnimationFrame(paint);
+    });
+    stage.addEventListener('pointerleave', () => {
+        x = 0;
+        y = 0;
+        frame ||= requestAnimationFrame(paint);
+    });
+}
+
+/* "Back to top": a smooth return (instant under reduced motion), then focus lands on the page. */
+function initToTop() {
+    document.addEventListener('click', (event) => {
+        if (!event.target.closest('[data-to-top]')) {
+            return;
         }
+
+        event.preventDefault();
+        window.scrollTo({ top: 0, behavior: reduceQuery.matches ? 'auto' : 'smooth' });
+        document.querySelector('.site-brand')?.focus({ preventScroll: true });
     });
 }
 
@@ -228,69 +264,8 @@ function initFill() {
     });
 }
 
-/*
- * Sideways work run. Pinned on a laptop: the section is as tall as the
- * viewport plus the distance the track has to travel; the sticky stage shows the
- * track gliding as --p advances (see the scroll engine). Elsewhere: a swipe row.
- */
-function initHScroll() {
-    const roots = [...document.querySelectorAll('[data-hs]')];
-
-    if (!roots.length) {
-        return;
-    }
-
-    const query = window.matchMedia('(min-width: 1024px) and (min-height: 700px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)');
-
-    const layout = () =>
-        roots.forEach((root) => {
-            const track = root.querySelector('[data-hs-track]');
-
-            root.classList.remove('is-pinned');
-            root.style.removeProperty('--hs-h');
-            root.style.removeProperty('--shift');
-
-            if (query.matches) {
-                root.classList.add('is-pinned');
-                const shift = Math.max(0, track.scrollWidth - window.innerWidth);
-
-                root.style.setProperty('--shift', `${shift}px`);
-                root.style.setProperty('--hs-h', `${window.innerHeight + shift}px`);
-            }
-        });
-
-    query.addEventListener('change', layout);
-    window.addEventListener('resize', layout, { passive: true });
-    window.addEventListener('load', layout);
-    layout();
-
-    // Keyboard: focusing a project that is still off to the side scrolls the page to bring it in.
-    roots.forEach((root) => {
-        root.addEventListener('focusin', (event) => {
-            const card = event.target.closest('.hs-card');
-
-            if (!root.classList.contains('is-pinned') || !card) {
-                return;
-            }
-
-            const rect = card.getBoundingClientRect();
-
-            if (rect.left >= 0 && rect.right <= window.innerWidth) {
-                return;
-            }
-
-            const shift = parseFloat(root.style.getPropertyValue('--shift')) || 1;
-            const progress = Math.min(1, Math.max(0, card.offsetLeft / shift));
-            const top = root.getBoundingClientRect().top + window.scrollY;
-
-            window.scrollTo({ top: top + progress * (root.offsetHeight - window.innerHeight), behavior: 'auto' });
-        });
-    });
-}
-
-/* Process timeline: steps light as they pass the 60% line of the viewport.
-   The fill itself is CSS scroll-driven; where that is unsupported this also
-   sets --progress. One passive, rAF-throttled listener; reads only. */
+/* Process timeline: steps light as they pass the 60% line of the viewport and
+   the hairline fills (--progress). One passive, rAF-throttled listener. */
 function initProcess() {
     const roots = document.querySelectorAll('[data-process]');
 
@@ -332,8 +307,9 @@ function initProcess() {
 
 /*
  * Scroll-linked values. One passive, rAF-throttled listener writes --p (0 to 1)
- * on every [data-scroll] section. "exit": 0 at rest, 1 once it has scrolled
- * away. "enter": rises from 0 to 1 as it scrolls into view. CSS only reads --p,
+ * on every [data-scroll] element. "exit": 0 at rest, 1 once it has scrolled
+ * away. "enter": rises from 0 to 1 as it scrolls into view. "stack": 0 to 1 as
+ * the next card covers this one. CSS only reads --p,
  * so every browser follows exactly the same curve. Skipped under reduced motion.
  */
 function initScrollLinked() {
@@ -352,10 +328,12 @@ function initScrollLinked() {
         switch (mode) {
             case 'exit':
                 return -rect.top / Math.max(rect.height, 1);
-            case 'pin':
-                return -rect.top / Math.max(rect.height - vh, 1);
-            case 'cross':
-                return (vh * 0.9 - rect.top) / Math.max(rect.height * 0.9, 1);
+            case 'stack': {
+                // How far the next card has slid over this one.
+                const next = el.nextElementSibling;
+
+                return next ? 1 - (next.getBoundingClientRect().top - rect.top) / Math.max(rect.height, 1) : 0;
+            }
             case 'fill':
                 return (vh * 0.9 - rect.top) / (vh * 0.5 + rect.height);
             default:
@@ -385,16 +363,6 @@ function initScrollLinked() {
                 el.style.setProperty('--fill', value);
             } else {
                 el.style.setProperty('--p', value);
-            }
-
-            if (el.dataset.scroll === 'pin' && el.classList.contains('is-pinned')) {
-                const count = el.querySelectorAll('.hs-card').length;
-                const index = el.querySelector('[data-hs-index]');
-                const current = String(Math.min(count, Math.floor(Number(value) * count) + 1)).padStart(2, '0');
-
-                if (index && index.textContent !== current) {
-                    index.textContent = current;
-                }
             }
         });
     };
@@ -555,13 +523,25 @@ function initTheme() {
 
         const next = isDark() ? 'light' : 'dark';
 
-        root.dataset.theme = next;
+        const apply = () => {
+            root.dataset.theme = next;
+            sync();
+        };
+
         try {
             localStorage.setItem('theme', next);
         } catch {
             // Storage unavailable: the choice lasts for this page view only.
         }
-        sync();
+
+        // A soft cross-fade between the themes where the browser can do it.
+        if (!document.startViewTransition || reduceQuery.matches) {
+            apply();
+            return;
+        }
+
+        root.classList.add('theme-switching');
+        document.startViewTransition(apply).finished.finally(() => root.classList.remove('theme-switching'));
     });
 
     system.addEventListener('change', sync);
@@ -605,35 +585,6 @@ function initCopy() {
     });
 }
 
-/* The header takes the surface beneath it: dark over black sections, light over paper. */
-function initHeaderTheme() {
-    const header = document.querySelector('.site-header');
-
-    if (!header) {
-        return;
-    }
-
-    let frame = 0;
-
-    const update = () => {
-        frame = 0;
-        const menuOpen = document.documentElement.style.overflow === 'hidden';
-        const point = document.elementsFromPoint(window.innerWidth / 2, Math.max(2, header.offsetHeight / 2));
-        const below = point.find((el) => !header.contains(el) && el !== document.documentElement && el !== document.body);
-        const dark = menuOpen || Boolean(below?.closest('.on-ink'));
-
-        header.classList.toggle('on-ink', dark);
-        header.dataset.theme = dark ? 'dark' : 'light';
-    };
-
-    const schedule = () => (frame ||= requestAnimationFrame(update));
-
-    window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule, { passive: true });
-    header.addEventListener('click', () => setTimeout(schedule, 0));
-    update();
-}
-
 function initStatus() {
     const write = () =>
         document.querySelectorAll('[data-motion-status]').forEach((el) => {
@@ -647,11 +598,12 @@ export function initMotion() {
     html.classList.add('motion-ready');
     initReveals();
     initReplay();
+    initNav();
+    initField();
     initCursor();
     initMagnet();
-    initWordmark();
+    initToTop();
     initFill();
-    initHScroll();
     initProcess();
     initScrollLinked();
     initLive();
@@ -659,6 +611,5 @@ export function initMotion() {
     initTheme();
     initCounters();
     initCopy();
-    initHeaderTheme();
     initStatus();
 }

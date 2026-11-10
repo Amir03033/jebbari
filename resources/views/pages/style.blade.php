@@ -3,7 +3,7 @@
     $budget = ['' => 'Choose a range', 'lt-2.5' => '< €2.5k', '2.5-7.5' => '€2.5–7.5k', '7.5-15' => '€7.5–15k', '15+' => '€15k+', 'unsure' => 'Not sure'];
 @endphp
 
-<x-layouts.app title="Style" description="Design token test page." :noindex="true">
+<x-layouts.app title="Style" description="Design token test page." :noindex="true" :overlay="false">
     {{-- Intro --}}
     <section class="page pb-16 pt-16 md:pt-24">
         <p class="t-label mb-6 text-muted">Internal / Phase 1 / Not part of the public site</p>

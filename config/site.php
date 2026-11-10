@@ -11,7 +11,4 @@ return [
     'locales' => ['nl', 'en'],
     'default_locale' => 'nl',
     'timezone' => 'Europe/Amsterdam',
-
-    // Set to true once Satoshi woff2 files are added (see resources/fonts/README.md).
-    'fonts' => ['satoshi' => false],
 ];

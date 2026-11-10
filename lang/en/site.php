@@ -31,8 +31,8 @@ return [
         'light' => 'Light',
         'dark' => 'Dark',
     ],
-    'hscroll' => [
-        'progress' => 'Progress through the projects',
+    'hero' => [
+        'scroll' => 'Scroll',
     ],
     'status' => [
         'open' => 'Taking on projects',
@@ -53,6 +53,7 @@ return [
     ],
 
     'footer' => [
+        'top' => 'Back to top',
         'time' => 'Zwolle · Amsterdam, NL',
         'explore' => 'Explore',
         'contact' => 'Contact',

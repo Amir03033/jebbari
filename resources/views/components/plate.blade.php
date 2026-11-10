@@ -16,10 +16,9 @@
 ])
 
 {{--
-    A project presented like a product launch: a large rounded tile, then the name
-    at display size, category, year and one line. With a real image the tile shows
-    it; without one it is a designed black panel with the name and the ring motif,
-    clearly typographic and never a fake interface.
+    A project as a large visual with a quiet caption: index, category, year,
+    then the name and one line. With a real image the frame shows it; without
+    one it is a typographic tile (x-tile). The whole plate is one link.
 --}}
 <a href="{{ $href }}" {{ $attributes->class('plate group block') }} data-cursor="{{ $cursor ?? __('site.cta.view_case') }}" data-reveal="group" @if (! $asset && ! $placeholder) data-tile @endif>
     <div class="plate-frame" data-ratio="{{ $ratio }}">
@@ -34,11 +33,7 @@
                             <span>{{ $number }}</span>
                         </div>
                     @else
-                        <div class="on-ink relative flex h-full flex-col justify-between overflow-clip p-6 md:p-10">
-                            <div class="rings tile-rings" aria-hidden="true"><span class="ring"></span><span class="ring"></span><span class="ring"></span><span class="ring-dot"></span></div>
-                            <p class="t-label relative text-muted">{{ $kind }}</p>
-                            <p class="{{ $large ? 'plate-name-xl' : 'plate-name' }} relative">{{ $title }}</p>
-                        </div>
+                        <x-tile :title="$title" :kind="$kind" :large="$large" />
                     @endif
                 </div>
             </div>

@@ -10,16 +10,18 @@
     $description = loc($service->description);
     $contact = \App\Content\Site::pageUrl('contact');
     $n = 1;
-    $number = fn () => str_pad((string) ++$n, 2, '0', STR_PAD_LEFT);
+    $number = function () use (&$n) {
+        return str_pad((string) ++$n, 2, '0', STR_PAD_LEFT);
+    };
 @endphp
 
-<x-layouts.app :seo="$seo" :preview="$preview" header-theme="dark">
+<x-layouts.app :seo="$seo" :preview="$preview">
     <article>
-        <x-page-opening number="01" :label="__('site.nav.services')" :title="$title" :lead="loc($service->summary)" :dark="true"
+        <x-page-opening number="01" :label="__('site.nav.services')" :title="$title" :lead="loc($service->summary)"
             :back="Locale::url('services')" :back-label="__('site.nav.services')" />
 
         @if ($service->image)
-            <div class="page pt-12 md:pt-20" data-reveal="group">
+            <div class="page-wide" data-reveal="group">
                 <div class="plate-frame" data-ratio="wide"><div class="plate-clip"><div class="plate-reveal"><div class="plate-img"><x-picture :asset="$service->image" sizes="(min-width: 1360px) 1264px, 100vw" :eager="true" /></div></div></div></div>
             </div>
         @endif
@@ -59,16 +61,12 @@
     </article>
 
     @if ($others->isNotEmpty())
-        <x-service-rows :services="$others" :number="$number()" :label="__('site.service.other')" surface="light" />
+        <x-service-rows :services="$others" :number="$number()" :label="__('site.service.other')" />
     @endif
 
     @if ($contact)
-        <section class="on-ink">
-            <x-section-label number="→" :label="__('site.nav.contact')" />
-            <div class="page-wide py-20 md:py-36" data-reveal="group">
-                <h2 class="t-display md:max-w-[85%]"><x-lines :lines="[__('site.service.cta')]" /></h2>
-                <p class="rise mt-12" data-delay="3"><x-button :href="$contact">{{ __('site.cta.contact') }}<span class="arrow" aria-hidden="true">→</span></x-button></p>
-            </div>
-        </section>
+        <x-cta-panel :lines="[__('site.service.cta')]">
+            <x-button :href="$contact">{{ __('site.cta.contact') }}<span class="arrow" aria-hidden="true">→</span></x-button>
+        </x-cta-panel>
     @endif
 </x-layouts.app>
