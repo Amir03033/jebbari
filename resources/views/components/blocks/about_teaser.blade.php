@@ -25,7 +25,7 @@
             <div @class(['col-span-12', 'md:col-span-6 md:col-start-7' => $asset, 'md:col-span-7 md:col-start-6' => ! $asset])>
                 <div class="rise space-y-6" data-delay="3">
                     @foreach ($paragraphs as $paragraph)
-                        <p @class(['t-statement' => $loop->first, 'text-muted max-w-[56ch]' => ! $loop->first])>{{ $paragraph }}</p>
+                        <p @class(['t-statement' => $loop->first, 'text-muted max-w-[56ch]' => ! $loop->first]) @if ($loop->first) data-fill @endif>{{ $paragraph }}</p>
                     @endforeach
                 </div>
 

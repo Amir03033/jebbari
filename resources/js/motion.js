@@ -52,9 +52,15 @@ function initReplay() {
     });
 }
 
-/* "View case" label that follows the pointer. Fine pointers only. */
-function initCursorLabel() {
-    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+
+/*
+ * Cursor: a quiet ring that trails the pointer and swells over links, buttons
+ * and project tiles, plus the "View case" label on tiles. The system cursor is
+ * never hidden. Fine pointers only, off under reduced motion.
+ */
+function initCursor() {
+    if (!finePointer.matches) {
         return;
     }
 
@@ -63,20 +69,60 @@ function initCursorLabel() {
     label.setAttribute('aria-hidden', 'true');
     document.body.append(label);
 
+    const ring = document.createElement('div');
+    ring.className = 'cursor-ring';
+    ring.setAttribute('aria-hidden', 'true');
+    const useRing = !reduceQuery.matches;
+
+    if (useRing) {
+        document.body.append(ring);
+    }
+
     let x = 0;
     let y = 0;
+    let rx = 0;
+    let ry = 0;
+    let scale = 1;
+    let target = 1;
     let frame = 0;
+    let seen = false;
 
-    const paint = () => {
+    const tick = () => {
         frame = 0;
-        label.style.transform = `translate3d(${x + 18}px, ${y + 18}px, 0)`;
+        rx += (x - rx) * 0.22;
+        ry += (y - ry) * 0.22;
+        scale += (target - scale) * 0.2;
+        ring.style.transform = `translate3d(${rx}px, ${ry}px, 0) translate(-50%, -50%) scale(${scale.toFixed(3)})`;
+
+        if (Math.abs(x - rx) > 0.2 || Math.abs(y - ry) > 0.2 || Math.abs(target - scale) > 0.01) {
+            frame = requestAnimationFrame(tick);
+        }
     };
 
     document.addEventListener('pointermove', (event) => {
         x = event.clientX;
         y = event.clientY;
-        frame ||= requestAnimationFrame(paint);
+        label.style.transform = `translate3d(${x + 18}px, ${y + 18}px, 0)`;
+
+        if (useRing) {
+            if (!seen) {
+                seen = true;
+                rx = x;
+                ry = y;
+                ring.classList.add('is-on');
+            }
+
+            const hit = event.target.closest?.('a, button, [data-cursor], summary, label');
+            const field = event.target.closest?.('input, textarea, select');
+
+            target = field ? 0.4 : hit ? 1.9 : 1;
+            ring.classList.toggle('is-hidden', Boolean(field));
+            frame ||= requestAnimationFrame(tick);
+        }
     });
+
+    document.documentElement.addEventListener('pointerleave', () => ring.classList.remove('is-on'));
+    document.documentElement.addEventListener('pointerenter', () => seen && ring.classList.add('is-on'));
 
     document.querySelectorAll('[data-cursor]').forEach((el) => {
         el.addEventListener('pointerenter', () => {
@@ -84,6 +130,161 @@ function initCursorLabel() {
             label.classList.add('is-on');
         });
         el.addEventListener('pointerleave', () => label.classList.remove('is-on'));
+    });
+}
+
+/* Buttons and tile arrows lean a little toward the pointer. Fine pointers only. */
+function initMagnet() {
+    if (!finePointer.matches || reduceQuery.matches) {
+        return;
+    }
+
+    document.querySelectorAll('.btn:not([disabled]), .plate .arrow-ring').forEach((el) => {
+        const strength = el.classList.contains('btn') ? 0.2 : 0.35;
+
+        el.addEventListener('pointermove', (event) => {
+            const rect = el.getBoundingClientRect();
+            const dx = event.clientX - (rect.left + rect.width / 2);
+            const dy = event.clientY - (rect.top + rect.height / 2);
+
+            el.style.translate = `${(dx * strength).toFixed(1)}px ${(dy * strength).toFixed(1)}px`;
+        });
+        el.addEventListener('pointerleave', () => (el.style.translate = ''));
+    });
+}
+
+/*
+ * Hero wordmark: with a mouse the letters lean toward the pointer (strongest
+ * for the nearest letter); a click on the full stop sends a wave through the
+ * rings. In the footer the same dot takes you back to the top.
+ */
+function initWordmark() {
+    const hero = document.querySelector('.hero');
+    const letters = hero ? [...hero.querySelectorAll('.wm-ch')] : [];
+
+    if (letters.length && finePointer.matches && !reduceQuery.matches) {
+        let frame = 0;
+        let px = 0;
+
+        const paint = () => {
+            frame = 0;
+
+            letters.forEach((letter) => {
+                const rect = letter.getBoundingClientRect();
+                const dx = (px - (rect.left + rect.width / 2)) / rect.width;
+                const lean = Math.max(-1.6, Math.min(1.6, dx)) * Math.exp(-((dx / 2.4) ** 2));
+
+                letter.style.setProperty('--lean', lean.toFixed(3));
+            });
+        };
+
+        hero.addEventListener('pointermove', (event) => {
+            px = event.clientX;
+            frame ||= requestAnimationFrame(paint);
+        });
+        hero.addEventListener('pointerleave', () => letters.forEach((letter) => letter.style.setProperty('--lean', '0')));
+    }
+
+    document.addEventListener('click', (event) => {
+        const stop = event.target.closest?.('.wordmark-xl .stop, .footer-mark .stop');
+
+        if (!stop) {
+            return;
+        }
+
+        const rings = document.querySelector('.hero .rings');
+
+        if (stop.closest('.footer-mark')) {
+            window.scrollTo({ top: 0, behavior: reduceQuery.matches ? 'auto' : 'smooth' });
+        } else if (rings) {
+            rings.classList.remove('is-wave');
+            void rings.offsetWidth;
+            rings.classList.add('is-wave');
+        }
+    });
+}
+
+/* Words that fill from faint to full as the paragraph passes through the viewport. */
+function initFill() {
+    if (reduceQuery.matches) {
+        return;
+    }
+
+    document.querySelectorAll('[data-fill]').forEach((el) => {
+        const words = el.textContent.trim().split(/\s+/);
+
+        el.textContent = '';
+        el.style.setProperty('--n', String(words.length));
+        el.style.setProperty('--fill', '0');
+
+        words.forEach((word, index) => {
+            const span = document.createElement('span');
+
+            span.className = 'fill-w';
+            span.textContent = word;
+            span.style.setProperty('--i', String(index));
+            el.append(span, index < words.length - 1 ? ' ' : '');
+        });
+    });
+}
+
+/*
+ * Sideways work run. Pinned on a laptop: the section is as tall as the
+ * viewport plus the distance the track has to travel; the sticky stage shows the
+ * track gliding as --p advances (see the scroll engine). Elsewhere: a swipe row.
+ */
+function initHScroll() {
+    const roots = [...document.querySelectorAll('[data-hs]')];
+
+    if (!roots.length) {
+        return;
+    }
+
+    const query = window.matchMedia('(min-width: 1024px) and (min-height: 700px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)');
+
+    const layout = () =>
+        roots.forEach((root) => {
+            const track = root.querySelector('[data-hs-track]');
+
+            root.classList.remove('is-pinned');
+            root.style.removeProperty('--hs-h');
+            root.style.removeProperty('--shift');
+
+            if (query.matches) {
+                root.classList.add('is-pinned');
+                const shift = Math.max(0, track.scrollWidth - window.innerWidth);
+
+                root.style.setProperty('--shift', `${shift}px`);
+                root.style.setProperty('--hs-h', `${window.innerHeight + shift}px`);
+            }
+        });
+
+    query.addEventListener('change', layout);
+    window.addEventListener('resize', layout, { passive: true });
+    window.addEventListener('load', layout);
+    layout();
+
+    // Keyboard: focusing a project that is still off to the side scrolls the page to bring it in.
+    roots.forEach((root) => {
+        root.addEventListener('focusin', (event) => {
+            const card = event.target.closest('.hs-card');
+
+            if (!root.classList.contains('is-pinned') || !card) {
+                return;
+            }
+
+            const rect = card.getBoundingClientRect();
+
+            if (rect.left >= 0 && rect.right <= window.innerWidth) {
+                return;
+            }
+
+            const shift = parseFloat(root.style.getPropertyValue('--shift')) || 1;
+            const progress = Math.min(1, Math.max(0, card.offsetLeft / shift));
+            const top = root.getBoundingClientRect().top + window.scrollY;
+
+            window.scrollTo({ top: top + progress * (root.offsetHeight - window.innerHeight), behavior: 'auto' });
+        });
     });
 }
 
@@ -136,7 +337,7 @@ function initProcess() {
  * so every browser follows exactly the same curve. Skipped under reduced motion.
  */
 function initScrollLinked() {
-    const items = document.querySelectorAll('[data-scroll]');
+    const items = document.querySelectorAll('[data-scroll], [data-fill]');
 
     if (reduceQuery.matches) {
         return;
@@ -144,10 +345,27 @@ function initScrollLinked() {
 
     let frame = 0;
 
+    // Progress 0 to 1 for each kind of scroll-linked element.
+    const progress = (el, rect, vh) => {
+        const mode = el.dataset.scroll || 'fill';
+
+        switch (mode) {
+            case 'exit':
+                return -rect.top / Math.max(rect.height, 1);
+            case 'pin':
+                return -rect.top / Math.max(rect.height - vh, 1);
+            case 'cross':
+                return (vh * 0.9 - rect.top) / Math.max(rect.height * 0.9, 1);
+            case 'fill':
+                return (vh * 0.9 - rect.top) / (vh * 0.5 + rect.height);
+            default:
+                return (vh - rect.top) / Math.min(Math.max(rect.height, 1), vh);
+        }
+    };
+
     const update = () => {
         frame = 0;
         const vh = window.innerHeight;
-
         const page = document.documentElement;
         const max = page.scrollHeight - vh;
 
@@ -155,9 +373,29 @@ function initScrollLinked() {
 
         items.forEach((el) => {
             const rect = el.getBoundingClientRect();
-            const raw = el.dataset.scroll === 'exit' ? -rect.top / Math.max(rect.height, 1) : (vh - rect.top) / Math.min(Math.max(rect.height, 1), vh);
 
-            el.style.setProperty('--p', Math.min(1, Math.max(0, raw)).toFixed(4));
+            // Far from the screen only the end values matter: skip the work.
+            if (rect.bottom < -vh * 1.5 || rect.top > vh * 2.5) {
+                return;
+            }
+
+            const value = Math.min(1, Math.max(0, progress(el, rect, vh))).toFixed(4);
+
+            if (el.dataset.fill !== undefined && !el.dataset.scroll) {
+                el.style.setProperty('--fill', value);
+            } else {
+                el.style.setProperty('--p', value);
+            }
+
+            if (el.dataset.scroll === 'pin' && el.classList.contains('is-pinned')) {
+                const count = el.querySelectorAll('.hs-card').length;
+                const index = el.querySelector('[data-hs-index]');
+                const current = String(Math.min(count, Math.floor(Number(value) * count) + 1)).padStart(2, '0');
+
+                if (index && index.textContent !== current) {
+                    index.textContent = current;
+                }
+            }
         });
     };
 
@@ -165,6 +403,7 @@ function initScrollLinked() {
 
     window.addEventListener('scroll', schedule, { passive: true });
     window.addEventListener('resize', schedule, { passive: true });
+    window.addEventListener('load', schedule);
     update();
 }
 
@@ -333,7 +572,11 @@ export function initMotion() {
     html.classList.add('motion-ready');
     initReveals();
     initReplay();
-    initCursorLabel();
+    initCursor();
+    initMagnet();
+    initWordmark();
+    initFill();
+    initHScroll();
     initProcess();
     initScrollLinked();
     initLive();

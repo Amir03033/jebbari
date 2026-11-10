@@ -10,6 +10,9 @@
     $contact = Site::pageUrl('contact');
 @endphp
 
+{{-- The full stop becomes the night: a dark circle grows from the orange dot until it fills the screen, and the closing section continues in it. --}}
+<div class="dot-bridge" data-scroll="cross" aria-hidden="true"><span class="dot-bridge-fill"></span><span class="dot-bridge-dot"></span></div>
+
 {{-- The ending: the question at the width of the screen, the email at display size, rings behind. It flows into the footer. --}}
 <section class="cta on-ink" aria-labelledby="cta-title" data-scroll="enter">
     <x-section-label :number="$number" :label="__('site.nav.contact')" />
