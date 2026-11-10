@@ -628,3 +628,113 @@
         display: none;
     }
 }
+
+
+/* ---------------- Mobile menu button ---------------- */
+.menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+}
+
+.menu-icon {
+    position: relative;
+    width: 0.875rem;
+    height: 0.5rem;
+}
+
+.menu-icon > span {
+    position: absolute;
+    inset-inline: 0;
+    height: 1px;
+    background-color: currentColor;
+    transition: transform var(--dur-base) var(--ease);
+}
+
+.menu-icon > span:first-child {
+    top: 0;
+}
+
+.menu-icon > span:last-child {
+    bottom: 0;
+}
+
+.menu-toggle[aria-expanded='true'] .menu-icon > span:first-child {
+    transform: translateY(3.5px) rotate(45deg);
+}
+
+.menu-toggle[aria-expanded='true'] .menu-icon > span:last-child {
+    transform: translateY(-3.5px) rotate(-45deg);
+}
+
+/* ---------------- Images arrive softly ----------------
+   The frame already holds the picture's space (width and height are set), so
+   fading in never moves anything. Without script the picture is simply shown. */
+picture {
+    display: block;
+    height: 100%;
+    background-color: var(--card);
+}
+
+.js picture img {
+    opacity: 0;
+    transition: opacity var(--dur-slow) var(--ease);
+}
+
+.js picture img.is-loaded {
+    opacity: 1;
+}
+
+/* ---------------- Form confirmation ---------------- */
+.sent-mark {
+    display: block;
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: 1.5rem;
+}
+
+.sent-mark circle,
+.sent-mark path {
+    fill: none;
+    stroke: var(--fg);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.sent-mark circle {
+    stroke: var(--line);
+}
+
+.sent-mark .sent-ring {
+    stroke: var(--signal);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .sent-mark .sent-ring,
+    .sent-mark path {
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        animation: sent-draw 900ms var(--ease) 150ms forwards;
+    }
+
+    .sent-mark path {
+        animation-delay: 650ms;
+        animation-duration: 600ms;
+    }
+
+    @keyframes sent-draw {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+}
+
+.menu-item-plain::after {
+    display: none;
+}

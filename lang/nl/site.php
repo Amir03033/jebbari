@@ -12,6 +12,28 @@ return [
     'meta_description' => 'Jebbari is een digitale studio in Zwolle en Amsterdam. Wij ontwerpen en bouwen websites en webapplicaties voor Nederlandse bedrijven.',
     'breadcrumb' => 'Kruimelpad',
 
+    'live' => [
+        'title' => 'Live status',
+        'all_ok' => 'Alles online',
+        'degraded' => 'Storing gemeten',
+        'measuring' => 'Wordt gemeten…',
+        'note' => 'Echt gemeten, vanuit jouw browser.',
+        'site' => 'Website',
+        'pages' => 'Pagina\'s',
+        'cms' => 'Beheer',
+        'ms' => 'ms',
+    ],
+    'marquee' => [
+        'label' => 'Technologie',
+    ],
+    'theme' => [
+        'toggle' => 'Wissel tussen licht en donker',
+        'light' => 'Licht',
+        'dark' => 'Donker',
+    ],
+    'hscroll' => [
+        'progress' => 'Voortgang door de projecten',
+    ],
     'status' => [
         'open' => 'Neemt projecten aan',
         'closed' => 'Volgeboekt',

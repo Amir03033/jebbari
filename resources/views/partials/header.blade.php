@@ -52,12 +52,13 @@
             @click="toggle"
             :aria-expanded="expanded"
             aria-controls="mobile-menu"
-            class="t-label ml-auto min-h-11 px-1 md:hidden"
+            class="menu-toggle t-label ml-auto md:hidden"
         >
             <span class="grid" :data-open="expanded">
                 <span class="menu-label" data-state="closed">{{ __('site.nav.menu') }}</span>
                 <span class="menu-label" data-state="open">{{ __('site.nav.close') }}</span>
             </span>
+            <span class="menu-icon" aria-hidden="true"><span></span><span></span></span>
         </button>
     </div>
 
@@ -70,17 +71,22 @@
                         <a
                             href="{{ $item['url'] }}"
                             @if ($loop->first) x-ref="firstLink" @endif
-                            class="flex items-center gap-4 py-5 text-[clamp(2.5rem,12vw,4.5rem)] font-medium leading-none tracking-[-0.04em]"
+                            class="flex items-baseline gap-4 py-5 text-[clamp(2.25rem,11vw,4rem)] font-medium leading-none tracking-[-0.04em]"
                             @if ($item['key'] && $current === $item['key']) aria-current="page" @endif
                         >
-                            @if ($item['key'] && $current === $item['key'])<span class="size-2.5 rounded-full bg-signal" aria-hidden="true"></span>@endif
-                            {{ $item['label'] }}
+                            <span class="t-label w-6 shrink-0 tracking-normal text-muted">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                            <span>{{ $item['label'] }}</span>
+                            @if ($item['key'] && $current === $item['key'])<span class="size-2.5 shrink-0 self-center rounded-full bg-signal" aria-hidden="true"></span>@endif
                         </a>
                     </li>
                 @endforeach
             </ul>
 
-            <div class="mt-10 flex items-center justify-between">
+            @if ($contactUrl = Site::pageUrl('contact'))
+                <p class="menu-item menu-item-plain mt-10"><x-button :href="$contactUrl" class="w-full">{{ __('site.cta.contact') }}<span class="arrow" aria-hidden="true">→</span></x-button></p>
+            @endif
+
+            <div class="mt-8 flex items-center justify-between">
                 <x-status class="text-muted" />
                 <a href="{{ $switchUrl }}" hreflang="{{ $other }}" lang="{{ $other }}" class="link link-bare t-label" aria-label="{{ __('site.nav.language') }}: {{ strtoupper($other) }}">
                     <span class="text-muted">{{ strtoupper(app()->getLocale()) }}</span> / {{ strtoupper($other) }}

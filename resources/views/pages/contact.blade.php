@@ -41,8 +41,12 @@
                 <div id="contact-form" class="card col-span-12 scroll-mt-28 p-6 focus:outline-none md:col-span-6 md:p-10" tabindex="-1">
                     @if ($sent)
                         <div role="status">
+                            <svg class="sent-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><circle cx="32" cy="32" r="30"/><circle class="sent-ring" cx="32" cy="32" r="30" pathLength="1"/><path d="M21 33.5l8 8 14-17" pathLength="1"/></svg>
                             <h2 class="t-h3">{{ __('site.contact.sent_title') }}</h2>
                             <p class="t-body mt-3 text-muted">{{ __('site.contact.sent_text') }}</p>
+                            @if ($workUrl = Site::pageUrl('work'))
+                                <p class="mt-8"><x-link :href="$workUrl" arrow>{{ __('site.cta.all_work') }}</x-link></p>
+                            @endif
                         </div>
                     @else
                         <form method="post" action="{{ $action }}#contact-form" class="grid gap-6" novalidate>

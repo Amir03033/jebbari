@@ -168,6 +168,106 @@ function initScrollLinked() {
     update();
 }
 
+/*
+ * Live status: really requests three of this site's own addresses (HEAD, no
+ * cookies) every 20 seconds while the panel is on screen, and draws what came
+ * back: latency bars and a verdict. Nothing is simulated.
+ */
+function initLive() {
+    const root = document.querySelector('[data-live]');
+
+    if (!root || !('fetch' in window)) {
+        return;
+    }
+
+    const rows = [...root.querySelectorAll('[data-ping]')];
+    const verdict = root.querySelector('[data-live-state]');
+    const history = rows.map(() => []);
+    let timer = 0;
+
+    const probe = async (url) => {
+        const start = performance.now();
+
+        try {
+            const response = await fetch(url, { method: 'HEAD', cache: 'no-store', credentials: 'omit' });
+
+            return { ok: response.ok, ms: Math.round(performance.now() - start) };
+        } catch {
+            return { ok: false, ms: 0 };
+        }
+    };
+
+    const run = async () => {
+        const results = await Promise.all(rows.map((row) => probe(row.dataset.ping)));
+
+        results.forEach((result, index) => {
+            const row = rows[index];
+            const list = history[index];
+            const bars = row.querySelectorAll('.live-bar');
+
+            list.push(result);
+            if (list.length > bars.length) {
+                list.shift();
+            }
+
+            const offset = bars.length - list.length;
+
+            bars.forEach((bar, i) => {
+                const entry = list[i - offset];
+
+                bar.classList.toggle('is-on', Boolean(entry));
+                if (entry) {
+                    bar.style.setProperty('--h', Math.min(1, Math.max(0.15, entry.ms / 500)).toFixed(2));
+                }
+            });
+
+            row.dataset.ok = String(result.ok);
+            row.querySelector('[data-ping-ms]').textContent = result.ok ? String(result.ms) : '–';
+        });
+
+        const allOk = results.every((result) => result.ok);
+
+        root.dataset.state = allOk ? 'ok' : 'bad';
+        verdict.textContent = allOk ? root.dataset.ok : root.dataset.bad;
+    };
+
+    const start = () => {
+        if (!timer) {
+            run();
+            timer = window.setInterval(run, 20000);
+        }
+    };
+
+    const stop = () => {
+        window.clearInterval(timer);
+        timer = 0;
+    };
+
+    let visible = false;
+
+    const sync = () => (visible && !document.hidden ? start() : stop());
+
+    new IntersectionObserver((entries) => {
+        visible = entries.some((entry) => entry.isIntersecting);
+        sync();
+    }).observe(root);
+    document.addEventListener('visibilitychange', sync);
+}
+
+/* Pictures fade in once decoded. The frame keeps its size, so nothing shifts. */
+function initImages() {
+    document.querySelectorAll('picture img').forEach((img) => {
+        const show = () => img.classList.add('is-loaded');
+
+        if (img.complete) {
+            show();
+        } else {
+            img.addEventListener('load', show, { once: true });
+            img.addEventListener('error', show, { once: true });
+        }
+    });
+}
+
 /* Copy the email address, with a quiet confirmation read out by screen readers. */
 function initCopy() {
     document.addEventListener('click', async (event) => {
@@ -236,6 +336,8 @@ export function initMotion() {
     initCursorLabel();
     initProcess();
     initScrollLinked();
+    initLive();
+    initImages();
     initCopy();
     initHeaderTheme();
     initStatus();

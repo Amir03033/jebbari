@@ -476,3 +476,130 @@
         }
     }
 }
+
+
+@layer components {
+    /* ---------------- Live status panel ---------------- */
+    .live {
+        padding: 1.25rem 1.25rem 1rem;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-card);
+        background-color: var(--card);
+    }
+
+    .live-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .live-state {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .live-pulse {
+        position: relative;
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 50%;
+        background-color: var(--muted);
+        transition: background-color var(--dur-base) var(--ease);
+    }
+
+    .live[data-state='ok'] .live-pulse {
+        background-color: var(--fg);
+    }
+
+    .live[data-state='bad'] .live-pulse {
+        background-color: var(--signal);
+    }
+
+    .live-pulse::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background-color: inherit;
+        opacity: 0;
+    }
+
+    .live-rows {
+        margin-top: 1rem;
+    }
+
+    .live-row {
+        display: grid;
+        grid-template-columns: 5.5rem 1fr auto;
+        align-items: center;
+        gap: 1rem;
+        padding-block: 0.7rem;
+        border-top: 1px solid var(--line);
+    }
+
+    .live-name {
+        font-size: 0.9375rem;
+    }
+
+    .live-bars {
+        display: flex;
+        align-items: flex-end;
+        gap: 3px;
+        height: 1.25rem;
+    }
+
+    .live-bar {
+        flex: 1;
+        height: 100%;
+        border-radius: 2px;
+        background-color: var(--fg);
+        opacity: 0.18;
+        transform: scaleY(0.12);
+        transform-origin: bottom center;
+        transition:
+            transform var(--dur-base) var(--ease),
+            opacity var(--dur-base) var(--ease);
+    }
+
+    .live-bar.is-on {
+        opacity: 0.8;
+        transform: scaleY(var(--h, 0.2));
+    }
+
+    .live-row[data-ok='false'] .live-bar.is-on:last-child {
+        background-color: var(--signal);
+        opacity: 1;
+    }
+
+    .live-ms {
+        min-width: 4.5rem;
+        text-align: right;
+    }
+
+    .live-note {
+        margin-top: 0.5rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--line);
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .live[data-state='ok'] .live-pulse::after {
+        animation: live-ping 2.4s var(--ease) infinite;
+    }
+
+    @keyframes live-ping {
+        0% {
+            opacity: 0.5;
+            transform: scale(1);
+        }
+
+        80%,
+        100% {
+            opacity: 0;
+            transform: scale(3);
+        }
+    }
+}

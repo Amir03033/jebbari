@@ -32,6 +32,7 @@
             @if ($note)
                 <p class="t-statement mt-8 max-w-[22ch]">{{ $note }}</p>
             @endif
+            <x-live-status class="mt-10 max-w-[26rem]" />
         </div>
 
         <div class="col-span-6 md:col-span-2 md:col-start-7">
