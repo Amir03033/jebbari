@@ -13,7 +13,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
-    <meta name="color-scheme" content="light dark">
+    <meta name="color-scheme" content="light">
     <title>{{ __('site.error.500_title') }} · {{ config('site.name') }}</title>
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
     <link rel="stylesheet" href="{{ asset('css/standalone.css') }}">

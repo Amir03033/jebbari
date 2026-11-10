@@ -77,8 +77,8 @@
 }
 
 /* Dark theme: deep charcoal, white, muted greys, the accent lifted so it stays
-   legible (7.6:1). Follows the visitor's system unless they chose (the header
-   switch, remembered in this browser). */
+   legible (7.6:1). The site opens in the light theme for everyone; dark is a
+   choice made with the header switch and remembered in this browser. */
 :root[data-theme='dark'] {
     --paper: #0a0a0c;
     --paper-2: #131316;
@@ -96,27 +96,6 @@
     --shadow: 0 1px 0 rgba(243, 243, 241, 0.04) inset, 0 30px 70px -30px rgba(0, 0, 0, 0.7);
 
     color-scheme: dark;
-}
-
-@media (prefers-color-scheme: dark) {
-    :root:not([data-theme='light']) {
-        --paper: #0a0a0c;
-        --paper-2: #131316;
-        --paper-3: #1b1b1f;
-        --ink: #f3f3f1;
-        --ink-2: #9a9aa1;
-        --line: rgba(243, 243, 241, 0.11);
-        --line-strong: rgba(243, 243, 241, 0.26);
-        --signal: #8ea2ff;
-        --on-signal: #0a0a0c;
-        --panel: #141417;
-        --panel-2: #1d1d21;
-        --glow: rgba(110, 135, 255, 0.14);
-        --glow-2: rgba(243, 243, 241, 0.04);
-        --shadow: 0 1px 0 rgba(243, 243, 241, 0.04) inset, 0 30px 70px -30px rgba(0, 0, 0, 0.7);
-
-        color-scheme: dark;
-    }
 }
 
 /* Contrast panel: near-black in the light theme, lifted charcoal in the dark

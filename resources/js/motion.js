@@ -809,11 +809,10 @@ function initCounters() {
     });
 }
 
-/* Light/dark switch. The first visit follows the system; a choice is remembered in this browser. */
+/* Light/dark switch. The site opens light; choosing dark is remembered in this browser. */
 function initTheme() {
     const root = document.documentElement;
-    const system = window.matchMedia('(prefers-color-scheme: dark)');
-    const isDark = () => (root.dataset.theme ? root.dataset.theme === 'dark' : system.matches);
+    const isDark = () => root.dataset.theme === 'dark';
 
     const sync = () =>
         document.querySelectorAll('[data-theme-toggle]').forEach((button) => button.setAttribute('aria-pressed', String(isDark())));
@@ -846,7 +845,6 @@ function initTheme() {
         document.startViewTransition(apply).finished.finally(() => root.classList.remove('theme-switching'));
     });
 
-    system.addEventListener('change', sync);
     sync();
 }
 

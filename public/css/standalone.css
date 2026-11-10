@@ -12,17 +12,6 @@
     --glow: rgba(43, 78, 245, 0.1);
 }
 
-@media (prefers-color-scheme: dark) {
-    :root {
-        --paper: #0a0a0c;
-        --ink: #f3f3f1;
-        --muted: #9a9aa1;
-        --line: rgba(243, 243, 241, 0.14);
-        --signal: #8ea2ff;
-        --glow: rgba(110, 135, 255, 0.14);
-    }
-}
-
 * {
     box-sizing: border-box;
     margin: 0;

@@ -10,7 +10,7 @@
     }, 3000);
 })(document);
 
-/* Theme: a saved choice wins over the system setting. Runs before first paint
+/* Theme: light unless the visitor chose dark with the switch. Runs before first paint
    so there is no flash. Storage can be unavailable (private windows): ignore. */
 (function (d) {
     try {

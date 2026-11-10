@@ -81,3 +81,7 @@ measured numbers in `config/specs.php`.
 - **404:** the number in the background, a search button and the main pages as ways onward.
 - **503 and 500:** standalone pages (`resources/views/errors/503.blade.php`, `500.blade.php`, `public/css/standalone.css`). They use no layout, database or built assets, so they show during `php artisan down`, a rebuild or an outage. The 503 page refreshes itself every 30 seconds.
 - **Sharing:** articles and case studies have a share row (copy link, the device's share sheet, LinkedIn, X, WhatsApp, email: plain links, nothing is loaded from those sites) and articles end with an author card taken from the About page. The preview card other people see is the page title, description and generated share image.
+
+## Round 3
+
+- **Light by default.** The site no longer follows the visitor's system setting: everyone gets the light theme, and dark is a choice made with the header switch (remembered in that browser). The maintenance and error pages are light only.

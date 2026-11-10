@@ -41,7 +41,9 @@ class InteractionTest extends TestCase
 
     public function test_the_theme_switch_is_in_the_header_and_the_saved_choice_is_applied_before_paint(): void
     {
-        $this->get('/nl')->assertSee('data-theme-toggle', false)->assertSee('prefers-color-scheme: dark', false);
+        // The site opens light for everyone; dark is only ever the visitor's own choice.
+        $this->get('/nl')->assertSee('data-theme-toggle', false)->assertSee('<meta name="color-scheme" content="light">', false)->assertDontSee('prefers-color-scheme', false);
+        $this->assertStringNotContainsString('prefers-color-scheme', file_get_contents(resource_path('css/app.css')));
         $this->assertStringContainsString("localStorage.getItem('theme')", file_get_contents(public_path('js/motion-flag.js')));
     }
 

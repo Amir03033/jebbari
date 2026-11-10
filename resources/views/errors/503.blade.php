@@ -13,7 +13,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
-    <meta name="color-scheme" content="light dark">
+    <meta name="color-scheme" content="light">
     <meta http-equiv="refresh" content="30">
     <title>{{ __('site.error.503_title') }} · {{ config('site.name') }}</title>
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
