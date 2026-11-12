@@ -70,6 +70,7 @@ class AiVisibilityTest extends TestCase
         $this->assertStringContainsString(self::BIO_NL, $nl);
         $this->assertStringContainsString('href="https://amirs.life"', $nl);
         $this->assertStringContainsString('BarberCuts', $nl);
+        $this->assertStringContainsString('SaaS-platform om servers en online omgevingen te monitoren', $nl);
 
         $en = $this->get('/en/about')->assertOk()->getContent();
         $this->assertStringContainsString(self::BIO_EN, $en);
