@@ -57,3 +57,14 @@
 - [ ] Capital I looks like lowercase l in "Iets te bouwen?" (also in Instrument Sans). Options: keep, or reword the closing question in the CMS.
 - [ ] Real screenshots, objectives and features for each case study (new fields in the project form); until then ServerScope uses a typographic tile.
 - [ ] Optional owner photo for About (the layout works without one).
+
+## Added for AI and search visibility (docs/AI-VISIBILITY.md)
+
+- [ ] After deploying: run `php artisan cms:draft-about`, review the About text in /admin and publish it.
+- [ ] Enter the exact LinkedIn and GitHub URLs in Site > Social links (they feed the Person `sameAs` and `llms.txt`).
+- [ ] Check Cloudflare / Plesk for AI-bot blocking outside the app.
+- [ ] ServerScope: one sentence on what it solves (About page and project page).
+- [ ] BarberCuts: confirm the client agrees to be shown as a project and to a "Built by Amir Jebbari" footer credit.
+- [ ] Photo for the About page (own professional portrait), if wanted.
+- [ ] Phase 5: choose 3 article topics and supply the facts for each.
+- [ ] Place the external profile texts (LinkedIn, GitHub, KVK, Google Business Profile) and the snippets for amirs.life and project sites.
