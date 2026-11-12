@@ -170,4 +170,25 @@ return [
         '429_text' => 'Please wait a moment and try again.',
         'home' => 'Back to the homepage',
     ],
+
+    // The standard short bio (docs/AI-VISIBILITY.md): use it word for word everywhere.
+    // /llms.txt is always written in English, so these lines exist only here.
+    'llms' => [
+        'pages' => 'Main pages',
+        'about_nl' => 'Over mij',
+        'about_note' => 'who Amir Jebbari is and what he does (Dutch)',
+        'about_en' => 'About',
+        'about_en_note' => 'the same page in English',
+        'work' => 'Work',
+        'work_note' => 'projects built by Jebbari',
+        'services' => 'Services',
+        'blog' => 'Blog',
+        'contact' => 'Contact',
+        'projects' => 'Projects',
+        'related' => 'Related sites and profiles',
+    ],
+
+    'founder' => [
+        'bio' => 'Amir Jebbari is the founder of Jebbari, based in Amsterdam and Zwolle, the Netherlands. He builds web applications with Laravel, Vue and TypeScript.',
+    ],
 ];

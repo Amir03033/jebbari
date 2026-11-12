@@ -37,9 +37,12 @@ class Renderer
         $title = loc($page->title);
         $intro = collect($page->blocks ?? [])->firstWhere('type', 'intro');
 
-        $jsonld = $key === 'home'
-            ? [StructuredData::organization($canonical), StructuredData::website($canonical)]
-            : [StructuredData::breadcrumbs([['name' => __('site.nav.home'), 'url' => Locale::url('home')], ['name' => $title, 'url' => $canonical]])];
+        // Organization, website and founder are added to every page by Seo::make().
+        $jsonld = $key === 'home' ? [] : [StructuredData::breadcrumbs([['name' => __('site.nav.home'), 'url' => Locale::url('home')], ['name' => $title, 'url' => $canonical]])];
+
+        if ($key === 'about') {
+            $jsonld[] = StructuredData::profilePage($canonical, $title);
+        }
 
         $hero = $key === 'home' ? collect($page->blocks ?? [])->firstWhere('type', 'hero') : null;
 

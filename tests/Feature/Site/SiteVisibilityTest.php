@@ -17,7 +17,7 @@ class SiteVisibilityTest extends TestCase
     {
         $this->seed(CmsSeeder::class);
 
-        foreach (['/nl', '/en', '/nl/werk', '/en/work', '/nl/diensten', '/nl/over-ons', '/nl/blog', '/nl/contact'] as $url) {
+        foreach (['/nl', '/en', '/nl/werk', '/en/work', '/nl/diensten', '/nl/over-mij', '/nl/blog', '/nl/contact'] as $url) {
             $this->get($url)->assertNotFound();
         }
     }
@@ -26,7 +26,7 @@ class SiteVisibilityTest extends TestCase
     {
         $this->publishSite();
 
-        foreach (['/nl', '/en', '/nl/werk', '/en/work', '/nl/diensten', '/en/services', '/nl/over-ons', '/en/about', '/nl/blog', '/en/blog', '/nl/contact', '/en/contact'] as $url) {
+        foreach (['/nl', '/en', '/nl/werk', '/en/work', '/nl/diensten', '/en/services', '/nl/over-mij', '/en/about', '/nl/blog', '/en/blog', '/nl/contact', '/en/contact'] as $url) {
             $this->get($url)->assertOk();
         }
     }
@@ -35,9 +35,9 @@ class SiteVisibilityTest extends TestCase
     {
         $this->publishSite();
         $about = Page::where('key', 'about')->first();
-        $about->forceFill(['title' => ['nl' => 'Over ons', 'en' => '']])->saveQuietly();
+        $about->forceFill(['title' => ['nl' => 'Over mij', 'en' => '']])->saveQuietly();
 
-        $this->get('/nl/over-ons')->assertOk();
+        $this->get('/nl/over-mij')->assertOk();
         $this->get('/en/about')->assertNotFound();
     }
 

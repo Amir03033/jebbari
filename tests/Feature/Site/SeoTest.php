@@ -36,7 +36,7 @@ class SeoTest extends TestCase
         $service = $this->makeService();
         $project = $this->makeProject();
         $post = $this->makePost();
-        $urls = ['/nl', '/nl/werk', '/nl/diensten', '/nl/over-ons', '/nl/blog', '/nl/contact', "/nl/diensten/{$service->slug_nl}", "/nl/werk/{$project->slug_nl}", "/nl/blog/{$post->slug_nl}"];
+        $urls = ['/nl', '/nl/werk', '/nl/diensten', '/nl/over-mij', '/nl/blog', '/nl/contact', "/nl/diensten/{$service->slug_nl}", "/nl/werk/{$project->slug_nl}", "/nl/blog/{$post->slug_nl}"];
 
         $titles = [];
         foreach ($urls as $url) {
@@ -280,7 +280,7 @@ class SeoTest extends TestCase
         $project = $this->makeProject();
         $post = $this->makePost();
 
-        foreach (['/nl', '/en', '/nl/werk', '/nl/diensten', '/nl/over-ons', '/nl/blog', '/nl/contact', "/nl/diensten/{$service->slug_nl}", "/nl/werk/{$project->slug_nl}", "/nl/blog/{$post->slug_nl}"] as $url) {
+        foreach (['/nl', '/en', '/nl/werk', '/nl/diensten', '/nl/over-mij', '/nl/blog', '/nl/contact', "/nl/diensten/{$service->slug_nl}", "/nl/werk/{$project->slug_nl}", "/nl/blog/{$post->slug_nl}"] as $url) {
             $response = $this->get($url)->assertOk();
             $html = $response->getContent();
             $csp = $response->headers->get('Content-Security-Policy');

@@ -63,7 +63,7 @@ class HomepageTest extends TestCase
     public function test_the_hidden_about_teaser_is_not_shown_and_appears_once_written(): void
     {
         $this->publishSite();
-        $this->get('/nl')->assertDontSee('Over mij');
+        $this->get('/nl')->assertDontSee('Meer over mij');
 
         $home = $this->home();
         $blocks = collect($home->blocks)->map(function ($b) {
@@ -87,7 +87,7 @@ class HomepageTest extends TestCase
         $blocks = collect($home->blocks)->map(fn ($b) => $b['type'] === 'about_teaser' ? array_replace_recursive($b, ['data' => ['visible' => true]]) : $b)->all();
         $home->forceFill(['blocks' => $blocks])->saveQuietly();
 
-        $this->get('/nl')->assertOk()->assertDontSee('Over mij');
+        $this->get('/nl')->assertOk()->assertDontSee('Meer over mij');
     }
 
     public function test_services_show_only_published_services_in_cms_order(): void
@@ -188,7 +188,7 @@ class HomepageTest extends TestCase
         $this->makeService();
         Project::where('slug_en', 'serverscope')->firstOrFail()->publish();
 
-        foreach (['/nl', '/en', '/nl/werk', '/nl/diensten', '/nl/over-ons', '/nl/blog', '/nl/contact', '/nl/werk/serverscope'] as $url) {
+        foreach (['/nl', '/en', '/nl/werk', '/nl/diensten', '/nl/over-mij', '/nl/blog', '/nl/contact', '/nl/werk/serverscope'] as $url) {
             $this->get($url)->assertOk()->assertDontSee('[[')->assertDontSee('OWNER')->assertDontSee('Lorem');
         }
     }

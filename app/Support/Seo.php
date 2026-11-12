@@ -60,7 +60,8 @@ class Seo
             'locale' => $locale === 'nl' ? 'nl_NL' : 'en_GB',
             'localeAlternates' => isset($alternates[$other]) ? [$other === 'nl' ? 'nl_NL' : 'en_GB'] : [],
             'siteName' => $site,
-            'jsonld' => $in['jsonld'] ?? [],
+            // Organization, website and founder on every page, then the page's own data.
+            'jsonld' => [...StructuredData::global(), ...($in['jsonld'] ?? [])],
         ];
     }
 }

@@ -35,7 +35,7 @@ class CmsSeeder extends Seeder
     {
         $titles = [
             'home' => ['Home', 'Home'], 'work' => ['Werk', 'Work'], 'services' => ['Diensten', 'Services'],
-            'about' => ['Over ons', 'About'], 'contact' => ['Contact', 'Contact'], 'blog' => ['Blog', 'Blog'],
+            'about' => ['Over mij', 'About'], 'contact' => ['Contact', 'Contact'], 'blog' => ['Blog', 'Blog'],
         ];
 
         foreach ($titles as $key => [$nl, $en]) {
@@ -148,7 +148,7 @@ class CmsSeeder extends Seeder
 
         $items = [
             ['header', 'work', 'Werk', 'Work'], ['header', 'services', 'Diensten', 'Services'],
-            ['header', 'about', 'Over ons', 'About'], ['header', 'blog', 'Blog', 'Blog'], ['header', 'contact', 'Contact', 'Contact'],
+            ['header', 'about', 'Over mij', 'About'], ['header', 'blog', 'Blog', 'Blog'], ['header', 'contact', 'Contact', 'Contact'],
             ['footer', 'privacy', 'Privacy', 'Privacy'], ['footer', 'terms', 'Algemene voorwaarden', 'Terms and conditions'],
         ];
 
