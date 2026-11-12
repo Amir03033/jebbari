@@ -126,6 +126,7 @@ return [
         'related' => 'Keep reading',
         'cta' => 'Want to talk it through?',
         'reading' => '{1} :count minute read|[2,*] :count minute read',
+        'by' => 'By',
     ],
 
     'legal' => ['updated' => 'Last updated'],
@@ -185,6 +186,7 @@ return [
         'blog' => 'Blog',
         'contact' => 'Contact',
         'projects' => 'Projects',
+        'articles' => 'Articles by Amir Jebbari',
         'related' => 'Related sites and profiles',
     ],
 

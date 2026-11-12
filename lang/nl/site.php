@@ -126,6 +126,7 @@ return [
         'related' => 'Lees verder',
         'cta' => 'Wil je het bespreken?',
         'reading' => '{1} :count minuut lezen|[2,*] :count minuten lezen',
+        'by' => 'Door',
     ],
 
     'legal' => ['updated' => 'Laatst bijgewerkt'],

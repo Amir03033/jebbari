@@ -76,9 +76,15 @@ The `@id`s are `https://jebbari.nl/#amir`, `https://jebbari.nl/#org` and `https:
 - [ ] **Dev.to / Hashnode / Medium**: cross-posts of the blog articles with a canonical link to jebbari.nl.
 - [ ] **Wikidata**: only later, once independent sources exist.
 
-## Content (phase 5): not started
+## Content (phase 5)
 
-Needs the owner's choice of 3 topics and the facts for each (what was built, what was learned). Articles will be published through the CMS as drafts, authored as Amir Jebbari, with no results, figures or quotes that were not supplied.
+The blog already exists in the CMS. Every article now:
+
+- shows "Door / By Amir Jebbari" under the title, linking to the About page (`rel="author"`);
+- has `BlogPosting` JSON-LD with `author` = the Person `#amir` and `publisher` = `#org`, plus `datePublished` and `dateModified`;
+- is listed in `/llms.txt` under "Articles by Amir Jebbari" (latest 20, English version when it exists).
+
+For the owner, per article in the CMS: start with a two-sentence summary in the excerpt field (it is shown above the text and used as meta description), mention "Amir Jebbari" and "Zwolle" where it reads naturally, and cross-post to Dev.to / Hashnode / Medium with a canonical link to the jebbari.nl URL.
 
 ## Measuring (phase 6)
 

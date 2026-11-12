@@ -153,7 +153,8 @@ class StructuredData
             'mainEntityOfPage' => $url,
             'datePublished' => $post->published_at?->toIso8601String(),
             'dateModified' => $post->updated_at?->toIso8601String(),
-            'author' => ['@type' => 'Organization', '@id' => self::id('org'), 'name' => self::siteName()],
+            // Every article is written by the founder (owner decision, docs/AI-VISIBILITY.md).
+            'author' => ['@type' => 'Person', '@id' => self::id('amir'), 'name' => config('site.founder.name'), 'url' => Site::pageUrl('about') ?? Locale::url('home')],
             'publisher' => ['@type' => 'Organization', '@id' => self::id('org'), 'name' => self::siteName()],
         ];
 

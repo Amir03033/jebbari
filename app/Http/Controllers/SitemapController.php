@@ -56,6 +56,13 @@ class SitemapController extends Controller
             ->map(fn ($p) => $line(loc($p->title, 'en'), Locale::route('work.show', ['slug' => $p->slugFor('en')], 'en'), (string) loc($p->kind, 'en')))
             ->filter()->values()->all();
 
+        $articles = Site::postsQuery()->get()->filter(fn ($p) => $p->isTranslatedIn('en') || $p->isTranslatedIn('nl'))->take(20)
+            ->map(function ($p) use ($line) {
+                $l = $p->isTranslatedIn('en') ? 'en' : 'nl';
+
+                return $line((string) loc($p->title, $l), Locale::route('blog.show', ['slug' => $p->slugFor($l)], $l), trim(preg_replace('/\s+/', ' ', strip_tags((string) loc($p->excerpt, $l)))));
+            })->filter()->values()->all();
+
         $related = collect(config('site.founder.same_as', []))->merge(array_column(Site::social(), 'url'))->unique()
             ->map(fn ($url) => $line(preg_replace('#^https?://(www\.)?#', '', rtrim($url, '/')), $url))->values()->all();
 
@@ -65,6 +72,7 @@ class SitemapController extends Controller
             trans('site.founder.bio', [], 'nl'),
             implode("\n", ['## '.__('site.llms.pages'), ...$pages]),
             $projects ? implode("\n", ['## '.__('site.llms.projects'), ...$projects]) : null,
+            $articles ? implode("\n", ['## '.__('site.llms.articles'), ...$articles]) : null,
             $related ? implode("\n", ['## '.__('site.llms.related'), ...$related]) : null,
         ];
 

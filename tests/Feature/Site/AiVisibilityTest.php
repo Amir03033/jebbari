@@ -6,13 +6,14 @@ use App\Models\NavigationItem;
 use App\Models\Page;
 use App\Support\Settings;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Support\BuildsSiteContent;
 use Tests\Support\PublishesSite;
 use Tests\TestCase;
 
 /** The About page, founder data, robots.txt and llms.txt that tell search engines and AI who Amir Jebbari is. */
 class AiVisibilityTest extends TestCase
 {
-    use PublishesSite, RefreshDatabase;
+    use BuildsSiteContent, PublishesSite, RefreshDatabase;
 
     private const BIO_NL = 'Amir Jebbari is de oprichter van Jebbari, gevestigd in Amsterdam en Zwolle.';
 
@@ -136,5 +137,21 @@ class AiVisibilityTest extends TestCase
         $this->assertStringContainsString(']('.url('/en/about').')', $llms);
         $this->assertStringContainsString('[amirs.life](https://amirs.life)', $llms);
         $this->assertStringNotContainsString(url('/en/blog'), $llms);
+    }
+
+    public function test_articles_are_credited_to_amir_jebbari_in_html_json_ld_and_llms_txt(): void
+    {
+        $this->draftAndPublishAbout();
+        $post = $this->makePost();
+
+        $html = $this->get("/nl/blog/{$post->slug_nl}")->assertOk()->getContent();
+        $this->assertStringContainsString('Door <a href="'.url('/nl/over-mij').'" class="link link-bare" rel="author">Amir Jebbari</a>', $html);
+
+        $article = collect($this->jsonLd($html))->firstWhere('@type', 'BlogPosting');
+        $this->assertSame('Person', $article['author']['@type']);
+        $this->assertSame(url('/').'/#amir', $article['author']['@id']);
+        $this->assertSame(url('/').'/#org', $article['publisher']['@id']);
+
+        $this->assertStringContainsString('- [An article]('.url("/en/blog/{$post->slug_en}").'): Short excerpt.', $this->get('/llms.txt')->getContent());
     }
 }

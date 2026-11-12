@@ -66,5 +66,5 @@
 - [ ] ServerScope: one sentence on what it solves (About page and project page).
 - [ ] BarberCuts: confirm the client agrees to be shown as a project and to a "Built by Amir Jebbari" footer credit.
 - [ ] Photo for the About page (own professional portrait), if wanted.
-- [ ] Phase 5: choose 3 article topics and supply the facts for each.
+- [ ] Blog: check each article has a two-sentence summary in the excerpt field and an English version where possible.
 - [ ] Place the external profile texts (LinkedIn, GitHub, KVK, Google Business Profile) and the snippets for amirs.life and project sites.
