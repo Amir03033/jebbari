@@ -59,6 +59,10 @@ if [[ "$(id -u)" -eq 0 && "${ALLOW_ROOT:-}" != "1" ]]; then
 fi
 [[ "$(stat -c %U .)" == "$(id -un)" ]] || echo "Warning: this folder is owned by $(stat -c %U .), you are $(id -un). Run as the folder's owner."
 
+# Files in storage/ or bootstrap/cache/ owned by someone else (usually root) make saving in /admin fail.
+foreign="$(find storage bootstrap/cache ! -user "$(id -un)" -print -quit 2>/dev/null || true)"
+[[ -z "$foreign" ]] || fail "Some files in storage/ or bootstrap/cache/ belong to another user (e.g. $foreign). As root, run: chown -R $(id -un):psacln $(pwd) — then run this again."
+
 "$PHP" -r 'exit(version_compare(PHP_VERSION, "8.4.0", ">=") ? 0 : 1);' \
     || fail "PHP 8.4 or newer is needed (found $("$PHP" -r 'echo PHP_VERSION;')). Set PHP=/opt/plesk/php/8.4/bin/php"
 for ext in gd intl mbstring pdo fileinfo zip; do
