@@ -29,7 +29,13 @@ On Plesk the command-line `php` is often an older version than the website's. Us
 
 ### 1. Get the code onto the server
 
-SSH in as the domain's user, then:
+Do everything as the **site's system user**, never as root. Files that root creates in `storage/` cannot be written by the website afterwards, and the site breaks with "Permission denied". `deploy.sh` refuses to run as root.
+
+- Find the user name in Plesk: Websites & Domains > jebbari.nl > Hosting & DNS > **Hosting settings** > System user (for example `jebbari_nl`).
+- Give it a shell on the same page: SSH access: `/bin/bash` (not "chrooted": the chrooted shell has no PHP 8.4 or Node).
+- Log in as that user: `ssh jebbari_nl@your-server`. Already logged in as root? Switch with `su - jebbari_nl -s /bin/bash`.
+
+The user's home is `/var/www/vhosts/jebbari.nl`. Then:
 
 ```bash
 cd /var/www/vhosts/jebbari.nl
@@ -101,21 +107,30 @@ It asks once for the admin password (at least 12 characters). It then:
 7. creates your owner account
 8. links uploads (`storage:link`), publishes the admin assets, caches config, routes and views
 
-If it stops, it tells you why in red. Fix that and run it again; it is safe to repeat.
+If it stops, it tells you why in red (including when you run it as root). Fix that and run it again; it is safe to repeat.
 
 **Right after this: back up `.env`** somewhere safe (password manager). Without `APP_KEY` nobody can pass the two-factor login and the admin is locked.
 
 ### 5. Queue worker (image processing)
 
-Uploaded images are resized in the background. In Plesk: Websites & Domains > jebbari.nl > **Scheduled Tasks** > Add task:
+Uploaded images are resized in the background by `scripts/queue-worker.php`. It processes what is waiting and stops; a scheduled task starts it every minute.
 
-- Run: every minute (`* * * * *`)
-- Command:
-  ```
-  cd /var/www/vhosts/jebbari.nl/jebbari && /opt/plesk/php/8.4/bin/php artisan queue:work --stop-when-empty --max-time=55
-  ```
+Create the task **under the domain**, so it runs as the site's system user and not as root: Websites & Domains > jebbari.nl > **Scheduled Tasks** > Add Task.
 
-Optional, monthly: `... artisan activitylog:clean` (applies the 24-month audit retention).
+| Field | Value |
+|---|---|
+| Task type | **Run a PHP script** |
+| Script path | `/var/www/vhosts/jebbari.nl/jebbari/scripts/queue-worker.php` (Plesk may show the start of the path for you; then type `jebbari/scripts/queue-worker.php`) |
+| Use PHP version | **8.4** |
+| Arguments | leave empty |
+| Run | Cron style `* * * * *` (every minute) |
+| Notify | Errors only |
+
+Click **Run Now** once: the output should end with `Worker STOPPED Queue empty`.
+
+Do not create it under Tools & Settings > Scheduled Tasks: those run as root.
+
+Optional, monthly: a "Run a command" task under the same domain with `cd ~/jebbari && /opt/plesk/php/8.4/bin/php artisan activitylog:clean` (applies the 24-month audit retention).
 
 ### 6. Log in and publish
 
@@ -129,6 +144,8 @@ Until a page is published, its URL returns 404. That is by design: nothing goes 
 ---
 
 ## Every update
+
+As the site user (not root):
 
 ```bash
 cd /var/www/vhosts/jebbari.nl/jebbari
@@ -177,3 +194,15 @@ Then follow `docs/ai-check.md`: Google Search Console and Bing Webmaster Tools (
 **Results with AI assistants**: assistants with web search (Perplexity, ChatGPT search, Gemini) can pick up the new information within weeks of indexing. Models without web search only change after their next training round, which can take months. Re-run the questions in `docs/ai-check.md` every four weeks.
 
 **Still needs you**: publish the pages, fill the `[[ OWNER: ... ]]` fields (privacy, terms), contact e-mail, KvK number, a GitHub URL, real project screenshots, three article topics, and the texts for LinkedIn, GitHub and your other sites (`docs/AI-VISIBILITY.md`, `docs/TODO-AMIR.md`).
+
+---
+
+## Fixing "Permission denied" (if something was run as root)
+
+From root, give the files back to the site user (replace `jebbari_nl` with yours; `psacln` is Plesk's group for site users):
+
+```bash
+chown -R jebbari_nl:psacln /var/www/vhosts/jebbari.nl/jebbari
+```
+
+Then run `./deploy.sh` again as the site user.
