@@ -8,7 +8,9 @@
 # Plesk: the PHP and Node versions on the command line can differ from the
 # website's. Point the script at the right ones if needed:
 #
-#   PHP=/opt/plesk/php/8.4/bin/php NPM=/opt/plesk/node/22/bin/npm ./deploy.sh
+#   PHP=/opt/plesk/php/8.4/bin/php ./deploy.sh
+#
+# npm is found automatically in /opt/plesk/node/*/bin; set NPM=/path/to/npm to choose.
 #
 # Full guide: docs/DEPLOY.md
 
@@ -17,7 +19,14 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 PHP="${PHP:-php}"
-NPM="${NPM:-npm}"
+NPM="${NPM:-}"
+
+# Find npm: the NPM setting, then the PATH, then Plesk's Node.js extension (newest version first).
+if [[ -z "$NPM" ]]; then
+    NPM="$(command -v npm || ls -d /opt/plesk/node/*/bin/npm 2>/dev/null | sort -V | tail -n1 || true)"
+fi
+# npm starts "node" from the PATH, so put its own folder first.
+[[ "$NPM" == */* ]] && export PATH="$(dirname "$NPM"):$PATH"
 COMPOSER="${COMPOSER:-$(command -v composer || true)}"
 FIRST=false
 OWNER_EMAIL=""
@@ -46,8 +55,12 @@ for ext in gd intl mbstring pdo fileinfo zip; do
     "$PHP" -m | grep -qi "^$ext\$" || fail "PHP extension '$ext' is missing. Enable it in Plesk > PHP Settings."
 done
 [[ -n "$COMPOSER" ]] || fail "composer not found. Install it or set COMPOSER=/path/to/composer.phar"
-command -v "$NPM" >/dev/null || fail "npm not found. Install Node.js 20.19+ (Plesk > Node.js) or set NPM=/path/to/npm"
-echo "PHP $("$PHP" -r 'echo PHP_VERSION;'), Node $("$(dirname "$(command -v "$NPM")")/node" -v 2>/dev/null || node -v)"
+[[ -n "$NPM" ]] && command -v "$NPM" >/dev/null \
+    || fail "npm not found. Install Node.js 20.19+ (Plesk > Extensions > Node.js, then Websites & Domains > jebbari.nl > Node.js > Enable) or set NPM=/path/to/npm. Find it with: ls /opt/plesk/node/"
+command -v node >/dev/null || fail "node not found next to $NPM"
+node -e 'const [a,b]=process.versions.node.split(".").map(Number); process.exit(a>20||(a===20&&b>=19)?0:1)' \
+    || fail "Node.js 20.19 or newer is needed (found $(node -v)). Pick a newer version in Plesk > Node.js."
+echo "PHP $("$PHP" -r 'echo PHP_VERSION;'), Node $(node -v), npm $("$NPM" -v)"
 
 if [[ ! -f .env ]]; then
     cp .env.example .env
