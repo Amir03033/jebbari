@@ -21,7 +21,7 @@ The steps below assume a Plesk VPS with the domain `jebbari.nl`. Paths are Plesk
 | SSH | A shell for the domain's system user | Websites & Domains > jebbari.nl > Hosting & DNS > Hosting settings > SSH access: `/bin/bash` |
 | HTTPS | Let's Encrypt certificate | SSL/TLS Certificates |
 
-On Plesk the command-line `php` is often an older version than the website's. Use the full path to PHP 8.4: `/opt/plesk/php/8.4/bin/php`. Node from the Plesk extension usually lives in `/opt/plesk/node/22/bin/`.
+On Plesk the command-line `php` is often an older version than the website's. Use the full path to PHP 8.4: `/opt/plesk/php/8.4/bin/php`. `deploy.sh` finds Node from the Plesk extension (`/opt/plesk/node/<version>/bin/`) by itself; Node.js must be installed (Extensions > Node.js) and switched on for the domain.
 
 ---
 
@@ -108,7 +108,7 @@ Leave `APP_KEY=` empty: the script generates it.
 
 ```bash
 chmod +x deploy.sh
-PHP=/opt/plesk/php/8.4/bin/php NPM=/opt/plesk/node/22/bin/npm ./deploy.sh --first you@example.com
+PHP=/opt/plesk/php/8.4/bin/php ./deploy.sh --first you@example.com
 ```
 
 It asks once for the admin password (at least 12 characters). It then:
@@ -166,7 +166,7 @@ As the site user (not root):
 
 ```bash
 cd /var/www/vhosts/jebbari.nl/httpdocs
-PHP=/opt/plesk/php/8.4/bin/php NPM=/opt/plesk/node/22/bin/npm ./deploy.sh
+PHP=/opt/plesk/php/8.4/bin/php ./deploy.sh
 ```
 
 It puts the site in maintenance mode (visitors see a calm 503 page that refreshes itself), pulls the latest code, installs packages, rebuilds assets, runs new migrations, refreshes caches and brings the site back. It does **not** touch your content. If a step fails, the site stays in maintenance mode and the script says so; fix the cause and run it again, or bring the site back with `php artisan up`.
@@ -174,7 +174,7 @@ It puts the site in maintenance mode (visitors see a calm 503 page that refreshe
 Tip: add an alias so you only type `deploy`:
 
 ```bash
-echo "alias deploy='cd /var/www/vhosts/jebbari.nl/httpdocs && PHP=/opt/plesk/php/8.4/bin/php NPM=/opt/plesk/node/22/bin/npm ./deploy.sh'" >> ~/.bashrc
+echo "alias deploy='cd /var/www/vhosts/jebbari.nl/httpdocs && PHP=/opt/plesk/php/8.4/bin/php ./deploy.sh'" >> ~/.bashrc
 ```
 
 ---
