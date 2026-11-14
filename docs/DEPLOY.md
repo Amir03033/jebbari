@@ -37,17 +37,32 @@ Do everything as the **site's system user**, never as root. Files that root crea
 
 The user's home is `/var/www/vhosts/jebbari.nl`. Then:
 
+The code goes in `httpdocs`, the same way as your other Laravel sites (amirs.life, barbercuts.nl). First look at what is there now:
+
 ```bash
 cd /var/www/vhosts/jebbari.nl
-git clone --branch claude/new-project-approach-7lh5u0 https://github.com/Amir03033/jebbari.git jebbari
-cd jebbari
+ls -A httpdocs
 ```
 
-The repository is private, so GitHub will ask for a login. Use a fine-grained personal access token (read-only, this repository only) as the password, or add a deploy key. Plesk's **Git** extension can also do the clone; point it at `/var/www/vhosts/jebbari.nl/jebbari` with deploy mode "manual".
+- **`httpdocs` already has a `.git` folder from this repository:** skip the clone, run `cd httpdocs && git fetch && git checkout claude/new-project-approach-7lh5u0 && git pull`, and go on to step 3 (your `.env` stays).
+- **Anything else there** (Plesk's placeholder page, or an older copy of the site): back it up in the domain's `private` folder (not reachable from the web), empty `httpdocs`, and clone into it. The site user may not rename `httpdocs` itself, so it is emptied rather than moved:
+
+```bash
+tar czf private/httpdocs-backup-$(date +%Y%m%d).tgz -C httpdocs .    # full backup
+cp httpdocs/.env private/env-backup 2>/dev/null || true               # keep an existing .env
+find httpdocs -mindepth 1 -delete                                     # empty httpdocs
+git clone --branch claude/new-project-approach-7lh5u0 https://github.com/Amir03033/jebbari.git httpdocs
+cd httpdocs
+cp ../private/env-backup .env 2>/dev/null || true
+```
+
+Delete the backup in `private/` once the new site works.
+
+The repository is private, so GitHub will ask for a login. Use a fine-grained personal access token (read-only, this repository only) as the password, or add a deploy key. Plesk's **Git** extension can also do the clone; point it at `/var/www/vhosts/jebbari.nl/httpdocs` with deploy mode "manual".
 
 ### 2. Point the website at `public/`
 
-Websites & Domains > jebbari.nl > **Hosting & DNS > Hosting settings > Document root**: set it to `jebbari/public`. Save.
+Websites & Domains > jebbari.nl > **Hosting & DNS > Hosting settings > Document root**: set it to `httpdocs/public`. Save.
 
 Only `public/` may be reachable from the web. Never point the document root at the project folder itself.
 
@@ -113,24 +128,26 @@ If it stops, it tells you why in red (including when you run it as root). Fix th
 
 ### 5. Queue worker (image processing)
 
-Uploaded images are resized in the background by `scripts/queue-worker.php`. It processes what is waiting and stops; a scheduled task starts it every minute.
+Uploaded images are resized in the background. A scheduled task runs the queue every minute; it processes what is waiting and stops.
 
-Create the task **under the domain**, so it runs as the site's system user and not as root: Websites & Domains > jebbari.nl > **Scheduled Tasks** > Add Task.
+**Already done on your server:** the jebbari.nl task `/var/www/vhosts/jebbari.nl/httpdocs/artisan queue:work --stop-when-empty --max-time=55` (type "Run a PHP script", webspace jebbari.nl) is exactly this. Keep it. Optionally add `--tries=3` to its arguments, like barbercuts.nl, so a broken job is not retried forever. Check that its PHP version is 8.4.
+
+Setting it up from scratch: create the task **under the domain**, so it runs as the site's system user and not as root: Websites & Domains > jebbari.nl > **Scheduled Tasks** > Add Task.
 
 | Field | Value |
 |---|---|
 | Task type | **Run a PHP script** |
-| Script path | `/var/www/vhosts/jebbari.nl/jebbari/scripts/queue-worker.php` (Plesk may show the start of the path for you; then type `jebbari/scripts/queue-worker.php`) |
+| Script path | `/var/www/vhosts/jebbari.nl/httpdocs/artisan` |
 | Use PHP version | **8.4** |
-| Arguments | leave empty |
+| Arguments | `queue:work --stop-when-empty --tries=3 --max-time=55` |
 | Run | Cron style `* * * * *` (every minute) |
 | Notify | Errors only |
 
-Click **Run Now** once: the output should end with `Worker STOPPED Queue empty`.
+(`httpdocs/scripts/queue-worker.php` with no arguments does the same, if you prefer.) Click **Run Now** once: the output should end with `Worker STOPPED Queue empty`.
 
 Do not create it under Tools & Settings > Scheduled Tasks: those run as root.
 
-Optional, monthly: a "Run a command" task under the same domain with `cd ~/jebbari && /opt/plesk/php/8.4/bin/php artisan activitylog:clean` (applies the 24-month audit retention).
+Optional, monthly: a "Run a command" task under the same domain with `cd ~/httpdocs && /opt/plesk/php/8.4/bin/php artisan activitylog:clean` (applies the 24-month audit retention).
 
 ### 6. Log in and publish
 
@@ -148,7 +165,7 @@ Until a page is published, its URL returns 404. That is by design: nothing goes 
 As the site user (not root):
 
 ```bash
-cd /var/www/vhosts/jebbari.nl/jebbari
+cd /var/www/vhosts/jebbari.nl/httpdocs
 PHP=/opt/plesk/php/8.4/bin/php NPM=/opt/plesk/node/22/bin/npm ./deploy.sh
 ```
 
@@ -157,7 +174,7 @@ It puts the site in maintenance mode (visitors see a calm 503 page that refreshe
 Tip: add an alias so you only type `deploy`:
 
 ```bash
-echo "alias deploy='cd /var/www/vhosts/jebbari.nl/jebbari && PHP=/opt/plesk/php/8.4/bin/php NPM=/opt/plesk/node/22/bin/npm ./deploy.sh'" >> ~/.bashrc
+echo "alias deploy='cd /var/www/vhosts/jebbari.nl/httpdocs && PHP=/opt/plesk/php/8.4/bin/php NPM=/opt/plesk/node/22/bin/npm ./deploy.sh'" >> ~/.bashrc
 ```
 
 ---
@@ -202,7 +219,7 @@ Then follow `docs/ai-check.md`: Google Search Console and Bing Webmaster Tools (
 From root, give the files back to the site user (replace `jebbari_nl` with yours; `psacln` is Plesk's group for site users):
 
 ```bash
-chown -R jebbari_nl:psacln /var/www/vhosts/jebbari.nl/jebbari
+chown -R jebbari_nl:psacln /var/www/vhosts/jebbari.nl/httpdocs
 ```
 
 Then run `./deploy.sh` again as the site user.

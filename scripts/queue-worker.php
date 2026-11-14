@@ -7,7 +7,7 @@
  * created under Websites & Domains > jebbari.nl > Scheduled Tasks so it runs
  * as the site's own system user (never as root):
  *
- *   Script path: jebbari/scripts/queue-worker.php
+ *   Script path: /var/www/vhosts/jebbari.nl/httpdocs/scripts/queue-worker.php
  *   PHP version: 8.4
  *
  * It is the same as: php artisan queue:work --stop-when-empty --max-time=55
