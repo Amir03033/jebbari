@@ -274,8 +274,10 @@ return [
     */
 
     'payload' => [
-        'max_size' => 1024 * 1024,   // 1MB - maximum request payload size in bytes
-        'max_nesting_depth' => 10,   // Maximum depth of dot-notation property paths
+        'max_size' => 4 * 1024 * 1024,   // 4MB: long legal texts in two languages as rich-text documents
+        // Rich text in the page builder is a nested document (block > body > language >
+        // list > item > paragraph > text ...); 10 levels broke saving the privacy page.
+        'max_nesting_depth' => 40,   // Maximum depth of dot-notation property paths
         'max_calls' => 50,           // Maximum method calls per request
         'max_components' => 200,     // Maximum components per batch request
     ],

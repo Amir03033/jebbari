@@ -216,10 +216,20 @@ Then follow `docs/ai-check.md`: Google Search Console and Bing Webmaster Tools (
 
 ## Fixing "Permission denied" (if something was run as root)
 
-From root, give the files back to the site user (replace `jebbari_nl` with yours; `psacln` is Plesk's group for site users):
+From root, give the files back to the site user. Only `storage` and `bootstrap/cache` need it; `psacln` is Plesk's group for the files of a site:
 
 ```bash
-chown -R jebbari_nl:psacln /var/www/vhosts/jebbari.nl/httpdocs
+cd /var/www/vhosts/jebbari.nl/httpdocs
+chown -R jebbari.nl_s2i5lfoz7nc:psacln storage bootstrap/cache
 ```
 
 Then run `./deploy.sh` again as the site user.
+
+**Never** `chown -R` the whole `httpdocs` folder: Plesk needs `httpdocs` itself to be in the group `psaserv`, or the web server cannot enter it and every page gives **403 Forbidden**. If that happened, fix it with:
+
+```bash
+chown jebbari.nl_s2i5lfoz7nc:psaserv /var/www/vhosts/jebbari.nl/httpdocs
+chmod 750 /var/www/vhosts/jebbari.nl/httpdocs
+```
+
+or let Plesk repair all permissions of the domain: `plesk repair fs jebbari.nl -y`.
