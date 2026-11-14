@@ -160,6 +160,21 @@ Until a page is published, its URL returns 404. That is by design: nothing goes 
 
 ---
 
+## Every update with Plesk Git (no `.git` folder in httpdocs)
+
+If the code was set up with Plesk's **Git** extension, `httpdocs` has no `.git` folder: Plesk keeps the repository in `~/git/` and copies the files. Then an update is:
+
+1. Plesk > Websites & Domains > jebbari.nl > **Git** > **Pull Updates** (and **Deploy** if deployment is set to manual). Branch: `claude/new-project-approach-7lh5u0`.
+2. As the site user: `cd ~/httpdocs && PHP=/opt/plesk/php/8.4/bin/php ./deploy.sh` (it sees there is no `.git` and skips the pull).
+
+One click instead: in the Git settings, tick **Enable additional deployment actions** and enter
+
+```
+PHP=/opt/plesk/php/8.4/bin/php bash deploy.sh
+```
+
+Then every Pull/Deploy in Plesk also runs the script.
+
 ## Every update
 
 As the site user (not root):

@@ -86,12 +86,19 @@ grep -q '^APP_DEBUG=false' .env || fail "Set APP_DEBUG=false in .env"
 
 # ---------------------------------------------------------------- code
 if [[ "$FIRST" == false ]]; then
+    # With Plesk's Git extension the repository lives elsewhere (~/git/...) and only the
+    # files are copied here, so there is no .git folder: Plesk has already fetched the code.
+    if [[ -d .git ]]; then
+        step "Fetching the latest code"
+        git pull --ff-only || fail "git pull failed (nothing was changed). Fix the message above and run this again."
+    else
+        step "No .git folder: using the files Plesk Git deployed"
+        echo "Make sure you pressed 'Pull Updates' (and 'Deploy' if deployment is manual) in Plesk > jebbari.nl > Git first."
+    fi
+
     step "Putting the site in maintenance mode"
     artisan down --retry=30 || true
     trap 'echo; echo "Something went wrong. The site is still in maintenance mode; fix it and run ./deploy.sh again, or bring it back with: $PHP artisan up"' ERR
-
-    step "Fetching the latest code"
-    git pull --ff-only
 fi
 
 step "Installing PHP packages"
