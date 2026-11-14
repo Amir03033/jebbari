@@ -61,7 +61,7 @@ fi
 
 # Files in storage/ or bootstrap/cache/ owned by someone else (usually root) make saving in /admin fail.
 foreign="$(find storage bootstrap/cache ! -user "$(id -un)" -print -quit 2>/dev/null || true)"
-[[ -z "$foreign" ]] || fail "Some files in storage/ or bootstrap/cache/ belong to another user (e.g. $foreign). As root, run: chown -R $(id -un):psacln $(pwd) — then run this again."
+[[ -z "$foreign" ]] || fail "Some files in storage/ or bootstrap/cache/ belong to another user (e.g. $foreign). As root, run: chown -R $(id -un):psacln $(pwd)/storage $(pwd)/bootstrap/cache — then run this again. (Never chown the httpdocs folder itself: Plesk needs it in group psaserv, otherwise the site gives 403.)"
 
 "$PHP" -r 'exit(version_compare(PHP_VERSION, "8.4.0", ">=") ? 0 : 1);' \
     || fail "PHP 8.4 or newer is needed (found $("$PHP" -r 'echo PHP_VERSION;')). Set PHP=/opt/plesk/php/8.4/bin/php"
