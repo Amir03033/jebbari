@@ -28,4 +28,18 @@ class DeepRichTextTest extends AdminTestCase
         $component->set("data.blocks.$uuid.data.body.nl.content.3.content.0.content.0.content.0.content.0.text", 'Professor W.H. Keesomlaan 12')
             ->assertHasNoErrors();
     }
+
+    public function test_the_about_page_with_several_text_sections_can_be_saved_in_the_admin(): void
+    {
+        $this->seed(CmsSeeder::class);
+        $this->artisan('cms:draft-about', ['--force' => true])->assertSuccessful();
+        $this->actingAs($this->owner());
+        $page = Page::where('key', 'about')->first();
+
+        $this->assertGreaterThan(1, collect($page->withDraft()->blocks)->where('type', 'biography')->count());
+
+        Livewire::test(EditPage::class, ['record' => $page->getKey()])
+            ->call('save')
+            ->assertHasNoFormErrors();
+    }
 }

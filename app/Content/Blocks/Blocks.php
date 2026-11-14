@@ -18,7 +18,8 @@ class Blocks
             'home' => [new HeroBlock, new ServicesOverviewBlock, new WorkSelectionBlock, new ProcessBlock, new AboutTeaserBlock, new StatsBlock, new AutoBlock('tech_marquee', 'Technologieën (automatisch)'), new SpecSheetBlock, new TestimonialsBlock, $github, new FaqBlock, $newsletter, new ClosingCtaBlock],
             'about' => [
                 new IntroBlock,
-                new RichTextBlock('biography', 'Biografie'),
+                // Several text sections, each with its own label (Wie ik ben, Wat ik doe, Projecten, Contact).
+                new RichTextBlock('biography', 'Tekstsectie', single: false),
                 new ImageBlock,
                 new ListBlock('skills', 'Vaardigheden', true),
                 new ExperienceBlock,
