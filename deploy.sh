@@ -66,7 +66,8 @@ foreign="$(find storage bootstrap/cache ! -user "$(id -un)" -print -quit 2>/dev/
 "$PHP" -r 'exit(version_compare(PHP_VERSION, "8.4.0", ">=") ? 0 : 1);' \
     || fail "PHP 8.4 or newer is needed (found $("$PHP" -r 'echo PHP_VERSION;')). Set PHP=/opt/plesk/php/8.4/bin/php"
 for ext in gd intl mbstring pdo fileinfo zip; do
-    "$PHP" -m | grep -qi "^$ext\$" || fail "PHP extension '$ext' is missing. Enable it in Plesk > PHP Settings."
+    # Ask PHP directly (piping "php -m" into grep -q can fail at random under pipefail).
+    "$PHP" -r "exit(extension_loaded('$ext') ? 0 : 1);" || fail "PHP extension '$ext' is missing. Enable it in Plesk > PHP Settings."
 done
 [[ -n "$COMPOSER" ]] || fail "composer not found. Install it or set COMPOSER=/path/to/composer.phar"
 [[ -n "$NPM" ]] && command -v "$NPM" >/dev/null \
@@ -96,7 +97,7 @@ fi
 step "Installing PHP packages"
 composer_run() {
     # A composer.phar (or a PHP script) runs with the chosen PHP; a wrapper script runs as is.
-    if [[ "$COMPOSER" == *.phar ]] || head -n1 "$COMPOSER" | grep -q php; then "$PHP" "$COMPOSER" "$@"; else "$COMPOSER" "$@"; fi
+    if [[ "$COMPOSER" == *.phar ]] || [[ "$(head -n1 "$COMPOSER")" == *php* ]]; then "$PHP" "$COMPOSER" "$@"; else "$COMPOSER" "$@"; fi
 }
 composer_run install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
