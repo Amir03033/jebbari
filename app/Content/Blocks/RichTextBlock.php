@@ -7,7 +7,12 @@ use App\Filament\Support\Translated;
 /** One rich text section: biography, legal text. */
 class RichTextBlock extends Block
 {
-    public function __construct(private string $type = 'rich_text', private string $label = 'Tekst') {}
+    public function __construct(private string $type = 'rich_text', private string $label = 'Tekst', private bool $single = true) {}
+
+    public function singleton(): bool
+    {
+        return $this->single;
+    }
 
     public function type(): string
     {
