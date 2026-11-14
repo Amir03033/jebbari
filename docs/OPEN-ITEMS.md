@@ -57,3 +57,12 @@
 - [ ] Capital I looks like lowercase l in "Iets te bouwen?" (also in Instrument Sans). Options: keep, or reword the closing question in the CMS.
 - [ ] Real screenshots, objectives and features for each case study (new fields in the project form); until then ServerScope uses a typographic tile.
 - [ ] Optional owner photo for About (the layout works without one).
+
+## Added for AI visibility (docs/AI-VISIBILITY.md)
+
+- [ ] LinkedIn URL for `sameAs` (`config/site.php` > person) and the social links.
+- [ ] ServerScope: one sentence about what it solves, public URL if any.
+- [ ] Confirm https://barbercuts.nl is live and links back to jebbari.nl.
+- [ ] Pick 3 article topics (phase 5) and supply the facts for them.
+- [ ] Post the texts in `docs/EXTERNAL-PROFILES.md` (LinkedIn, GitHub, amirs.life, project footers).
+- [ ] After going live: Search Console, Bing Webmaster Tools, Rich Results Test, check no bot blocking at the host or Cloudflare, Lighthouse.

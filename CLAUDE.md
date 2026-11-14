@@ -8,6 +8,7 @@ Read `docs/BRIEF.md` in full before writing any code. It is the design and build
 - CMS foundation (Filament admin at /admin): approved. See `docs/CMS-IMPLEMENTATION.md`.
 - Phase 3 (public website, all pages, NL/EN, CMS-driven): built and tested, awaiting owner review. See `docs/PHASE-3.md`. Do not start further phases, open a PR or deploy without explicit approval.
 - Phase 3.5 (visual redesign): built and tested, awaiting owner review. See `docs/VISUAL-REDESIGN.md` and `docs/VISUAL-COMPARISON.md`. Do not start further phases.
+- AI visibility (About page as /nl/over-mij, JSON-LD graph, robots.txt, /llms.txt): phases 1 to 3 built, see `docs/AI-VISIBILITY.md`. Never mention education anywhere; never mention Iran Digital Lifeline.
 - Do not deploy or open a PR without the owner's approval.
 
 ## Stack

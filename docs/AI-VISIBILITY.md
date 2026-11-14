@@ -29,11 +29,11 @@ Always the full name, always "oprichter van Jebbari / founder of Jebbari", alway
 | Phase | What | Status |
 |---|---|---|
 | 1 | About page NL/EN | Content seeded as a draft in `CmsSeeder` (About page). Publish it in the admin. |
-| 2 | JSON-LD | |
-| 3 | robots.txt, sitemap, llms.txt | |
-| 4 | External profiles | Texts only; the owner posts them. |
-| 5 | Articles | |
-| 6 | Measuring | |
+| 2 | JSON-LD | Done. Organization, WebSite and Person on every page with stable `@id`s (`/#org`, `/#website`, `/#amir`); ProfilePage on About; articles have Amir as author. Validate with the Rich Results Test once live. |
+| 3 | robots.txt, sitemap, llms.txt | Done in the app: AI crawlers named in robots.txt, `/llms.txt` generated from live content, sitemap already had hreflang. Canonical, hreflang, Open Graph and server rendering were already in place. Lighthouse and hosting/Cloudflare bot rules need the live site. amirs.life and project footers are other repos: texts in `docs/EXTERNAL-PROFILES.md`. |
+| 4 | External profiles | Texts ready in `docs/EXTERNAL-PROFILES.md`; the owner posts them. |
+| 5 | Articles | Waiting for the owner to pick 3 topics and supply facts. |
+| 6 | Measuring | Checklist and log in `docs/ai-check.md`. Search Console needs the live site. |
 
 ## Still open
 
