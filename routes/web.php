@@ -17,6 +17,9 @@ Route::get('/', function (Request $request) {
     return redirect()->route($locale.'.home')->header('Vary', 'Accept-Language');
 })->name('root');
 
+// The Dutch About page moved from /nl/over-ons to /nl/over-mij.
+Route::permanentRedirect('/nl/over-ons', '/nl/over-mij');
+
 Route::get('/sitemap.xml', [SitemapController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
 

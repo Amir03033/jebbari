@@ -36,7 +36,7 @@ class SeoTest extends TestCase
         $service = $this->makeService();
         $project = $this->makeProject();
         $post = $this->makePost();
-        $urls = ['/nl', '/nl/werk', '/nl/diensten', '/nl/over-ons', '/nl/blog', '/nl/contact', "/nl/diensten/{$service->slug_nl}", "/nl/werk/{$project->slug_nl}", "/nl/blog/{$post->slug_nl}"];
+        $urls = ['/nl', '/nl/werk', '/nl/diensten', '/nl/over-mij', '/nl/blog', '/nl/contact', "/nl/diensten/{$service->slug_nl}", "/nl/werk/{$project->slug_nl}", "/nl/blog/{$post->slug_nl}"];
 
         $titles = [];
         foreach ($urls as $url) {
@@ -280,7 +280,7 @@ class SeoTest extends TestCase
         $project = $this->makeProject();
         $post = $this->makePost();
 
-        foreach (['/nl', '/en', '/nl/werk', '/nl/diensten', '/nl/over-ons', '/nl/blog', '/nl/contact', "/nl/diensten/{$service->slug_nl}", "/nl/werk/{$project->slug_nl}", "/nl/blog/{$post->slug_nl}"] as $url) {
+        foreach (['/nl', '/en', '/nl/werk', '/nl/diensten', '/nl/over-mij', '/nl/blog', '/nl/contact', "/nl/diensten/{$service->slug_nl}", "/nl/werk/{$project->slug_nl}", "/nl/blog/{$post->slug_nl}"] as $url) {
             $response = $this->get($url)->assertOk();
             $html = $response->getContent();
             $csp = $response->headers->get('Content-Security-Policy');
@@ -292,7 +292,10 @@ class SeoTest extends TestCase
             $this->assertSame(0, preg_match('#<script(?![^>]*\bsrc=)(?![^>]*application/ld\+json)#i', $html), "$url has an inline script");
             $this->assertSame(0, preg_match('#<style\b#i', $html), "$url has an inline style block");
 
-            preg_match_all('#(?:src|href|action)="(https?://[^"]+)"#', $html, $links);
+            // Anything the browser loads or submits to. Plain outbound <a> links (to the
+            // owner's other sites) are not requests and are allowed.
+            preg_match_all('#(?:src|action)="(https?://[^"]+)"|<link\b[^>]*\bhref="(https?://[^"]+)"#', $html, $m);
+            $links = [1 => array_filter([...$m[1], ...$m[2]])];
             foreach ($links[1] as $link) {
                 $host = parse_url($link, PHP_URL_HOST);
                 $this->assertContains($host, ['localhost', 'hello', null], "$url references a third-party host: $link");

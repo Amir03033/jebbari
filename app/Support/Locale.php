@@ -16,7 +16,7 @@ class Locale
         'home' => ['nl' => '', 'en' => ''],
         'work' => ['nl' => 'werk', 'en' => 'work'],
         'services' => ['nl' => 'diensten', 'en' => 'services'],
-        'about' => ['nl' => 'over-ons', 'en' => 'about'],
+        'about' => ['nl' => 'over-mij', 'en' => 'about'],
         'blog' => ['nl' => 'blog', 'en' => 'blog'],
         'contact' => ['nl' => 'contact', 'en' => 'contact'],
     ];

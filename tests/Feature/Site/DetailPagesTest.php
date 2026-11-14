@@ -241,9 +241,15 @@ class DetailPagesTest extends TestCase
 
     public function test_the_about_page_renders_its_blocks_and_falls_back_to_the_page_title(): void
     {
-        $this->get('/nl/over-ons')->assertOk()->assertSee('<h1', false)->assertSee('Over ons');
+        $this->get('/nl/over-mij')->assertOk()->assertSee('<h1', false)->assertSee('Amir Jebbari');
 
         $about = Page::where('key', 'about')->first();
+        $about->update(['blocks' => [
+            ['type' => 'principles', 'data' => ['visible' => true, 'label' => ['nl' => 'Principes', 'en' => 'Principles'], 'items' => [['name' => ['nl' => 'Eerlijk', 'en' => 'Honest']]]]],
+        ]]);
+        $about->fresh()->publish();
+        $this->assertMatchesRegularExpression('#<h1[^>]*>.*Over mij.*</h1>#s', $this->get('/nl/over-mij')->getContent());
+
         $about->update(['blocks' => [
             ['type' => 'intro', 'data' => ['visible' => true, 'label' => ['nl' => 'Over mij', 'en' => 'About'], 'heading' => ['nl' => 'Ik bouw dingen', 'en' => 'I build things'], 'body' => ['nl' => 'Intro.', 'en' => 'Intro.']]],
             ['type' => 'skills', 'data' => ['visible' => true, 'label' => ['nl' => 'Vaardigheden', 'en' => 'Skills'], 'items' => [['name' => ['nl' => 'PHP', 'en' => 'PHP'], 'description' => ['nl' => 'Sinds lang.', 'en' => 'For long.']]]]],
@@ -251,8 +257,35 @@ class DetailPagesTest extends TestCase
         ]]);
         $about->fresh()->publish();
 
-        $this->get('/nl/over-ons')->assertSee('Ik bouw dingen')->assertSee('Vaardigheden')->assertSee('PHP')->assertSee('Eerlijk');
+        $this->get('/nl/over-mij')->assertSee('Ik bouw dingen')->assertSee('Vaardigheden')->assertSee('PHP')->assertSee('Eerlijk');
         $this->get('/en/about')->assertSee('I build things')->assertSee('Skills')->assertSee('Honest');
+    }
+
+    public function test_the_seeded_about_page_answers_who_amir_jebbari_is_in_both_languages(): void
+    {
+        $nl = $this->get('/nl/over-mij')->assertOk();
+        $nl->assertSee('Amir Jebbari is de oprichter van Jebbari, gevestigd in Amsterdam en Zwolle.')
+            ->assertSee('<title>Amir Jebbari · Oprichter van Jebbari</title>', false)
+            ->assertSee('Wie ben ik')->assertSee('Wat ik doe')->assertSee('Projecten')->assertSee('Werkwijze')
+            ->assertSee('href="https://amirs.life"', false);
+        $this->assertMatchesRegularExpression('#<h1[^>]*>.*Amir Jebbari.*</h1>#s', $nl->getContent());
+
+        $this->get('/en/about')->assertOk()
+            ->assertSee('Amir Jebbari is the founder of Jebbari, based in Amsterdam and Zwolle, the Netherlands.')
+            ->assertSee('<title>Amir Jebbari · Founder of Jebbari</title>', false);
+
+        // The owner does not want education mentioned anywhere, and the sensitive project stays out.
+        foreach (['/nl/over-mij', '/en/about'] as $url) {
+            $html = mb_strtolower($this->get($url)->getContent());
+            foreach (['opleiding', 'diploma', 'universiteit', 'hogeschool', 'education', 'university', 'degree', 'alumni', 'iran'] as $word) {
+                $this->assertStringNotContainsString($word, $html, "$url mentions '$word'");
+            }
+        }
+    }
+
+    public function test_the_old_dutch_about_url_redirects_permanently(): void
+    {
+        $this->get('/nl/over-ons')->assertStatus(301)->assertRedirect('/nl/over-mij');
     }
 
     // ---------------------------------------------------------- images and a11y
@@ -308,7 +341,7 @@ class DetailPagesTest extends TestCase
         $project = $this->makeProject();
         $post = $this->makePost();
 
-        foreach (['/nl', '/en', '/nl/werk', '/nl/diensten', '/nl/over-ons', '/nl/blog', '/nl/contact', "/nl/diensten/{$service->slug_nl}", "/nl/werk/{$project->slug_nl}", "/nl/blog/{$post->slug_nl}"] as $url) {
+        foreach (['/nl', '/en', '/nl/werk', '/nl/diensten', '/nl/over-mij', '/nl/blog', '/nl/contact', "/nl/diensten/{$service->slug_nl}", "/nl/werk/{$project->slug_nl}", "/nl/blog/{$post->slug_nl}"] as $url) {
             $html = $this->get($url)->assertOk()->getContent();
 
             $this->assertSame(1, preg_match_all('/<h1\b/', $html), "$url needs exactly one h1");

@@ -35,12 +35,12 @@ class CmsSeeder extends Seeder
     {
         $titles = [
             'home' => ['Home', 'Home'], 'work' => ['Werk', 'Work'], 'services' => ['Diensten', 'Services'],
-            'about' => ['Over ons', 'About'], 'contact' => ['Contact', 'Contact'], 'blog' => ['Blog', 'Blog'],
+            'about' => ['Over mij', 'About'], 'contact' => ['Contact', 'Contact'], 'blog' => ['Blog', 'Blog'],
         ];
 
         foreach ($titles as $key => [$nl, $en]) {
             Page::query()->firstOrCreate(['key' => $key], [
-                'kind' => 'system', 'title' => ['nl' => $nl, 'en' => $en], 'blocks' => $this->blocks($key), 'status' => PublishStatus::Draft,
+                'kind' => 'system', 'title' => ['nl' => $nl, 'en' => $en], 'blocks' => $this->blocks($key), 'seo' => $this->seo($key), 'status' => PublishStatus::Draft,
             ]);
         }
 
@@ -103,8 +103,91 @@ class CmsSeeder extends Seeder
                 $this->block('meeting_line', ['text' => ['nl' => 'Afspreken in Zwolle, Amsterdam of online.', 'en' => 'Meet in Zwolle, Amsterdam or online.']]),
                 $this->block('reply_promise', ['text' => ['nl' => 'Wij reageren binnen één werkdag.', 'en' => 'We reply within one working day.']]),
             ],
+            'about' => $this->aboutBlocks(),
             default => [],
         };
+    }
+
+    private function seo(string $key): ?array
+    {
+        return match ($key) {
+            'about' => [
+                'title' => ['nl' => 'Amir Jebbari · Oprichter van Jebbari', 'en' => 'Amir Jebbari · Founder of Jebbari'],
+                'description' => [
+                    'nl' => 'Amir Jebbari is de oprichter van Jebbari, gevestigd in Amsterdam en Zwolle. Hij bouwt webapplicaties en websites met Laravel, Vue en TypeScript.',
+                    'en' => 'Amir Jebbari is the founder of Jebbari, based in Amsterdam and Zwolle, the Netherlands. He builds web applications and websites with Laravel, Vue and TypeScript.',
+                ],
+            ],
+            default => null,
+        };
+    }
+
+    /**
+     * The About page, written in the first person from facts the owner supplied
+     * (docs/AI-VISIBILITY.md). The first two sentences must stand on their own as
+     * the answer to "Who is Amir Jebbari?". No education is mentioned, by choice.
+     */
+    private function aboutBlocks(): array
+    {
+        return [
+            $this->block('intro', [
+                'label' => ['nl' => 'Over mij', 'en' => 'About'],
+                'heading' => ['nl' => 'Amir Jebbari', 'en' => 'Amir Jebbari'],
+                'body' => [
+                    'nl' => 'Amir Jebbari is de oprichter van Jebbari, gevestigd in Amsterdam en Zwolle. Hij bouwt webapplicaties en websites met Laravel, Vue en TypeScript voor klanten in heel Nederland.',
+                    'en' => 'Amir Jebbari is the founder of Jebbari, based in Amsterdam and Zwolle, the Netherlands. He builds web applications and websites with Laravel, Vue and TypeScript for clients across the Netherlands.',
+                ],
+            ]),
+            $this->block('biography', [
+                'label' => ['nl' => 'Wie ben ik', 'en' => 'Who I am'],
+                'body' => [
+                    'nl' => '<p>Ik ben Amir Jebbari. Ik heb Jebbari zelf opgezet en volledig zelf gebouwd. Jebbari werkt vanuit Amsterdam en Zwolle.</p>'
+                        .'<p>Mijn vakgebied is webapplicaties en SaaS, met veel aandacht voor de beveiliging van servers en online systemen.</p>',
+                    'en' => '<p>I am Amir Jebbari. I set up Jebbari myself and built it entirely on my own. Jebbari works from Amsterdam and Zwolle.</p>'
+                        .'<p>My field is web applications and SaaS, with close attention to the security of servers and online systems.</p>',
+                ],
+            ]),
+            $this->block('biography', [
+                'label' => ['nl' => 'Wat ik doe', 'en' => 'What I do'],
+                'body' => [
+                    'nl' => '<p>Ik ontwerp en bouw maatwerk webapplicaties, van boekingssystemen en dashboards tot offline-first webapps. Ik let daarbij op snelheid, een rustig en minimaal ontwerp en solide beveiliging van server en applicatie.</p>'
+                        .'<p>Ik werk met Laravel (PHP), Vue 3, TypeScript, Filament, Blade en Tailwind.</p>',
+                    'en' => '<p>I design and build custom web applications, from booking systems and dashboards to offline-first web apps. I focus on speed, calm and minimal design, and solid security for both server and application.</p>'
+                        .'<p>I work with Laravel (PHP), Vue 3, TypeScript, Filament, Blade and Tailwind.</p>',
+                ],
+            ]),
+            $this->block('biography', [
+                'label' => ['nl' => 'Projecten', 'en' => 'Projects'],
+                'body' => [
+                    'nl' => '<ul>'
+                        .'<li><strong>ServerScope</strong>: een dashboard om servers te monitoren, gebouwd met Laravel.</li>'
+                        .'<li><strong><a href="https://barbercuts.nl">barbercuts.nl</a></strong>: een mobile-first boekingswebapp voor een kapper, gebouwd met Laravel.</li>'
+                        .'<li><strong><a href="https://amirs.life">amirs.life</a></strong>: mijn persoonlijke site en testomgeving, gebouwd met Laravel en Filament.</li>'
+                        .'</ul>',
+                    'en' => '<ul>'
+                        .'<li><strong>ServerScope</strong>: a dashboard for monitoring servers, built with Laravel.</li>'
+                        .'<li><strong><a href="https://barbercuts.nl">barbercuts.nl</a></strong>: a mobile-first booking web app for a barber, built with Laravel.</li>'
+                        .'<li><strong><a href="https://amirs.life">amirs.life</a></strong>: my personal site and test environment, built with Laravel and Filament.</li>'
+                        .'</ul>',
+                ],
+            ]),
+            $this->block('principles', [
+                'label' => ['nl' => 'Werkwijze', 'en' => 'How I work'],
+                'items' => [
+                    ['name' => ['nl' => 'Snelheid is een eis, geen extraatje.', 'en' => 'Speed is a requirement, not an extra.']],
+                    ['name' => ['nl' => 'Een rustig, minimaal ontwerp.', 'en' => 'Calm, minimal design.']],
+                    ['name' => ['nl' => 'Beveiliging van server en applicatie vanaf het begin.', 'en' => 'Security for server and application from the start.']],
+                    ['name' => ['nl' => 'Scope en prijs vooraf schriftelijk vastgelegd.', 'en' => 'Scope and price agreed in writing up front.']],
+                ],
+            ]),
+            $this->block('biography', [
+                'label' => ['nl' => 'Contact', 'en' => 'Contact'],
+                'body' => [
+                    'nl' => '<p>Afspreken kan in Amsterdam, Zwolle of online. Vertel me wat je wilt bouwen via de <a href="/nl/contact">contactpagina</a>.</p>',
+                    'en' => '<p>We can meet in Amsterdam, Zwolle or online. Tell me what you want to build on the <a href="/en/contact">contact page</a>.</p>',
+                ],
+            ]),
+        ];
     }
 
     private function services(): void
@@ -148,7 +231,7 @@ class CmsSeeder extends Seeder
 
         $items = [
             ['header', 'work', 'Werk', 'Work'], ['header', 'services', 'Diensten', 'Services'],
-            ['header', 'about', 'Over ons', 'About'], ['header', 'blog', 'Blog', 'Blog'], ['header', 'contact', 'Contact', 'Contact'],
+            ['header', 'about', 'Over mij', 'About'], ['header', 'blog', 'Blog', 'Blog'], ['header', 'contact', 'Contact', 'Contact'],
             ['footer', 'privacy', 'Privacy', 'Privacy'], ['footer', 'terms', 'Algemene voorwaarden', 'Terms and conditions'],
         ];
 
