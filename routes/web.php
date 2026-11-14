@@ -22,6 +22,7 @@ Route::permanentRedirect('/nl/over-ons', '/nl/over-mij');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
+Route::get('/llms.txt', [SitemapController::class, 'llms'])->name('llms');
 
 foreach (Locale::all() as $locale) {
     Route::prefix($locale)->middleware(SetLocale::class.':'.$locale)->group(function () use ($locale) {

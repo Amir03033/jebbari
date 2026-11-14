@@ -27,6 +27,11 @@ return [
         ],
         'home_location' => 'Zwolle',
         'knows_about' => ['Laravel', 'PHP', 'Vue.js', 'TypeScript', 'Web application development', 'SaaS', 'Web security'],
+        // The owner's other sites, listed in /llms.txt. Each should link back to jebbari.nl.
+        'related_sites' => [
+            'https://amirs.life' => 'Personal site of Amir Jebbari',
+            'https://barbercuts.nl' => 'Mobile-first booking web app for a barber, built by Amir Jebbari',
+        ],
         'same_as' => [
             'https://amirs.life',
             // LinkedIn: add the exact URL once the owner supplies it.

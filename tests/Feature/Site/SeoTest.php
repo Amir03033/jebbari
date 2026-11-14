@@ -312,6 +312,34 @@ class SeoTest extends TestCase
         $this->assertStringNotContainsString('Disallow: /'."\n", $robots, 'the whole site is not blocked');
     }
 
+    public function test_robots_txt_welcomes_ai_and_search_crawlers_but_keeps_the_admin_out(): void
+    {
+        $robots = $this->get('/robots.txt')->getContent();
+
+        foreach (['GPTBot', 'OAI-SearchBot', 'ClaudeBot', 'PerplexityBot', 'Google-Extended'] as $bot) {
+            $this->assertStringContainsString("User-agent: $bot\nAllow: /\nDisallow: /admin\nDisallow: /preview\n", $robots);
+        }
+    }
+
+    public function test_llms_txt_states_who_amir_jebbari_is_and_lists_only_live_pages(): void
+    {
+        $project = $this->makeProject();
+        $draft = $this->makeProject(['title' => ['nl' => 'Geheim concept', 'en' => 'Secret draft']], publish: false);
+
+        $response = $this->get('/llms.txt')->assertOk()->assertHeader('Content-Type', 'text/plain; charset=UTF-8');
+        $txt = $response->getContent();
+
+        $this->assertStringStartsWith("# Amir Jebbari\n\n> Amir Jebbari is the founder of Jebbari, based in Amsterdam and Zwolle, the Netherlands.", $txt);
+        $this->assertStringContainsString('['.'Over mij (NL)]('.url('/nl/over-mij').')', $txt);
+        $this->assertStringContainsString('('.url('/en/about').')', $txt);
+        $this->assertStringContainsString(url("/en/work/{$project->slug_en}"), $txt);
+        $this->assertStringNotContainsString('Secret draft', $txt);
+        $this->assertStringContainsString('[amirs.life](https://amirs.life)', $txt);
+        foreach (['iran', 'education', 'university', 'degree'] as $word) {
+            $this->assertStringNotContainsString($word, mb_strtolower($txt));
+        }
+    }
+
     // ----------------------------------------------- strict CSP and no third parties
 
     public function test_public_pages_comply_with_the_strict_csp_and_load_nothing_from_third_parties(): void
