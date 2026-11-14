@@ -1,17 +1,18 @@
 @php use App\Support\Locale; @endphp
 
 @if ($categories->isNotEmpty())
-    <nav aria-label="{{ __('site.blog.categories') }}" class="t-label page flex flex-wrap gap-x-6 gap-y-2 pb-8">
-        <a href="{{ Locale::url('blog') }}" class="link link-bare @if (! $activeCategory) text-fg @else text-muted @endif" @if (! $activeCategory) aria-current="page" @endif>{{ __('site.blog.all') }}</a>
+    <nav aria-label="{{ __('site.blog.categories') }}" class="page filter-bar pb-8">
+        <a href="{{ Locale::url('blog') }}" class="filter-chip t-label" @if (! $activeCategory) aria-current="page" @endif>{{ __('site.blog.all') }}</a>
         @foreach ($categories as $cat)
-            <a href="{{ Locale::route('blog.category', ['slug' => $cat->slugFor(app()->getLocale())]) }}" class="link link-bare @if ($activeCategory?->is($cat)) text-fg @else text-muted @endif" @if ($activeCategory?->is($cat)) aria-current="page" @endif>{{ loc($cat->name) }}</a>
+            <a href="{{ Locale::route('blog.category', ['slug' => $cat->slugFor(app()->getLocale())]) }}" class="filter-chip t-label" @if ($activeCategory?->is($cat)) aria-current="page" @endif>{{ loc($cat->name) }}</a>
         @endforeach
+        <a href="{{ Locale::route('blog.feed') }}" class="filter-chip filter-chip-end t-label">{{ __('site.blog.feed') }}</a>
     </nav>
 @endif
 
 <section>
     <x-section-label :number="$number" :label="__('site.blog.articles')" :meta="'('.$posts->total().')'" />
-    <div class="page py-12 md:py-20">
+    <div class="page section-body">
         @if ($posts->isEmpty())
             <p class="t-body text-muted">{{ __('site.empty.blog') }}</p>
         @else

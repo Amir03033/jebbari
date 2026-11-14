@@ -7,7 +7,7 @@
 
 {{-- A few real numbers. They count up once when they scroll into view; the final value is already in the page for everyone else. --}}
 <section class="stats" aria-label="{{ loc($data['label'] ?? null) }}">
-    <div class="page py-16 md:py-28">
+    <div class="page section-body">
         <p class="t-label mb-10 text-muted md:mb-14" data-reveal="up">{{ loc($data['label'] ?? null) }}</p>
         <ul class="grid grid-cols-2 gap-x-[var(--gutter)] gap-y-12 {{ $cols[min(4, max(2, $items->count()))] }}">
             @foreach ($items as $item)

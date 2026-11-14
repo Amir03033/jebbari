@@ -3,7 +3,7 @@
 {{-- A list read as statements: index, then each point at heading size, hairlines between. --}}
 <section>
     <x-section-label :number="$number" :label="$label" :meta="'('.count($items).')'" />
-    <div class="page py-16 md:py-28">
+    <div class="page section-body">
         <ul>
             @foreach ($items as $item)
                 <li class="relative" data-reveal="group" data-delay="{{ min($loop->index, 3) }}">

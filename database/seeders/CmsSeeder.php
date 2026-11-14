@@ -35,7 +35,7 @@ class CmsSeeder extends Seeder
     {
         $titles = [
             'home' => ['Home', 'Home'], 'work' => ['Werk', 'Work'], 'services' => ['Diensten', 'Services'],
-            'about' => ['Over ons', 'About'], 'contact' => ['Contact', 'Contact'], 'blog' => ['Blog', 'Blog'],
+            'about' => ['Over mij', 'About'], 'contact' => ['Contact', 'Contact'], 'blog' => ['Blog', 'Blog'],
         ];
 
         foreach ($titles as $key => [$nl, $en]) {
@@ -148,7 +148,7 @@ class CmsSeeder extends Seeder
 
         $items = [
             ['header', 'work', 'Werk', 'Work'], ['header', 'services', 'Diensten', 'Services'],
-            ['header', 'about', 'Over ons', 'About'], ['header', 'blog', 'Blog', 'Blog'], ['header', 'contact', 'Contact', 'Contact'],
+            ['header', 'about', 'Over mij', 'About'], ['header', 'blog', 'Blog', 'Blog'], ['header', 'contact', 'Contact', 'Contact'],
             ['footer', 'privacy', 'Privacy', 'Privacy'], ['footer', 'terms', 'Algemene voorwaarden', 'Terms and conditions'],
         ];
 
@@ -172,7 +172,7 @@ class CmsSeeder extends Seeder
         }
 
         return [$this->block('rich_text', ['label' => ['nl' => '', 'en' => ''], 'body' => [
-            'nl' => '<h2>Wie is verantwoordelijk</h2><p>[[ OWNER: bedrijfsnaam, KvK-nummer en vestigingsadres ]] is verantwoordelijk voor de verwerking van persoonsgegevens via deze website.</p>'
+            'nl' => '<h2>Wie is verantwoordelijk</h2><p>[[ OWNER: bedrijfsnaam en KvK-nummer ]], Professor W.H. Keesomlaan 12, 1183 DJ Amstelveen, is verantwoordelijk voor de verwerking van persoonsgegevens via deze website.</p>'
                 .'<h2>Welke gegevens we verwerken</h2><p>Als je het contactformulier gebruikt, slaan we je naam, e-mailadres, eventueel je bedrijfsnaam en budgetindicatie, en je bericht op. Daarnaast bewaren we een versleutelde aanduiding van je IP-adres om misbruik van het formulier tegen te gaan.</p>'
                 .'<h2>Waarom</h2><p>We gebruiken deze gegevens om te reageren op je vraag en om een eventuele opdracht voor te bereiden.</p>'
                 .'<h2>Cookies en meten</h2><p>Deze website gebruikt geen tracking- of advertentiecookies. [[ OWNER: bevestig of er geen analyse wordt gebruikt, of beschrijf de cookievrije analyse die je kiest ]]</p>'
@@ -180,7 +180,7 @@ class CmsSeeder extends Seeder
                 .'<h2>Delen met anderen</h2><p>[[ OWNER: noem hosting-, e-mail- en eventuele andere verwerkers ]]</p>'
                 .'<h2>Je rechten</h2><p>Je kunt vragen om inzage, correctie of verwijdering van je gegevens en bezwaar maken tegen verwerking. Je kunt ook een klacht indienen bij de Autoriteit Persoonsgegevens.</p>'
                 .'<h2>Contact</h2><p>[[ OWNER: e-mailadres voor privacyvragen ]]</p>',
-            'en' => '<h2>Who is responsible</h2><p>[[ OWNER: company name, KvK number and registered address ]] is responsible for the processing of personal data through this website.</p>'
+            'en' => '<h2>Who is responsible</h2><p>[[ OWNER: company name and KvK number ]], Professor W.H. Keesomlaan 12, 1183 DJ Amstelveen, The Netherlands, is responsible for the processing of personal data through this website.</p>'
                 .'<h2>What data we process</h2><p>If you use the contact form we store your name, email address, optionally your company name and budget range, and your message. We also keep a hashed indication of your IP address to prevent abuse of the form.</p>'
                 .'<h2>Why</h2><p>We use this data to reply to your question and to prepare a possible project.</p>'
                 .'<h2>Cookies and measuring</h2><p>This website uses no tracking or advertising cookies. [[ OWNER: confirm that no analytics is used, or describe the cookieless analytics you choose ]]</p>'

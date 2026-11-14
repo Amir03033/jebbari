@@ -12,7 +12,7 @@
     $action = \App\Support\Locale::route('contact.send');
 @endphp
 
-<x-layouts.app :seo="$seo" :preview="$preview" :header-theme="$page->hasDarkOpening() ? 'dark' : 'light'">
+<x-layouts.app :seo="$seo" :preview="$preview">
     @if ($hasIntro)
         <x-blocks :page="$page" :only="['intro']" />
     @else

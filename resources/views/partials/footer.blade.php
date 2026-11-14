@@ -10,82 +10,92 @@
     $explore = Site::navigation('header');
     $legal = Site::navigation('footer');
     $other = Locale::other();
-    $address = $company['registered_address'] ?? null;
+    $a = config('site.address');
+    $address = $a['street']."\n".$a['postal_code'].' '.$a['locality']."\n".$a['country'];
     $legalLine = collect([
         $company['legal_name'] ?? null,
         ! empty($company['kvk']) ? __('site.footer.kvk').' '.$company['kvk'] : null,
-        ! empty($company['btw']) ? __('site.footer.btw').' '.$company['btw'] : null,
     ])->filter()->implode(' · ');
     $note = loc(Site::setting('header.footer_text'));
+    $more = collect(['faq', 'now', 'uses', 'cv'])->map(fn ($key) => ($page = Site::page($key)) ? ['label' => loc($page->title), 'url' => Locale::url($key)] : null)->filter();
 @endphp
 
-<footer class="on-ink">
-    <div class="page-wide border-t border-line"></div>
+{{-- The footer: brand and place, the ways through the site, the ways to reach out, the small print. --}}
+<footer class="site-footer">
+    <div class="page" data-reveal="group">
+        <div class="relative"><span class="rule" aria-hidden="true"></span></div>
 
-    <div class="page grid-12 gap-y-14 pb-16 pt-16 md:pt-24">
-        <div class="col-span-12 md:col-span-5">
-            <p class="t-label text-muted">{{ __('site.descriptor') }} · Zwolle &amp; Amsterdam</p>
-            <p
-                class="t-label mt-3"
-                x-data="clock('{{ $now }}')"
-            >{{ __('site.footer.time') }}: <time x-text="time">{{ $now }}</time></p>
-            @if ($note)
-                <p class="t-statement mt-8 max-w-[22ch]">{{ $note }}</p>
-            @endif
-            <x-live-status class="mt-10 max-w-[26rem]" />
-        </div>
+        <div class="grid-12 gap-y-14 pb-16 pt-14 md:pb-24 md:pt-20">
+            <div class="rise col-span-12 md:col-span-4">
+                <a href="{{ Locale::url('home') }}" class="footer-brand" aria-label="{{ config('site.name') }}, {{ __('site.nav.home') }}"><x-wordmark /></a>
+                @if ($note)
+                    <p class="t-statement mt-6 max-w-[24ch]">{{ $note }}</p>
+                @endif
+                <x-status class="mt-8 text-muted" />
+                <p
+                    class="t-label mt-3 text-muted"
+                    x-data="clock('{{ $now }}')"
+                >{{ __('site.footer.time') }}: <time class="text-fg" x-text="time">{{ $now }}</time></p>
+                <x-live-status class="mt-10 max-w-[24rem]" />
+            </div>
 
-        <div class="col-span-6 md:col-span-2 md:col-start-7">
-            <p class="t-label mb-4 text-muted">{{ __('site.footer.explore') }}</p>
-            <ul class="grid gap-3">
-                @foreach ($explore as $item)
-                    <li><a href="{{ $item['url'] }}" class="link link-bare text-lg">{{ $item['label'] }}</a></li>
-                @endforeach
-            </ul>
-        </div>
-
-        <div class="col-span-6 md:col-span-4">
-            @if ($email || $booking || $address)
-                <p class="t-label mb-4 text-muted">{{ __('site.footer.contact') }}</p>
+            <div class="rise col-span-6 md:col-span-2 md:col-start-6" data-delay="2">
+                <p class="t-label mb-5 text-muted">{{ __('site.footer.explore') }}</p>
                 <ul class="grid gap-3">
-                    @if ($email)
-                        <li><x-link href="mailto:{{ $email }}" class="text-lg">{{ $email }}</x-link></li>
-                    @endif
-                    @if ($booking)
-                        <li><x-link :href="$booking" arrow class="text-lg">{{ __('site.cta.book') }}</x-link></li>
-                    @endif
-                    @if ($address)
-                        <li class="whitespace-pre-line text-muted">{{ $address }}</li>
-                    @endif
-                </ul>
-            @endif
-            @if ($social)
-                <p class="t-label mb-4 mt-10 text-muted">{{ __('site.footer.follow') }}</p>
-                <ul class="grid gap-3">
-                    @foreach ($social as $link)
-                        <li><x-link :href="$link['url']" rel="me noopener" target="_blank" class="text-lg">{{ $link['label'] }}</x-link></li>
+                    @foreach ($explore as $item)
+                        <li><a href="{{ $item['url'] }}" class="link link-bare">{{ $item['label'] }}</a></li>
                     @endforeach
                 </ul>
-            @endif
-        </div>
-    </div>
+            </div>
 
-    <div class="page-wide">
-        <div class="flex flex-wrap items-center justify-between gap-x-8 gap-y-3 border-t border-line py-6 text-sm">
-            <p class="text-muted">{{ $legalLine }}</p>
-            <p class="flex flex-wrap gap-x-6 gap-y-2">
+            @if ($more->isNotEmpty())
+                <div class="rise col-span-6 md:col-span-2" data-delay="3">
+                    <p class="t-label mb-5 text-muted">{{ __('site.footer.more') }}</p>
+                    <ul class="grid gap-3">
+                        @foreach ($more as $item)
+                            <li><a href="{{ $item['url'] }}" class="link link-bare">{{ $item['label'] }}</a></li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <div class="rise col-span-12 md:col-span-3 md:col-start-10" data-delay="4">
+                @if ($email || $booking || $address)
+                    <p class="t-label mb-5 text-muted">{{ __('site.footer.contact') }}</p>
+                    <ul class="grid gap-3">
+                        @if ($email)
+                            <li><x-link href="mailto:{{ $email }}" class="break-all">{{ $email }}</x-link></li>
+                        @endif
+                        @if ($booking)
+                            <li><x-link :href="$booking" arrow>{{ __('site.cta.book') }}</x-link></li>
+                        @endif
+                        @if ($address)
+                            <li class="whitespace-pre-line text-muted">{{ $address }}</li>
+                        @endif
+                    </ul>
+                @endif
+                @if ($social)
+                    <p class="t-label mb-5 mt-10 text-muted">{{ __('site.footer.follow') }}</p>
+                    <ul class="grid gap-3">
+                        @foreach ($social as $link)
+                            <li><x-link :href="$link['url']" rel="me noopener" target="_blank" arrow>{{ $link['label'] }}</x-link></li>
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
+        </div>
+
+        <div class="footer-base">
+            <p class="text-muted">© {{ now(config('site.timezone'))->year }} {{ config('site.name') }}@if ($legalLine) · {{ $legalLine }}@endif</p>
+            <p class="flex flex-wrap items-center gap-x-6 gap-y-2">
                 @foreach ($legal as $item)
                     <a href="{{ $item['url'] }}" class="link link-bare text-muted">{{ $item['label'] }}</a>
                 @endforeach
-                <a href="{{ $switchUrl }}" hreflang="{{ $other }}" lang="{{ $other }}" class="link link-bare t-label" aria-label="{{ __('site.nav.language') }}: {{ strtoupper($other) }}">
+                <a href="{{ $switchUrl }}" hreflang="{{ $other }}" lang="{{ $other }}" class="lang-switch t-label" aria-label="{{ __('site.nav.language') }}: {{ strtoupper($other) }}">
                     <span class="text-muted">{{ strtoupper(app()->getLocale()) }}</span> / {{ strtoupper($other) }}
                 </a>
+                <a href="#main" class="to-top t-label" data-to-top>{{ __('site.footer.top') }}<span class="to-top-arrow" aria-hidden="true">↑</span></a>
             </p>
         </div>
-    </div>
-
-    {{-- The last frame: the wordmark at the width of the screen, cropped by the bottom edge. --}}
-    <div class="page-wide overflow-clip pt-6 md:pt-10" data-reveal="group" aria-hidden="true">
-        <p class="footer-mark"><span class="line"><span class="line-inner">jebbari<span class="stop text-signal">.</span></span></span></p>
     </div>
 </footer>

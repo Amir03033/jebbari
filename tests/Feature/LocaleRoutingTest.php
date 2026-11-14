@@ -42,7 +42,7 @@ class LocaleRoutingTest extends TestCase
         $this->publishSite();
 
         $this->get('/nl/werk')->assertSee(url('/en/work'), false);
-        $this->get('/en/about')->assertSee(url('/nl/over-ons'), false);
+        $this->get('/en/about')->assertSee(url('/nl/over-mij'), false);
     }
 
     public function test_hreflang_and_canonical_are_present(): void

@@ -16,10 +16,17 @@ class Locale
         'home' => ['nl' => '', 'en' => ''],
         'work' => ['nl' => 'werk', 'en' => 'work'],
         'services' => ['nl' => 'diensten', 'en' => 'services'],
-        'about' => ['nl' => 'over-ons', 'en' => 'about'],
+        'about' => ['nl' => 'over-mij', 'en' => 'about'],
         'blog' => ['nl' => 'blog', 'en' => 'blog'],
         'contact' => ['nl' => 'contact', 'en' => 'contact'],
+        'now' => ['nl' => 'nu', 'en' => 'now'],
+        'uses' => ['nl' => 'stack', 'en' => 'uses'],
+        'cv' => ['nl' => 'cv', 'en' => 'cv'],
+        'faq' => ['nl' => 'veelgestelde-vragen', 'en' => 'faq'],
     ];
+
+    /** Old paths that moved, answered with a 301 (the NL About page used to be "over-ons"). */
+    public const MOVED = ['nl/over-ons' => '/nl/over-mij'];
 
     /** URL segment that precedes a blog category slug. */
     public const CATEGORY_SEGMENT = ['nl' => 'categorie', 'en' => 'category'];

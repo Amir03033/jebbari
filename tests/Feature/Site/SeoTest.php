@@ -36,7 +36,7 @@ class SeoTest extends TestCase
         $service = $this->makeService();
         $project = $this->makeProject();
         $post = $this->makePost();
-        $urls = ['/nl', '/nl/werk', '/nl/diensten', '/nl/over-ons', '/nl/blog', '/nl/contact', "/nl/diensten/{$service->slug_nl}", "/nl/werk/{$project->slug_nl}", "/nl/blog/{$post->slug_nl}"];
+        $urls = ['/nl', '/nl/werk', '/nl/diensten', '/nl/over-mij', '/nl/blog', '/nl/contact', "/nl/diensten/{$service->slug_nl}", "/nl/werk/{$project->slug_nl}", "/nl/blog/{$post->slug_nl}"];
 
         $titles = [];
         foreach ($urls as $url) {
@@ -47,8 +47,8 @@ class SeoTest extends TestCase
         }
 
         $this->assertSame(count($urls), count(array_unique($titles)), 'titles are unique: '.json_encode($titles));
-        $this->assertSame('Jebbari · Digitale studio', $titles['/nl']);
-        $this->assertSame('Jebbari · Digital studio', preg_replace('#.*<title>([^<]+)</title>.*#s', '$1', $this->get('/en')->getContent()));
+        $this->assertSame('Jebbari · Softwareontwikkelaar & ondernemer', $titles['/nl']);
+        $this->assertSame('Jebbari · Software developer &amp; entrepreneur', preg_replace('#.*<title>([^<]+)</title>.*#s', '$1', $this->get('/en')->getContent()));
     }
 
     public function test_titles_follow_the_cms_template_and_description_defaults(): void
@@ -168,7 +168,7 @@ class SeoTest extends TestCase
         $this->assertSame('Jebbari', $org['name']);
         $this->assertSame(url('/nl'), $org['url']);
         $this->assertSame(['Netherlands', 'Zwolle', 'Amsterdam'], array_column($org['areaServed'], 'name'));
-        foreach (['address', 'telephone', 'email', 'sameAs', 'aggregateRating', 'review', 'foundingDate', 'numberOfEmployees'] as $key) {
+        foreach (['telephone', 'email', 'sameAs', 'aggregateRating', 'review', 'foundingDate', 'numberOfEmployees'] as $key) {
             $this->assertArrayNotHasKey($key, $org, "$key must not appear until the owner provides it");
         }
         $this->assertSame('WebSite', $data->firstWhere('@type', 'WebSite')['@type']);
@@ -183,7 +183,7 @@ class SeoTest extends TestCase
         $org = collect($this->jsonLd($this->get('/nl')->getContent()))->firstWhere('@type', 'ProfessionalService');
 
         $this->assertSame('Jebbari B.V.', $org['legalName']);
-        $this->assertSame('NL123456789B01', $org['vatID']);
+        $this->assertArrayNotHasKey('vatID', $org, 'no VAT number is published');
         $this->assertSame('studio@voorbeeld.test', $org['email']);
         $this->assertSame(['https://linkedin.example.test/x'], $org['sameAs']);
     }
@@ -280,7 +280,7 @@ class SeoTest extends TestCase
         $project = $this->makeProject();
         $post = $this->makePost();
 
-        foreach (['/nl', '/en', '/nl/werk', '/nl/diensten', '/nl/over-ons', '/nl/blog', '/nl/contact', "/nl/diensten/{$service->slug_nl}", "/nl/werk/{$project->slug_nl}", "/nl/blog/{$post->slug_nl}"] as $url) {
+        foreach (['/nl', '/en', '/nl/werk', '/nl/diensten', '/nl/over-mij', '/nl/blog', '/nl/contact', "/nl/diensten/{$service->slug_nl}", "/nl/werk/{$project->slug_nl}", "/nl/blog/{$post->slug_nl}"] as $url) {
             $response = $this->get($url)->assertOk();
             $html = $response->getContent();
             $csp = $response->headers->get('Content-Security-Policy');
@@ -295,7 +295,8 @@ class SeoTest extends TestCase
             preg_match_all('#(?:src|href|action)="(https?://[^"]+)"#', $html, $links);
             foreach ($links[1] as $link) {
                 $host = parse_url($link, PHP_URL_HOST);
-                $this->assertContains($host, ['localhost', 'hello', null], "$url references a third-party host: $link");
+                // The share links are plain outbound links: nothing is requested from those sites until someone follows one.
+                $this->assertContains($host, ['localhost', 'hello', null, 'www.linkedin.com', 'x.com', 'wa.me'], "$url references a third-party host: $link");
             }
         }
     }

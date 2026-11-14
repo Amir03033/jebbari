@@ -1,10 +1,14 @@
 <?php
 
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\FeedController;
+use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\PreviewController;
+use App\Http\Controllers\ShareImageController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\StyleController;
+use App\Http\Middleware\CountPageView;
 use App\Http\Middleware\SetLocale;
 use App\Support\Locale;
 use Illuminate\Http\Request;
@@ -19,9 +23,22 @@ Route::get('/', function (Request $request) {
 
 Route::get('/sitemap.xml', [SitemapController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
+Route::get('/llms.txt', [SitemapController::class, 'llms'])->name('llms');
+
+// Old URLs that moved. Registered before the locale groups so the legal catch-all never sees them.
+foreach (Locale::MOVED as $from => $to) {
+    Route::permanentRedirect($from, $to);
+}
+
+// Generated share image (Open Graph) for a project or an article.
+Route::get('/share/{locale}/{type}/{slug}.png', ShareImageController::class)->where('type', 'work|blog')->name('share');
+
+// Newsletter: links from the confirmation email. Signed, so they cannot be guessed.
+Route::get('/newsletter/confirm/{subscriber}', [NewsletterController::class, 'confirm'])->middleware('signed')->name('newsletter.confirm');
+Route::get('/newsletter/unsubscribe/{subscriber}', [NewsletterController::class, 'unsubscribe'])->middleware('signed')->name('newsletter.unsubscribe');
 
 foreach (Locale::all() as $locale) {
-    Route::prefix($locale)->middleware(SetLocale::class.':'.$locale)->group(function () use ($locale) {
+    Route::prefix($locale)->middleware([SetLocale::class.':'.$locale, CountPageView::class])->group(function () use ($locale) {
         // System pages (content comes from the CMS).
         foreach (Locale::PAGES as $page => $slugs) {
             Route::get($slugs[$locale], [SiteController::class, 'page'])
@@ -31,6 +48,12 @@ foreach (Locale::all() as $locale) {
 
         // Contact form: validated, honeypot + minimum time, rate limited.
         Route::post(Locale::slug('contact', $locale), [ContactController::class, 'store'])->middleware('throttle:contact')->name($locale.'.contact.send');
+
+        // Newsletter sign-up (double opt-in), rate limited like the contact form.
+        Route::post('newsletter', [NewsletterController::class, 'store'])->middleware('throttle:contact')->name($locale.'.newsletter');
+
+        // The blog as an RSS feed. Must come before the article route.
+        Route::get(Locale::slug('blog', $locale).'/feed.xml', FeedController::class)->name($locale.'.blog.feed');
 
         // Details with translated slugs.
         Route::get(Locale::slug('work', $locale).'/{slug}', [SiteController::class, 'project'])->name($locale.'.work.show');

@@ -63,6 +63,30 @@ class ProjectResource extends Resource
                         Translated::text('caption', 'Bijschrift (optioneel)'),
                     ]),
             ]),
+            Section::make('Tijdlijn')->description('Mijlpalen van het project, in volgorde. Alleen echte data.')->collapsed()->schema([
+                Repeater::make('timeline')->label('Mijlpalen')->reorderableWithButtons()->collapsible()->addActionLabel('Mijlpaal toevoegen')
+                    ->itemLabel(fn (array $state) => trim(($state['date'] ?? '').' '.($state['title']['nl'] ?? '')) ?: 'Mijlpaal')
+                    ->schema([
+                        TextInput::make('date')->label('Wanneer (bijvoorbeeld maart 2026)')->maxLength(40),
+                        Translated::text('title', 'Mijlpaal', true),
+                        Translated::textarea('text', 'Toelichting (optioneel)', false, 2),
+                    ]),
+            ]),
+            Section::make('Changelog')->description('Korte release-notities, nieuwste bovenaan.')->collapsed()->schema([
+                Repeater::make('changelog')->label('Releases')->reorderableWithButtons()->collapsible()->addActionLabel('Release toevoegen')
+                    ->itemLabel(fn (array $state) => trim(($state['version'] ?? '').' '.($state['date'] ?? '')) ?: 'Release')
+                    ->schema([
+                        TextInput::make('version')->label('Versie (bijvoorbeeld 1.4)')->maxLength(20),
+                        TextInput::make('date')->label('Datum')->maxLength(40),
+                        Translated::textarea('notes', 'Wat is er veranderd (één punt per regel)', true, 3),
+                    ]),
+            ]),
+            Section::make('Live demo en voor/na')->collapsed()->schema([
+                TextInput::make('demo_url')->label('Adres van een publieke demo (wordt in een venster op de pagina getoond)')->url()->startsWith('https://')->maxLength(255)
+                    ->helperText('Alleen https. De demo moet toestaan dat hij op jebbari.nl wordt ingesloten.'),
+                PublishingUi::mediaSelect('before_media_id', 'Voor (oude situatie)'),
+                PublishingUi::mediaSelect('after_media_id', 'Na (nieuwe situatie)'),
+            ]),
             Section::make('Uitlichten')->collapsed()->columns(['default' => 1, 'md' => 2])->schema([
                 Toggle::make('is_featured')->label('Uitgelicht op de homepage'),
                 TextInput::make('featured_sort')->label('Volgorde bij uitgelicht')->numeric()->default(0),

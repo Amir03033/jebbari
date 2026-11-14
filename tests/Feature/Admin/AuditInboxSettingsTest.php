@@ -162,7 +162,7 @@ class AuditInboxSettingsTest extends AdminTestCase
         $this->actingAs($this->owner());
 
         Livewire::test(CompanySettings::class)
-            ->fillForm(['legal_name' => 'Jebbari B.V.', 'kvk' => '12345678', 'btw' => 'NL123456789B01'])
+            ->fillForm(['legal_name' => 'Jebbari B.V.', 'kvk' => '12345678'])
             ->call('save')->assertNotified('Opgeslagen');
 
         $this->assertSame('Jebbari B.V.', Settings::get('company.legal_name'));

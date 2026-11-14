@@ -4,7 +4,7 @@
 
 <section>
     <x-section-label :number="$number" :label="loc($data['label'] ?? null)" :meta="'('.$items->count().')'" />
-    <div class="page py-16 md:py-28">
+    <div class="page section-body">
         <dl>
             @foreach ($items as $item)
                 <div class="relative" data-reveal="group" data-delay="{{ min($loop->index, 3) }}">

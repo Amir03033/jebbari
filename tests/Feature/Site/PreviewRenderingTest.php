@@ -65,8 +65,8 @@ class PreviewRenderingTest extends TestCase
         $about = Page::where('key', 'about')->first();
         $this->actingAs($this->owner());
 
-        $this->get('/nl/over-ons')->assertNotFound();
-        $this->get($about->previewUrl('nl'))->assertOk()->assertSee('Over ons');
+        $this->get('/nl/over-mij')->assertNotFound();
+        $this->get($about->previewUrl('nl'))->assertOk()->assertSee('Over mij');
     }
 
     public function test_project_and_post_previews_use_their_real_templates(): void

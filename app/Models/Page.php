@@ -45,12 +45,6 @@ class Page extends Model
         return filled(loc($this->title, $locale));
     }
 
-    /** Pages whose opening is a black stage; the header then starts dark too. */
-    public function hasDarkOpening(): bool
-    {
-        return in_array($this->key, ['home', 'work', 'services', 'contact'], true);
-    }
-
     /** @return list<string> problems inside visible blocks, for one locale */
     public function blockGaps(string $locale): array
     {

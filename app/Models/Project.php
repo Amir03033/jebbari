@@ -23,7 +23,7 @@ class Project extends Model
     {
         return [
             'title' => 'array', 'kind' => 'array', 'summary' => 'array', 'brief' => 'array', 'objectives' => 'array', 'built' => 'array', 'features' => 'array',
-            'outcome' => 'array', 'stack' => 'array', 'gallery' => 'array', 'seo' => 'array',
+            'outcome' => 'array', 'timeline' => 'array', 'changelog' => 'array', 'stack' => 'array', 'gallery' => 'array', 'seo' => 'array',
             'is_featured' => 'boolean',
         ];
     }
@@ -40,10 +40,22 @@ class Project extends Model
         return $this->belongsTo(MediaAsset::class, 'cover_media_id');
     }
 
+    public function before(): BelongsTo
+    {
+        return $this->belongsTo(MediaAsset::class, 'before_media_id');
+    }
+
+    public function after(): BelongsTo
+    {
+        return $this->belongsTo(MediaAsset::class, 'after_media_id');
+    }
+
     public function mediaIds(): array
     {
         return [
             $this->cover_media_id,
+            $this->before_media_id,
+            $this->after_media_id,
             $this->getAttribute('seo')['og_media_id'] ?? null,
             ...collect($this->gallery ?? [])->pluck('media_id')->all(),
         ];

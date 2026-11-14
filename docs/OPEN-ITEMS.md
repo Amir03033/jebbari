@@ -57,3 +57,36 @@
 - [ ] Capital I looks like lowercase l in "Iets te bouwen?" (also in Instrument Sans). Options: keep, or reword the closing question in the CMS.
 - [ ] Real screenshots, objectives and features for each case study (new fields in the project form); until then ServerScope uses a typographic tile.
 - [ ] Optional owner photo for About (the layout works without one).
+
+## Added after Phase 4 (premium redesign)
+
+- [ ] Review the new direction (`docs/PREMIUM-REDESIGN.md`, screenshots in `docs/screenshots/phase-4/`).
+- [ ] Rewrite the hero, About and meta description in the CMS and `lang/*/site.php` if the site should read as a personal brand rather than a studio (copy was not changed).
+- [ ] Add cover images and summaries to the projects (ServerScope, ChinaSupply, others) so the case study cards show real work.
+- [ ] Test on Safari, iPhone and iPad; run Lighthouse on production.
+
+## Added after Phase 5
+
+- [ ] Run `php artisan content:propose --replace`, review the drafts, fill in the `[[ OWNER: ... ]]` fields and publish.
+- [ ] GitHub username (Site > Sociale links) if the Open source block should show.
+- [ ] ChinaSupply and ServerScope: kind, summary, images, timeline, changelog, demo address.
+- [ ] Lighthouse numbers for `config/specs.php` (the block stays hidden until then).
+- [ ] Mention the cookieless page-view counter and the newsletter in the privacy statement.
+- [ ] Decide how newsletters are sent (not built).
+
+## Added for AI and search visibility (docs/AI-VISIBILITY.md)
+
+- [ ] After deploying: run `php artisan cms:draft-about`, review the About text in /admin and publish it.
+- [x] LinkedIn https://www.linkedin.com/in/amir-j-a3948b3a9 is in the Person `sameAs` and llms.txt (`config/site.php`). Add it under Site > Social links too if it should show in the footer. GitHub URL still open.
+- [ ] Check Cloudflare / Plesk for AI-bot blocking outside the app.
+- [x] ServerScope: "online SaaS platform for monitoring servers and online environments" (on the About page; copy it to the project page in the CMS).
+- [ ] barbercuts.nl: confirm the client agrees to be shown as a project and to a "Built by Amir Jebbari" footer credit.
+- [ ] Photo for the About page (own professional portrait): owner adds it later in the CMS (Image block on the About page).
+- [ ] Blog: check each article has a two-sentence summary in the excerpt field and an English version where possible.
+- [ ] Place the external profile texts (LinkedIn, GitHub, KVK, Google Business Profile) and the snippets for amirs.life and project sites.
+
+## Address and VAT (owner decision, 2026-11-14)
+
+- [x] One address everywhere: Professor W.H. Keesomlaan 12, 1183 DJ Amstelveen, The Netherlands (`config/site.php` > address): footer, Organization `address` and `location` in JSON-LD, llms.txt, privacy draft. The CMS address field is gone.
+- [x] No VAT (BTW) number anywhere: removed from the footer, JSON-LD (`vatID`) and the CMS company settings.
+- [ ] Decide whether the copy "gevestigd in Amsterdam en Zwolle / based in Amsterdam and Zwolle" (bio, hero label, meeting line) should change now that the address is in Amstelveen.

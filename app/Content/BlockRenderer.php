@@ -52,7 +52,9 @@ class BlockRenderer
             'rich_text', 'biography' => loc($data['body'] ?? null) !== null,
             'meeting_line', 'reply_promise' => loc($data['text'] ?? null) !== null,
             'image' => filled($data['media_id'] ?? null),
-            'skills', 'principles', 'experience' => ! empty($data['items']),
+            'skills', 'principles', 'experience', 'focus', 'gear' => ! empty($data['items']),
+            'faq' => collect($data['items'] ?? [])->contains(fn ($i) => loc($i['question'] ?? null) !== null && loc($i['answer'] ?? null) !== null),
+            'github' => Site::github()->isNotEmpty(),
             default => true,
         };
     }

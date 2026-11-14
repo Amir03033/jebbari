@@ -63,7 +63,7 @@ class HomepageTest extends TestCase
     public function test_the_hidden_about_teaser_is_not_shown_and_appears_once_written(): void
     {
         $this->publishSite();
-        $this->get('/nl')->assertDontSee('Over mij');
+        $this->get('/nl')->assertDontSee('Meer over mij');
 
         $home = $this->home();
         $blocks = collect($home->blocks)->map(function ($b) {
@@ -87,7 +87,7 @@ class HomepageTest extends TestCase
         $blocks = collect($home->blocks)->map(fn ($b) => $b['type'] === 'about_teaser' ? array_replace_recursive($b, ['data' => ['visible' => true]]) : $b)->all();
         $home->forceFill(['blocks' => $blocks])->saveQuietly();
 
-        $this->get('/nl')->assertOk()->assertDontSee('Over mij');
+        $this->get('/nl')->assertOk()->assertDontSee('Meer over mij');
     }
 
     public function test_services_show_only_published_services_in_cms_order(): void
@@ -117,8 +117,10 @@ class HomepageTest extends TestCase
         $this->makeProject(['title' => ['nl' => 'Niet uitgelicht', 'en' => 'Not featured'], 'is_featured' => false]);
         $this->makeProject(['title' => ['nl' => 'Nog concept', 'en' => 'Still draft']], publish: false);
 
-        $home = $this->get('/nl')->assertOk();
-        $home->assertSee('Uitgelicht')->assertDontSee('Niet uitgelicht')->assertDontSee('Nog concept');
+        $home = $this->body('/nl');
+        $this->assertStringContainsString('Uitgelicht', $home);
+        $this->assertStringNotContainsString('Niet uitgelicht', $home);
+        $this->assertStringNotContainsString('Nog concept', $home);
 
         $this->get('/nl/werk')->assertSee('Uitgelicht')->assertSee('Niet uitgelicht')->assertDontSee('Nog concept');
     }
@@ -157,7 +159,7 @@ class HomepageTest extends TestCase
         $home->forceFill(['blocks' => [$first('hero'), $first('process'), $first('services_overview'), ...$rest]])->saveQuietly();
 
         $html = $this->get('/nl')->getContent();
-        $this->assertLessThan(strpos($html, '/ Diensten'), strpos($html, '/ Werkwijze'), 'process now comes before services');
+        $this->assertLessThan(strpos($html, 'line-inner">Diensten<'), strpos($html, 'line-inner">Werkwijze<'), 'process now comes before services');
 
         // Hiding a block removes it and the numbers stay sequential.
         $hidden = collect($home->fresh()->blocks)->map(fn ($b) => $b['type'] === 'process' ? array_replace_recursive($b, ['data' => ['visible' => false]]) : $b)->all();
@@ -166,7 +168,7 @@ class HomepageTest extends TestCase
         $html = $this->get('/nl')->getContent();
         $this->assertStringNotContainsString('Praten', $html);
         // Sections are numbered 01 (hero), 02, 03 ... with no gap where blocks are hidden or empty.
-        $this->assertMatchesRegularExpression('#>02</span> / Diensten#', $html);
+        $this->assertMatchesRegularExpression('#label-row text-muted">02\b.*?line-inner">Diensten<#s', $html);
         $this->assertMatchesRegularExpression('#>03</span> / Contact#', $html);
     }
 
@@ -188,7 +190,7 @@ class HomepageTest extends TestCase
         $this->makeService();
         Project::where('slug_en', 'serverscope')->firstOrFail()->publish();
 
-        foreach (['/nl', '/en', '/nl/werk', '/nl/diensten', '/nl/over-ons', '/nl/blog', '/nl/contact', '/nl/werk/serverscope'] as $url) {
+        foreach (['/nl', '/en', '/nl/werk', '/nl/diensten', '/nl/over-mij', '/nl/blog', '/nl/contact', '/nl/werk/serverscope'] as $url) {
             $this->get($url)->assertOk()->assertDontSee('[[')->assertDontSee('OWNER')->assertDontSee('Lorem');
         }
     }
@@ -209,9 +211,9 @@ class HomepageTest extends TestCase
         $this->publishSite();
         Settings::save('header', ['taking_projects' => false, 'status_closed' => ['nl' => 'Even volgeboekt', 'en' => 'Fully booked for now']]);
 
-        $this->get('/nl')->assertSee('Digitale studio')->assertSee('Even volgeboekt')
+        $this->get('/nl')->assertSee('Softwareontwikkelaar &amp; ondernemer', false)->assertSee('Even volgeboekt')
             ->assertSee('href="'.url('/nl/werk').'"', false)->assertSee('href="'.url('/nl/blog').'"', false);
-        $this->get('/en')->assertSee('Digital studio')->assertSee('Fully booked for now');
+        $this->get('/en')->assertSee('Software developer &amp; entrepreneur', false)->assertSee('Fully booked for now');
     }
 
     public function test_navigation_items_whose_page_is_not_live_are_hidden(): void
@@ -233,9 +235,10 @@ class HomepageTest extends TestCase
         $this->assertStringNotContainsString('BTW', $html);
 
         Settings::save('company', ['legal_name' => 'Jebbari Testbedrijf', 'kvk' => '12345678', 'btw' => 'NL000000000B01']);
+        // A VAT number left in old settings is never shown (owner decision).
         Settings::save('social', ['links' => [['label' => 'LinkedIn', 'url' => 'https://linkedin.example.test/jebbari']]]);
 
-        $this->get('/nl')->assertSee('Jebbari Testbedrijf')->assertSee('KvK 12345678')->assertSee('BTW NL000000000B01')
+        $this->get('/nl')->assertSee('Jebbari Testbedrijf')->assertSee('KvK 12345678')->assertDontSee('NL000000000B01')->assertDontSee('BTW')
             ->assertSee('LinkedIn')->assertSee('https://linkedin.example.test/jebbari', false);
     }
 }

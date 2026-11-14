@@ -5,7 +5,7 @@
     'seo' => null,
     'alternates' => null,
     'preview' => null,
-    'headerTheme' => 'light',
+    'overlay' => true,
 ])
 
 @php
@@ -46,9 +46,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $meta['title'] }}</title>
     <meta name="description" content="{{ $meta['description'] }}">
-    <meta name="color-scheme" content="light dark">
-    <meta name="theme-color" content="#F5F3EE" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#151516" media="(prefers-color-scheme: dark)">
+    <meta name="color-scheme" content="light">
+    <meta name="theme-color" content="#FAFAF8">
     @if ($meta['robots'])
         <meta name="robots" content="{{ $meta['robots'] }}">
     @endif
@@ -80,8 +79,13 @@
         <meta name="twitter:description" content="{{ $meta['description'] }}">
         <meta name="twitter:image" content="{{ $meta['image'] }}">
     @endif
+    @if (\App\Content\Site::page('blog'))
+        <link rel="alternate" type="application/rss+xml" title="{{ config('site.name') }} · {{ __('site.nav.blog') }}" href="{{ Locale::route('blog.feed') }}">
+    @endif
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
-    <link rel="preload" as="font" type="font/woff2" crossorigin href="{{ Vite::asset('resources/fonts/instrument-sans-latin-wght-normal.woff2') }}">
+    <link rel="icon" href="{{ asset('favicon-32.png') }}" sizes="32x32" type="image/png">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="{{ Vite::asset('resources/fonts/geist-latin-wght-normal.woff2') }}">
     <link rel="preload" as="font" type="font/woff2" crossorigin href="{{ Vite::asset('resources/fonts/geist-mono-latin-400-normal.woff2') }}">
     <script src="{{ asset('js/motion-flag.js') }}"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -90,7 +94,7 @@
     @endforeach
 </head>
 <body class="flex min-h-screen flex-col">
-    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-ink focus:px-4 focus:py-2 focus:text-paper rounded-ui">{{ __('site.skip') }}</a>
+    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:bg-ink focus:px-4 focus:py-2 focus:text-paper rounded-pill text-sm">{{ __('site.skip') }}</a>
 
     @if ($preview)
         @include('partials.preview-bar')
@@ -103,5 +107,7 @@
     </main>
 
     @include('partials.footer')
+
+    @include('partials.command-menu')
 </body>
 </html>

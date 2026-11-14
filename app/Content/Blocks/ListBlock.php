@@ -5,10 +5,15 @@ namespace App\Content\Blocks;
 use App\Filament\Support\Translated;
 use Filament\Forms\Components\Repeater;
 
-/** A titled list of items with a Dutch/English text each: skills, principles. */
+/** A titled list of items with a Dutch/English text each: skills, principles, focus, tools. */
 class ListBlock extends Block
 {
-    public function __construct(private string $type, private string $label, private bool $withDescription, private int $min = 1, private int $max = 12) {}
+    public function __construct(private string $type, private string $label, private bool $withDescription, private int $min = 1, private int $max = 12, private bool $single = true) {}
+
+    public function singleton(): bool
+    {
+        return $this->single;
+    }
 
     public function type(): string
     {

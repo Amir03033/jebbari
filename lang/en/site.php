@@ -7,9 +7,9 @@
  */
 return [
     'skip' => 'Skip to content',
-    'descriptor' => 'Digital studio',
+    'descriptor' => 'Software developer & entrepreneur',
     'tagline' => 'Software, done properly.',
-    'meta_description' => 'Jebbari is a digital studio in Zwolle and Amsterdam. We design and build websites and web applications for Dutch businesses.',
+    'meta_description' => 'Jebbari is a software developer and entrepreneur. I design and build websites, web applications and products of my own.',
     'breadcrumb' => 'Breadcrumb',
 
     'live' => [
@@ -31,8 +31,61 @@ return [
         'light' => 'Light',
         'dark' => 'Dark',
     ],
-    'hscroll' => [
-        'progress' => 'Progress through the projects',
+    'github' => [
+        'label' => 'Open source',
+        'intro' => 'Public code I am working on, straight from GitHub.',
+        'updated' => 'Updated',
+        'all' => 'Everything on GitHub',
+    ],
+    'newsletter' => [
+        'label' => 'Newsletter',
+        'title' => 'A message now and then.',
+        'text' => 'New articles and projects in your inbox. No advertising, and unsubscribing takes one click.',
+        'submit' => 'Subscribe',
+        'sent' => 'Almost there. Confirm your subscription with the email that is on its way.',
+        'privacy' => 'Your address is used for this newsletter only.',
+        'confirmed_title' => 'You are subscribed',
+        'confirmed_text' => 'Thank you for confirming. You will hear from me when there is something new.',
+        'unsubscribed_title' => 'You are unsubscribed',
+        'unsubscribed_text' => 'You will receive no more messages. Your address is not used any further.',
+        'mail_subject' => 'Confirm your subscription to the Jebbari newsletter',
+        'mail_intro' => 'Confirm your newsletter subscription by opening this link:',
+        'mail_ignore' => 'Did not sign up? Then you do not have to do anything; without confirmation you receive nothing.',
+        'mail_unsubscribe' => 'You can always unsubscribe here:',
+    ],
+    'cv' => [
+        'print' => 'Save as PDF',
+        'print_hint' => 'Opens the print dialog; choose "Save as PDF" there.',
+        'experience' => 'Experience',
+        'skills' => 'Skills',
+        'projects' => 'Projects',
+    ],
+    'command' => [
+        'title' => 'Search',
+        'placeholder' => 'Search a page, project or action',
+        'empty' => 'Nothing found.',
+        'navigate' => 'navigate',
+        'open' => 'open',
+        'language' => 'Schakel naar Nederlands',
+        'group_pages' => 'Pages',
+        'group_work' => 'Work',
+        'group_services' => 'Services',
+        'group_blog' => 'Articles',
+        'group_actions' => 'Actions',
+    ],
+    'egg' => [
+        'blueprint' => 'Blueprint: show the grid',
+        'confetti' => 'Celebrate something',
+        'found' => 'Found.',
+    ],
+    'share' => [
+        'label' => 'Share this',
+        'native' => 'Share',
+        'copy' => 'Copy link',
+        'author' => 'Written by',
+    ],
+    'hero' => [
+        'scroll' => 'Scroll',
     ],
     'status' => [
         'open' => 'Taking on projects',
@@ -40,6 +93,10 @@ return [
     ],
 
     'nav' => [
+        'faq' => 'Questions',
+        'now' => 'Now',
+        'uses' => 'Uses',
+        'cv' => 'CV',
         'label' => 'Main',
         'home' => 'Home',
         'work' => 'Work',
@@ -53,6 +110,8 @@ return [
     ],
 
     'footer' => [
+        'more' => 'More',
+        'top' => 'Back to top',
         'time' => 'Zwolle · Amsterdam, NL',
         'explore' => 'Explore',
         'contact' => 'Contact',
@@ -60,7 +119,6 @@ return [
         'email' => 'Email',
         'privacy' => 'Privacy',
         'kvk' => 'KvK',
-        'btw' => 'VAT',
     ],
 
     'cta' => [
@@ -79,9 +137,19 @@ return [
         'blog' => 'There are no articles yet.',
     ],
 
-    'work' => ['all' => 'All work'],
+    'work' => ['all' => 'All work', 'filter' => 'Filter by technology', 'filter_empty' => 'No projects with this technology.'],
 
     'project' => [
+        'timeline' => 'Timeline',
+        'changelog' => 'Changelog',
+        'demo' => 'Live demo',
+        'demo_load' => 'Load demo',
+        'demo_open' => 'Open in a new tab',
+        'demo_note' => 'The demo runs on another server and is only loaded when you ask for it.',
+        'compare' => 'Before and after',
+        'before' => 'Before',
+        'after' => 'After',
+        'compare_label' => 'Slide between before and after',
         'category' => 'Category',
         'year' => 'Year',
         'client' => 'Client',
@@ -103,7 +171,7 @@ return [
     'service' => [
         'benefits' => 'Benefits',
         'included' => 'What you get',
-        'not_included' => 'What we do not do',
+        'not_included' => 'What I do not do',
         'timeline' => 'Typical timeline',
         'technology' => 'Technology',
         'other' => 'Other services',
@@ -117,6 +185,8 @@ return [
     ],
 
     'blog' => [
+        'toc' => 'On this page',
+        'feed' => 'RSS feed',
         'articles' => 'Articles',
         'categories' => 'Categories',
         'all' => 'All',
@@ -126,6 +196,7 @@ return [
         'related' => 'Keep reading',
         'cta' => 'Want to talk it through?',
         'reading' => '{1} :count minute read|[2,*] :count minute read',
+        'by' => 'By',
     ],
 
     'legal' => ['updated' => 'Last updated'],
@@ -154,20 +225,49 @@ return [
         'attr_message' => 'your message',
         'send' => 'Send message',
         'sent_title' => 'Thank you. Your message has arrived.',
-        'sent_text' => 'We will reply within one working day.',
+        'sent_text' => 'I will reply within one working day.',
         'fix_errors' => 'Please check the highlighted fields.',
         'too_fast' => 'That was very quick. Please check your message and send it again.',
         'leave_empty' => 'Leave this field empty',
-        'privacy_note' => 'We use your details only to reply to your message.',
+        'privacy_note' => 'I use your details only to reply to your message.',
         'copy' => 'Copy email address',
         'copied' => 'Copied',
     ],
 
     'error' => [
+        'try' => 'Or continue to',
+        '500_title' => 'Something went wrong',
+        '500_text' => 'That is on the site, not on you. Please try again in a moment.',
+        '503_title' => 'Back shortly',
+        '503_text' => 'The site is being updated and will be back in a moment. This page refreshes by itself.',
+        '503_status' => 'Updating',
         '404_title' => 'Page not found',
         '404_text' => 'The page you are looking for does not exist or has moved.',
         '429_title' => 'Too many requests',
         '429_text' => 'Please wait a moment and try again.',
         'home' => 'Back to the homepage',
+    ],
+
+    // The standard short bio (docs/AI-VISIBILITY.md): use it word for word everywhere.
+    // /llms.txt is always written in English, so these lines exist only here.
+    'llms' => [
+        'details' => 'Amir Jebbari founded Jebbari and built it himself. Jebbari designs and builds web applications and websites. Address: :address. Stack: Laravel (PHP), Vue 3, TypeScript, Filament, Blade, Tailwind. Fields: web applications, SaaS, server and web application security.',
+        'pages' => 'Main pages',
+        'about_nl' => 'Over mij',
+        'about_note' => 'who Amir Jebbari is and what he does (Dutch)',
+        'about_en' => 'About',
+        'about_en_note' => 'the same page in English',
+        'work' => 'Work',
+        'work_note' => 'projects built by Jebbari',
+        'services' => 'Services',
+        'blog' => 'Blog',
+        'contact' => 'Contact',
+        'projects' => 'Projects',
+        'articles' => 'Articles by Amir Jebbari',
+        'related' => 'Related sites and profiles',
+    ],
+
+    'founder' => [
+        'bio' => 'Amir Jebbari is the founder of Jebbari, based in Amsterdam and Zwolle, the Netherlands. He builds web applications with Laravel, Vue and TypeScript.',
     ],
 ];

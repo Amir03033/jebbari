@@ -54,81 +54,26 @@ function initReplay() {
 
 const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
 
-/*
- * Cursor: a quiet ring that trails the pointer and swells over links, buttons
- * and project tiles, plus the "View case" label on tiles. The system cursor is
- * never hidden. Fine pointers only, off under reduced motion.
- */
+/* Project tiles: a small label names the action and follows the pointer. Fine pointers only; the system cursor stays as it is. */
 function initCursor() {
-    if (!finePointer.matches) {
+    const tiles = document.querySelectorAll('[data-cursor]');
+
+    if (!finePointer.matches || !tiles.length) {
         return;
     }
 
     const label = document.createElement('div');
+
     label.className = 'cursor-label t-label';
     label.setAttribute('aria-hidden', 'true');
     document.body.append(label);
 
-    const ring = document.createElement('div');
-    ring.className = 'cursor-ring';
-    ring.setAttribute('aria-hidden', 'true');
-    const useRing = !reduceQuery.matches;
-
-    if (useRing) {
-        document.body.append(ring);
-    }
-
-    let x = 0;
-    let y = 0;
-    let rx = 0;
-    let ry = 0;
-    let scale = 1;
-    let target = 1;
-    let frame = 0;
-    let seen = false;
-
-    const tick = () => {
-        frame = 0;
-        rx += (x - rx) * 0.22;
-        ry += (y - ry) * 0.22;
-        scale += (target - scale) * 0.2;
-        ring.style.transform = `translate3d(${rx}px, ${ry}px, 0) translate(-50%, -50%) scale(${scale.toFixed(3)})`;
-
-        if (Math.abs(x - rx) > 0.2 || Math.abs(y - ry) > 0.2 || Math.abs(target - scale) > 0.01) {
-            frame = requestAnimationFrame(tick);
-        }
-    };
-
-    document.addEventListener('pointermove', (event) => {
-        x = event.clientX;
-        y = event.clientY;
-        label.style.transform = `translate3d(${x + 18}px, ${y + 18}px, 0)`;
-
-        if (useRing) {
-            if (!seen) {
-                seen = true;
-                rx = x;
-                ry = y;
-                ring.classList.add('is-on');
-            }
-
-            const hit = event.target.closest?.('a, button, [data-cursor], summary, label');
-            const field = event.target.closest?.('input, textarea, select');
-
-            target = field ? 0.4 : hit ? 1.9 : 1;
-            ring.classList.toggle('is-hidden', Boolean(field));
-            frame ||= requestAnimationFrame(tick);
-        }
-    });
-
-    document.documentElement.addEventListener('pointerleave', () => ring.classList.remove('is-on'));
-    document.documentElement.addEventListener('pointerenter', () => seen && ring.classList.add('is-on'));
-
-    document.querySelectorAll('[data-cursor]').forEach((el) => {
+    tiles.forEach((el) => {
         el.addEventListener('pointerenter', () => {
             label.textContent = el.dataset.cursor;
             label.classList.add('is-on');
         });
+        el.addEventListener('pointermove', (event) => (label.style.transform = `translate3d(${event.clientX + 18}px, ${event.clientY + 18}px, 0)`));
         el.addEventListener('pointerleave', () => label.classList.remove('is-on'));
     });
 }
@@ -139,8 +84,8 @@ function initMagnet() {
         return;
     }
 
-    document.querySelectorAll('.btn:not([disabled]), .plate .arrow-ring').forEach((el) => {
-        const strength = el.classList.contains('btn') ? 0.2 : 0.35;
+    document.querySelectorAll('.btn:not([disabled]), .theme-toggle').forEach((el) => {
+        const strength = el.classList.contains('btn') ? 0.18 : 0.3;
 
         el.addEventListener('pointermove', (event) => {
             const rect = el.getBoundingClientRect();
@@ -154,54 +99,445 @@ function initMagnet() {
 }
 
 /*
- * Hero wordmark: with a mouse the letters lean toward the pointer (strongest
- * for the nearest letter); a click on the full stop sends a wave through the
- * rings. In the footer the same dot takes you back to the top.
+ * Navigation indicator: a hairline rests under the current page and glides to
+ * the link under the pointer or keyboard focus. Only its transform changes.
  */
-function initWordmark() {
-    const hero = document.querySelector('.hero');
-    const letters = hero ? [...hero.querySelectorAll('.wm-ch')] : [];
+function initNav() {
+    const nav = document.querySelector('[data-nav]');
+    const line = nav?.querySelector('.nav-line');
 
-    if (letters.length && finePointer.matches && !reduceQuery.matches) {
-        let frame = 0;
-        let px = 0;
-
-        const paint = () => {
-            frame = 0;
-
-            letters.forEach((letter) => {
-                const rect = letter.getBoundingClientRect();
-                const dx = (px - (rect.left + rect.width / 2)) / rect.width;
-                const lean = Math.max(-1.6, Math.min(1.6, dx)) * Math.exp(-((dx / 2.4) ** 2));
-
-                letter.style.setProperty('--lean', lean.toFixed(3));
-            });
-        };
-
-        hero.addEventListener('pointermove', (event) => {
-            px = event.clientX;
-            frame ||= requestAnimationFrame(paint);
-        });
-        hero.addEventListener('pointerleave', () => letters.forEach((letter) => letter.style.setProperty('--lean', '0')));
+    if (!nav || !line) {
+        return;
     }
 
-    document.addEventListener('click', (event) => {
-        const stop = event.target.closest?.('.wordmark-xl .stop, .footer-mark .stop');
+    const links = [...nav.querySelectorAll('a')];
+    const current = () => nav.querySelector('[aria-current="page"]');
 
-        if (!stop) {
+    const moveTo = (link) => {
+        if (!link) {
+            line.style.setProperty('--no', '0');
             return;
         }
 
-        const rings = document.querySelector('.hero .rings');
+        line.style.setProperty('--nx', `${link.offsetLeft}px`);
+        line.style.setProperty('--nw', String(link.offsetWidth));
+        line.style.setProperty('--no', '1');
+    };
 
-        if (stop.closest('.footer-mark')) {
-            window.scrollTo({ top: 0, behavior: reduceQuery.matches ? 'auto' : 'smooth' });
-        } else if (rings) {
-            rings.classList.remove('is-wave');
-            void rings.offsetWidth;
-            rings.classList.add('is-wave');
+    links.forEach((link) => {
+        link.addEventListener('pointerenter', () => moveTo(link));
+        link.addEventListener('focus', () => moveTo(link));
+    });
+    nav.addEventListener('pointerleave', () => moveTo(current()));
+    nav.addEventListener('focusout', (event) => nav.contains(event.relatedTarget) || moveTo(current()));
+    window.addEventListener('resize', () => moveTo(current()), { passive: true });
+    document.fonts?.ready.then(() => moveTo(current()));
+    moveTo(current());
+}
+
+/*
+ * Hero light: the pool of light behind the headline leans a little toward the
+ * pointer. One rAF-throttled write of two custom properties; the easing is a
+ * CSS transition, so nothing runs while the pointer rests.
+ */
+function initField() {
+    const field = document.querySelector('[data-field]');
+    const stage = field?.parentElement;
+
+    if (!field || !finePointer.matches || reduceQuery.matches) {
+        return;
+    }
+
+    let frame = 0;
+    let x = 0;
+    let y = 0;
+
+    const paint = () => {
+        frame = 0;
+        field.style.setProperty('--gx', `${x.toFixed(1)}px`);
+        field.style.setProperty('--gy', `${y.toFixed(1)}px`);
+    };
+
+    stage.addEventListener('pointermove', (event) => {
+        const rect = stage.getBoundingClientRect();
+
+        x = (event.clientX / rect.width - 0.5) * 90;
+        y = ((event.clientY - rect.top) / rect.height - 0.5) * 70;
+        frame ||= requestAnimationFrame(paint);
+    });
+    stage.addEventListener('pointerleave', () => {
+        x = 0;
+        y = 0;
+        frame ||= requestAnimationFrame(paint);
+    });
+}
+
+/* "Back to top": a smooth return (instant under reduced motion), then focus lands on the page. */
+function initToTop() {
+    document.addEventListener('click', (event) => {
+        if (!event.target.closest('[data-to-top]')) {
+            return;
+        }
+
+        event.preventDefault();
+        window.scrollTo({ top: 0, behavior: reduceQuery.matches ? 'auto' : 'smooth' });
+        document.querySelector('.site-brand')?.focus({ preventScroll: true });
+    });
+}
+
+/*
+ * Command menu: Ctrl/Cmd + K or "/" opens a native dialog; typing filters the
+ * list, arrows move through it, Enter opens. A few entries stay hidden until
+ * their name is typed.
+ */
+function initCommand() {
+    const dialog = document.querySelector('[data-cmd]');
+
+    if (!dialog || typeof dialog.showModal !== 'function') {
+        document.querySelectorAll('[data-cmd-open]').forEach((el) => (el.hidden = true));
+        return;
+    }
+
+    const input = dialog.querySelector('[data-cmd-input]');
+    const items = [...dialog.querySelectorAll('[data-cmd-item]')];
+    const groups = [...dialog.querySelectorAll('[data-cmd-group]')];
+    const empty = dialog.querySelector('[data-cmd-empty]');
+    let active = -1;
+
+    const visible = () => items.filter((item) => !item.hidden);
+
+    const mark = (index) => {
+        const list = visible();
+
+        active = list.length ? (index + list.length) % list.length : -1;
+        items.forEach((item) => item.classList.remove('is-active'));
+        list[active]?.classList.add('is-active');
+        list[active]?.scrollIntoView({ block: 'nearest' });
+    };
+
+    const filter = () => {
+        const query = input.value.trim().toLowerCase();
+
+        items.forEach((item) => {
+            const secret = item.dataset.cmdSecret;
+            const text = (secret ?? item.textContent).toLowerCase();
+
+            item.hidden = secret ? query.length < 3 || !text.split(' ').some((word) => word.startsWith(query)) : !text.includes(query);
+        });
+        groups.forEach((group) => (group.hidden = !group.querySelector('[data-cmd-item]:not([hidden])')));
+        empty.hidden = visible().length > 0;
+        mark(0);
+    };
+
+    const open = () => {
+        if (dialog.open) {
+            return;
+        }
+
+        // The mobile menu steps aside first.
+        document.querySelector('.menu-toggle[aria-expanded="true"]')?.click();
+        input.value = '';
+        dialog.showModal();
+        filter();
+        input.focus();
+    };
+
+    document.addEventListener('click', (event) => {
+        if (event.target.closest('[data-cmd-open]')) {
+            open();
+        } else if (event.target === dialog || event.target.closest('[data-cmd] [data-egg]')) {
+            dialog.close();
         }
     });
+
+    document.addEventListener('keydown', (event) => {
+        const typing = event.target.closest?.('input, textarea, select, [contenteditable]');
+
+        if ((event.key === 'k' && (event.metaKey || event.ctrlKey)) || (event.key === '/' && !typing)) {
+            event.preventDefault();
+            dialog.open ? dialog.close() : open();
+        }
+    });
+
+    input.addEventListener('input', filter);
+    dialog.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            mark(active + (event.key === 'ArrowDown' ? 1 : -1));
+        } else if (event.key === 'Enter' && document.activeElement === input) {
+            event.preventDefault();
+            visible()[active]?.click();
+        }
+    });
+
+    // The shortcut hint matches the visitor's keyboard.
+    if (!/Mac|iPhone|iPad/.test(navigator.platform)) {
+        document.querySelectorAll('.cmd-kbd').forEach((el) => (el.textContent = 'Ctrl K'));
+    }
+}
+
+/* Work index: show the projects that use the chosen technology. Others fade out, then leave the grid. */
+function initFilter() {
+    document.querySelectorAll('[data-filter-root]').forEach((root) => {
+        const chips = [...root.querySelectorAll('[data-filter]')];
+        const cards = [...root.querySelectorAll('[data-tags]')];
+        const empty = root.querySelector('[data-filter-empty]');
+
+        chips.forEach((chip) =>
+            chip.addEventListener('click', () => {
+                const tag = chip.dataset.filter;
+                let shown = 0;
+
+                chips.forEach((other) => other.setAttribute('aria-pressed', String(other === chip)));
+
+                cards.forEach((card) => {
+                    const match = !tag || card.dataset.tags.split('|').includes(tag);
+
+                    shown += match ? 1 : 0;
+
+                    if (match) {
+                        card.hidden = false;
+                        requestAnimationFrame(() => card.classList.remove('is-out'));
+                    } else {
+                        card.classList.add('is-out');
+                        setTimeout(() => (card.hidden = card.classList.contains('is-out')), reduceQuery.matches ? 0 : 400);
+                    }
+                });
+
+                if (empty) {
+                    empty.hidden = shown > 0;
+                }
+            }),
+        );
+    });
+}
+
+/* Before and after: the range input is the control; the frame only mirrors its value. */
+function initCompare() {
+    document.querySelectorAll('[data-compare]').forEach((root) => {
+        const range = root.querySelector('.compare-range');
+        const sync = () => root.style.setProperty('--cut', `${range.value}%`);
+
+        range.addEventListener('input', sync);
+        sync();
+    });
+}
+
+/* Live demo: the frame is created only when the visitor asks for it. */
+function initDemo() {
+    document.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-demo-load]');
+        const root = button?.closest('[data-demo]');
+
+        if (!root) {
+            return;
+        }
+
+        const frame = document.createElement('iframe');
+
+        frame.src = root.dataset.demo;
+        frame.title = root.dataset.demoTitle;
+        frame.loading = 'lazy';
+        frame.referrerPolicy = 'no-referrer';
+        frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups');
+        root.querySelector('.demo-stage').replaceChildren(frame);
+    });
+}
+
+/* Article contents: the heading you are reading is marked in the list. */
+function initToc() {
+    const toc = document.querySelector('[data-toc]');
+
+    if (!toc || !('IntersectionObserver' in window)) {
+        return;
+    }
+
+    const links = new Map([...toc.querySelectorAll('a')].map((link) => [decodeURIComponent(link.hash.slice(1)), link]));
+    const headings = [...links.keys()].map((id) => document.getElementById(id)).filter(Boolean);
+
+    const observer = new IntersectionObserver(
+        () => {
+            const line = window.innerHeight * 0.3;
+            const current = headings.filter((heading) => heading.getBoundingClientRect().top < line).pop() ?? headings[0];
+
+            links.forEach((link, id) => (id === current?.id ? link.setAttribute('aria-current', 'true') : link.removeAttribute('aria-current')));
+        },
+        { rootMargin: '0px 0px -70% 0px', threshold: [0, 1] },
+    );
+
+    headings.forEach((heading) => observer.observe(heading));
+}
+
+/*
+ * Pointer light and lean. Cards marked .spot get a pool of light under the
+ * pointer; case visuals lean a few degrees toward it. One listener per card,
+ * writes custom properties only. Fine pointers, full motion only.
+ */
+function initSpot() {
+    if (!finePointer.matches || reduceQuery.matches) {
+        return;
+    }
+
+    document.querySelectorAll('.spot').forEach((el) => {
+        el.addEventListener('pointermove', (event) => {
+            const rect = el.getBoundingClientRect();
+
+            el.style.setProperty('--sx', `${(event.clientX - rect.left).toFixed(0)}px`);
+            el.style.setProperty('--sy', `${(event.clientY - rect.top).toFixed(0)}px`);
+        });
+    });
+
+    document.querySelectorAll('.case').forEach((card) => {
+        const visual = card.querySelector('.case-visual');
+
+        card.addEventListener('pointermove', (event) => {
+            const rect = card.getBoundingClientRect();
+
+            visual.style.setProperty('--ry', `${(((event.clientX - rect.left) / rect.width - 0.5) * 5).toFixed(2)}deg`);
+            visual.style.setProperty('--rx', `${(((event.clientY - rect.top) / rect.height - 0.5) * -4).toFixed(2)}deg`);
+        });
+        card.addEventListener('pointerleave', () => {
+            visual.style.setProperty('--rx', '0deg');
+            visual.style.setProperty('--ry', '0deg');
+        });
+    });
+}
+
+/* Share: the device's own share sheet where there is one; the plain links work everywhere. */
+function initShare() {
+    document.querySelectorAll('[data-share]').forEach((button) => {
+        if (!navigator.share) {
+            return;
+        }
+
+        button.hidden = false;
+        button.addEventListener('click', () => navigator.share({ title: button.dataset.shareTitle, url: button.dataset.share }).catch(() => {}));
+    });
+}
+
+function initPrint() {
+    document.addEventListener('click', (event) => event.target.closest('[data-print]') && window.print());
+}
+
+/*
+ * Easter eggs. None of them is needed to use the site, and each one is off or
+ * instant under reduced motion.
+ *  - The Konami code (or "blueprint" in the command menu) draws the layout grid.
+ *  - Typing the name of the site (or "confetti" in the command menu) celebrates.
+ *  - The console says hello.
+ */
+function initEggs() {
+    const found = document.querySelector('[data-egg="blueprint"]')?.closest('[data-cmd]')?.dataset.found ?? '';
+    let toastTimer = 0;
+
+    const toast = (text) => {
+        let el = document.querySelector('.toast');
+
+        if (!el) {
+            el = document.createElement('p');
+            el.className = 'toast t-label';
+            el.setAttribute('role', 'status');
+            document.body.append(el);
+        }
+
+        el.textContent = text;
+        requestAnimationFrame(() => el.classList.add('is-on'));
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => el.classList.remove('is-on'), 2200);
+    };
+
+    const blueprint = () => {
+        const existing = document.querySelector('.blueprint');
+
+        if (existing) {
+            existing.remove();
+            document.querySelector('.blueprint-read')?.remove();
+            return;
+        }
+
+        const grid = document.createElement('div');
+        const read = document.createElement('p');
+
+        grid.className = 'blueprint';
+        grid.setAttribute('aria-hidden', 'true');
+        grid.append(...Array.from({ length: 12 }, () => document.createElement('span')));
+        read.className = 'blueprint-read t-label';
+        read.setAttribute('aria-hidden', 'true');
+
+        const size = () => (read.textContent = `${window.innerWidth} × ${window.innerHeight} · 12 col`);
+
+        size();
+        window.addEventListener('resize', size, { passive: true });
+        document.body.append(grid, read);
+        toast(found);
+    };
+
+    const confetti = () => {
+        toast(found);
+
+        if (reduceQuery.matches || !Element.prototype.animate) {
+            return;
+        }
+
+        const holder = document.createElement('div');
+
+        holder.setAttribute('aria-hidden', 'true');
+        document.body.append(holder);
+
+        for (let i = 0; i < 36; i++) {
+            const bit = document.createElement('span');
+            const angle = (Math.PI * 2 * i) / 36 + Math.random() * 0.4;
+            const reach = 140 + Math.random() * 260;
+            const x = window.innerWidth / 2;
+            const y = window.innerHeight * 0.55;
+
+            bit.className = 'egg-bit';
+            holder.append(bit);
+            bit.animate(
+                [
+                    { transform: `translate(${x}px, ${y}px) scale(0.4)`, opacity: 1 },
+                    { transform: `translate(${x + Math.cos(angle) * reach}px, ${y + Math.sin(angle) * reach - 120}px) scale(1)`, opacity: 1, offset: 0.55 },
+                    { transform: `translate(${x + Math.cos(angle) * reach * 1.15}px, ${y + Math.sin(angle) * reach + 260}px) scale(0.6)`, opacity: 0 },
+                ],
+                { duration: 1500 + Math.random() * 500, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', fill: 'forwards' },
+            );
+        }
+
+        setTimeout(() => holder.remove(), 2200);
+    };
+
+    const run = { blueprint, confetti };
+
+    document.addEventListener('click', (event) => {
+        const name = event.target.closest('[data-egg]')?.dataset.egg;
+
+        run[name]?.();
+    });
+
+    const konami = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+    const word = 'jebbari';
+    let keys = [];
+    let typed = '';
+
+    document.addEventListener('keydown', (event) => {
+        if (event.target.closest?.('input, textarea, select, [contenteditable]')) {
+            return;
+        }
+
+        keys = [...keys, event.key].slice(-konami.length);
+        typed = (typed + event.key.toLowerCase()).slice(-word.length);
+
+        if (keys.join() === konami.join()) {
+            keys = [];
+            blueprint();
+        } else if (typed === word) {
+            typed = '';
+            confetti();
+        }
+    });
+
+    console.log('%cjebbari%c.', 'font: 500 28px system-ui; letter-spacing: -0.04em', 'font: 500 28px system-ui; color: #8ea2ff');
+    console.log('Curious how it is built? Blade, Tailwind and one small script. Try Ctrl/Cmd + K, and type "blueprint".');
 }
 
 /* Words that fill from faint to full as the paragraph passes through the viewport. */
@@ -228,69 +564,8 @@ function initFill() {
     });
 }
 
-/*
- * Sideways work run. Pinned on a laptop: the section is as tall as the
- * viewport plus the distance the track has to travel; the sticky stage shows the
- * track gliding as --p advances (see the scroll engine). Elsewhere: a swipe row.
- */
-function initHScroll() {
-    const roots = [...document.querySelectorAll('[data-hs]')];
-
-    if (!roots.length) {
-        return;
-    }
-
-    const query = window.matchMedia('(min-width: 1024px) and (min-height: 700px) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)');
-
-    const layout = () =>
-        roots.forEach((root) => {
-            const track = root.querySelector('[data-hs-track]');
-
-            root.classList.remove('is-pinned');
-            root.style.removeProperty('--hs-h');
-            root.style.removeProperty('--shift');
-
-            if (query.matches) {
-                root.classList.add('is-pinned');
-                const shift = Math.max(0, track.scrollWidth - window.innerWidth);
-
-                root.style.setProperty('--shift', `${shift}px`);
-                root.style.setProperty('--hs-h', `${window.innerHeight + shift}px`);
-            }
-        });
-
-    query.addEventListener('change', layout);
-    window.addEventListener('resize', layout, { passive: true });
-    window.addEventListener('load', layout);
-    layout();
-
-    // Keyboard: focusing a project that is still off to the side scrolls the page to bring it in.
-    roots.forEach((root) => {
-        root.addEventListener('focusin', (event) => {
-            const card = event.target.closest('.hs-card');
-
-            if (!root.classList.contains('is-pinned') || !card) {
-                return;
-            }
-
-            const rect = card.getBoundingClientRect();
-
-            if (rect.left >= 0 && rect.right <= window.innerWidth) {
-                return;
-            }
-
-            const shift = parseFloat(root.style.getPropertyValue('--shift')) || 1;
-            const progress = Math.min(1, Math.max(0, card.offsetLeft / shift));
-            const top = root.getBoundingClientRect().top + window.scrollY;
-
-            window.scrollTo({ top: top + progress * (root.offsetHeight - window.innerHeight), behavior: 'auto' });
-        });
-    });
-}
-
-/* Process timeline: steps light as they pass the 60% line of the viewport.
-   The fill itself is CSS scroll-driven; where that is unsupported this also
-   sets --progress. One passive, rAF-throttled listener; reads only. */
+/* Process timeline: steps light as they pass the 60% line of the viewport and
+   the hairline fills (--progress). One passive, rAF-throttled listener. */
 function initProcess() {
     const roots = document.querySelectorAll('[data-process]');
 
@@ -332,8 +607,9 @@ function initProcess() {
 
 /*
  * Scroll-linked values. One passive, rAF-throttled listener writes --p (0 to 1)
- * on every [data-scroll] section. "exit": 0 at rest, 1 once it has scrolled
- * away. "enter": rises from 0 to 1 as it scrolls into view. CSS only reads --p,
+ * on every [data-scroll] element. "exit": 0 at rest, 1 once it has scrolled
+ * away. "enter": rises from 0 to 1 as it scrolls into view. "stack": 0 to 1 as
+ * the next card covers this one. CSS only reads --p,
  * so every browser follows exactly the same curve. Skipped under reduced motion.
  */
 function initScrollLinked() {
@@ -352,10 +628,14 @@ function initScrollLinked() {
         switch (mode) {
             case 'exit':
                 return -rect.top / Math.max(rect.height, 1);
-            case 'pin':
-                return -rect.top / Math.max(rect.height - vh, 1);
-            case 'cross':
-                return (vh * 0.9 - rect.top) / Math.max(rect.height * 0.9, 1);
+            case 'read':
+                return (vh * 0.5 - rect.top) / Math.max(rect.height, 1);
+            case 'stack': {
+                // How far the next card has slid over this one.
+                const next = el.nextElementSibling;
+
+                return next ? 1 - (next.getBoundingClientRect().top - rect.top) / Math.max(rect.height, 1) : 0;
+            }
             case 'fill':
                 return (vh * 0.9 - rect.top) / (vh * 0.5 + rect.height);
             default:
@@ -385,16 +665,6 @@ function initScrollLinked() {
                 el.style.setProperty('--fill', value);
             } else {
                 el.style.setProperty('--p', value);
-            }
-
-            if (el.dataset.scroll === 'pin' && el.classList.contains('is-pinned')) {
-                const count = el.querySelectorAll('.hs-card').length;
-                const index = el.querySelector('[data-hs-index]');
-                const current = String(Math.min(count, Math.floor(Number(value) * count) + 1)).padStart(2, '0');
-
-                if (index && index.textContent !== current) {
-                    index.textContent = current;
-                }
             }
         });
     };
@@ -539,11 +809,10 @@ function initCounters() {
     });
 }
 
-/* Light/dark switch. The first visit follows the system; a choice is remembered in this browser. */
+/* Light/dark switch. The site opens light; choosing dark is remembered in this browser. */
 function initTheme() {
     const root = document.documentElement;
-    const system = window.matchMedia('(prefers-color-scheme: dark)');
-    const isDark = () => (root.dataset.theme ? root.dataset.theme === 'dark' : system.matches);
+    const isDark = () => root.dataset.theme === 'dark';
 
     const sync = () =>
         document.querySelectorAll('[data-theme-toggle]').forEach((button) => button.setAttribute('aria-pressed', String(isDark())));
@@ -555,16 +824,27 @@ function initTheme() {
 
         const next = isDark() ? 'light' : 'dark';
 
-        root.dataset.theme = next;
+        const apply = () => {
+            root.dataset.theme = next;
+            sync();
+        };
+
         try {
             localStorage.setItem('theme', next);
         } catch {
             // Storage unavailable: the choice lasts for this page view only.
         }
-        sync();
+
+        // A soft cross-fade between the themes where the browser can do it.
+        if (!document.startViewTransition || reduceQuery.matches) {
+            apply();
+            return;
+        }
+
+        root.classList.add('theme-switching');
+        document.startViewTransition(apply).finished.finally(() => root.classList.remove('theme-switching'));
     });
 
-    system.addEventListener('change', sync);
     sync();
 }
 
@@ -605,35 +885,6 @@ function initCopy() {
     });
 }
 
-/* The header takes the surface beneath it: dark over black sections, light over paper. */
-function initHeaderTheme() {
-    const header = document.querySelector('.site-header');
-
-    if (!header) {
-        return;
-    }
-
-    let frame = 0;
-
-    const update = () => {
-        frame = 0;
-        const menuOpen = document.documentElement.style.overflow === 'hidden';
-        const point = document.elementsFromPoint(window.innerWidth / 2, Math.max(2, header.offsetHeight / 2));
-        const below = point.find((el) => !header.contains(el) && el !== document.documentElement && el !== document.body);
-        const dark = menuOpen || Boolean(below?.closest('.on-ink'));
-
-        header.classList.toggle('on-ink', dark);
-        header.dataset.theme = dark ? 'dark' : 'light';
-    };
-
-    const schedule = () => (frame ||= requestAnimationFrame(update));
-
-    window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule, { passive: true });
-    header.addEventListener('click', () => setTimeout(schedule, 0));
-    update();
-}
-
 function initStatus() {
     const write = () =>
         document.querySelectorAll('[data-motion-status]').forEach((el) => {
@@ -647,11 +898,21 @@ export function initMotion() {
     html.classList.add('motion-ready');
     initReveals();
     initReplay();
+    initNav();
+    initField();
     initCursor();
     initMagnet();
-    initWordmark();
+    initToTop();
+    initCommand();
+    initFilter();
+    initCompare();
+    initDemo();
+    initToc();
+    initSpot();
+    initPrint();
+    initShare();
+    initEggs();
     initFill();
-    initHScroll();
     initProcess();
     initScrollLinked();
     initLive();
@@ -659,6 +920,5 @@ export function initMotion() {
     initTheme();
     initCounters();
     initCopy();
-    initHeaderTheme();
     initStatus();
 }

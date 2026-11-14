@@ -1,5 +1,7 @@
 # Jebbari motion system (plan, for owner review)
 
+> Phase 4 note: the principles and architecture below still hold. The choreography was renewed in the premium redesign (hero light field, case study stack, page transitions with movement, gliding nav hairline); see `docs/PREMIUM-REDESIGN.md` for the current list. Rings, the wordmark animation, the sideways work run and the dot-to-night transition no longer exist.
+
 Status: **owner decisions recorded; primitives built in Phase 1.5 (see section 9).** It extends brief section 6, and per the owner's direction it replaces "motion pass at the end" (Phase 6) with "motion designed into every phase".
 
 ## 1. Principles

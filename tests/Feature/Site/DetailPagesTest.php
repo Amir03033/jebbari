@@ -165,9 +165,9 @@ class DetailPagesTest extends TestCase
         $post = $this->makePost(['category_id' => $cat->id, 'body' => ['nl' => '<h2>Kop</h2><p>'.str_repeat('woord ', 450).'</p>', 'en' => '<h2>Head</h2><p>'.str_repeat('word ', 450).'</p>']]);
         $this->makePost(['title' => ['nl' => 'Tweede artikel', 'en' => 'Second article'], 'category_id' => $cat->id]);
 
-        $this->get("/nl/blog/{$post->slug_nl}")->assertOk()->assertSee('<h2>Kop</h2>', false)->assertSee('3 minuten lezen')
+        $this->get("/nl/blog/{$post->slug_nl}")->assertOk()->assertSee('<h2 id="kop">Kop</h2>', false)->assertSee('3 minuten lezen')
             ->assertSee('Nieuws')->assertSee('Lees verder')->assertSee('Tweede artikel');
-        $this->get("/en/blog/{$post->slug_en}")->assertSee('<h2>Head</h2>', false)->assertSee('3 minute read');
+        $this->get("/en/blog/{$post->slug_en}")->assertSee('<h2 id="head">Head</h2>', false)->assertSee('3 minute read');
     }
 
     public function test_article_text_is_sanitised_when_rendered(): void
@@ -189,8 +189,10 @@ class DetailPagesTest extends TestCase
         $this->makePost(['title' => ['nl' => 'Nieuwsbericht', 'en' => 'News item'], 'category_id' => $news->id]);
         $this->makePost(['title' => ['nl' => 'Techbericht', 'en' => 'Tech item'], 'category_id' => $tech->id]);
 
-        $this->get("/nl/blog/categorie/{$news->slug_nl}")->assertOk()->assertSee('Nieuwsbericht')->assertDontSee('Techbericht');
-        $this->get("/en/blog/category/{$tech->slug_en}")->assertOk()->assertSee('Tech item')->assertDontSee('News item');
+        $this->assertStringContainsString('Nieuwsbericht', $nl = $this->body("/nl/blog/categorie/{$news->slug_nl}"));
+        $this->assertStringNotContainsString('Techbericht', $nl);
+        $this->assertStringContainsString('Tech item', $en = $this->body("/en/blog/category/{$tech->slug_en}"));
+        $this->assertStringNotContainsString('News item', $en);
     }
 
     public function test_categories_without_visible_posts_are_not_offered(): void
@@ -207,7 +209,11 @@ class DetailPagesTest extends TestCase
             $this->makePost(['title' => ['nl' => "Artikel $i", 'en' => "Article $i"], 'published_at' => now()->subMinutes($i)]);
         }
 
-        $this->get('/nl/blog')->assertSee('Artikel 1<', false)->assertDontSee('Artikel 11<', false)->assertSee('1 / 2')->assertSee('rel="next"', false);
+        $first = $this->body('/nl/blog');
+        $this->assertStringContainsString('Artikel 1<', $first);
+        $this->assertStringNotContainsString('Artikel 11<', $first);
+        $this->assertStringContainsString('1 / 2', $first);
+        $this->assertStringContainsString('rel="next"', $first);
         $this->get('/nl/blog?page=2')->assertSee('Artikel 11<', false)->assertSee('rel="prev"', false);
     }
 
@@ -241,7 +247,7 @@ class DetailPagesTest extends TestCase
 
     public function test_the_about_page_renders_its_blocks_and_falls_back_to_the_page_title(): void
     {
-        $this->get('/nl/over-ons')->assertOk()->assertSee('<h1', false)->assertSee('Over ons');
+        $this->get('/nl/over-mij')->assertOk()->assertSee('<h1', false)->assertSee('Over mij');
 
         $about = Page::where('key', 'about')->first();
         $about->update(['blocks' => [
@@ -251,7 +257,7 @@ class DetailPagesTest extends TestCase
         ]]);
         $about->fresh()->publish();
 
-        $this->get('/nl/over-ons')->assertSee('Ik bouw dingen')->assertSee('Vaardigheden')->assertSee('PHP')->assertSee('Eerlijk');
+        $this->get('/nl/over-mij')->assertSee('Ik bouw dingen')->assertSee('Vaardigheden')->assertSee('PHP')->assertSee('Eerlijk');
         $this->get('/en/about')->assertSee('I build things')->assertSee('Skills')->assertSee('Honest');
     }
 
@@ -308,7 +314,7 @@ class DetailPagesTest extends TestCase
         $project = $this->makeProject();
         $post = $this->makePost();
 
-        foreach (['/nl', '/en', '/nl/werk', '/nl/diensten', '/nl/over-ons', '/nl/blog', '/nl/contact', "/nl/diensten/{$service->slug_nl}", "/nl/werk/{$project->slug_nl}", "/nl/blog/{$post->slug_nl}"] as $url) {
+        foreach (['/nl', '/en', '/nl/werk', '/nl/diensten', '/nl/over-mij', '/nl/blog', '/nl/contact', "/nl/diensten/{$service->slug_nl}", "/nl/werk/{$project->slug_nl}", "/nl/blog/{$post->slug_nl}"] as $url) {
             $html = $this->get($url)->assertOk()->getContent();
 
             $this->assertSame(1, preg_match_all('/<h1\b/', $html), "$url needs exactly one h1");
