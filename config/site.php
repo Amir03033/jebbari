@@ -35,7 +35,7 @@ return [
         'name' => 'Amir Jebbari',
         'job_title' => ['nl' => 'Oprichter', 'en' => 'Founder'],
         'knows_about' => ['Laravel', 'PHP', 'Vue.js', 'TypeScript', 'Web application development', 'SaaS', 'Web security', 'Server security'],
-        'same_as' => ['https://amirs.life'],
+        'same_as' => ['https://amirs.life', 'https://www.linkedin.com/in/amir-j-a3948b3a9'],
         // The owner's other sites, listed in /llms.txt. Each should link back to jebbari.nl.
         'related_sites' => [
             'https://amirs.life' => 'Personal site of Amir Jebbari',

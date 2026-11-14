@@ -77,7 +77,7 @@
 ## Added for AI and search visibility (docs/AI-VISIBILITY.md)
 
 - [ ] After deploying: run `php artisan cms:draft-about`, review the About text in /admin and publish it.
-- [ ] Enter the exact LinkedIn and GitHub URLs in Site > Social links (they feed the Person `sameAs` and `llms.txt`).
+- [x] LinkedIn https://www.linkedin.com/in/amir-j-a3948b3a9 is in the Person `sameAs` and llms.txt (`config/site.php`). Add it under Site > Social links too if it should show in the footer. GitHub URL still open.
 - [ ] Check Cloudflare / Plesk for AI-bot blocking outside the app.
 - [x] ServerScope: "online SaaS platform for monitoring servers and online environments" (on the About page; copy it to the project page in the CMS).
 - [ ] barbercuts.nl: confirm the client agrees to be shown as a project and to a "Built by Amir Jebbari" footer credit.

@@ -19,7 +19,7 @@ Werk de stappen van boven naar beneden af. Teksten om te kopiëren staan in `doc
 
 ## 2. In de CMS (/admin)
 
-1. **Site > Social links**: vul je exacte LinkedIn- en GitHub-URL in (en eventueel X). Die komen automatisch in de structured data en in llms.txt.
+1. **Site > Social links**: LinkedIn (https://www.linkedin.com/in/amir-j-a3948b3a9) staat al in de structured data en llms.txt; voeg hem hier toe als hij ook in de footer moet staan. Vul ook je GitHub-URL in.
 2. **Projecten > ServerScope**: zet als omschrijving "Online SaaS-platform om servers en online omgevingen te monitoren." (EN: "Online SaaS platform for monitoring servers and online environments."), voeg de link naar de ServerScope-site toe en publiceer.
 3. **Projecten**: heet het kappersproject nog "JF Cuts"? Hernoem het naar **barbercuts.nl** (NL en EN, en de slug).
 4. **Foto (later)**: Pagina's > Over mij > blok "Afbeelding" toevoegen, met een eigen portretfoto en alt-tekst "Amir Jebbari".

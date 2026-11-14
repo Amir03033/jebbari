@@ -38,7 +38,7 @@ The `@id`s are `https://jebbari.nl/#amir`, `https://jebbari.nl/#org` and `https:
    ```
    This saves the About text as **unpublished changes** (the live page does not change) and renames the menu item "Over ons" to "Over mij". If the About page already has unpublished changes the command stops; review them first or use `--force`.
 2. In `/admin` > Pages > About: review the text and publish.
-3. Fill Site > Social links with the exact LinkedIn and GitHub URLs (they go into `sameAs` and `llms.txt` automatically).
+3. LinkedIn is already in `sameAs` (`config/site.php`). Add the GitHub URL under Site > Social links (it goes into `sameAs` and `llms.txt` automatically); add LinkedIn there too to show it in the footer.
 4. Check there is no bot blocking outside the app (Cloudflare "Block AI bots" / "AI Scrapers and Crawlers", Plesk/ModSecurity rules, a static `public/robots.txt` that would shadow the route).
 5. Check: `curl -s https://jebbari.nl/nl/over-mij | grep -i "amir jebbari"`, `curl -s https://jebbari.nl/robots.txt`, `curl -s https://jebbari.nl/llms.txt`.
 6. Validate the JSON-LD on https://validator.schema.org and the Google Rich Results Test.
