@@ -10,11 +10,11 @@
     $explore = Site::navigation('header');
     $legal = Site::navigation('footer');
     $other = Locale::other();
-    $address = $company['registered_address'] ?? null;
+    $a = config('site.address');
+    $address = $a['street']."\n".$a['postal_code'].' '.$a['locality']."\n".$a['country'];
     $legalLine = collect([
         $company['legal_name'] ?? null,
         ! empty($company['kvk']) ? __('site.footer.kvk').' '.$company['kvk'] : null,
-        ! empty($company['btw']) ? __('site.footer.btw').' '.$company['btw'] : null,
     ])->filter()->implode(' · ');
     $note = loc(Site::setting('header.footer_text'));
     $more = collect(['faq', 'now', 'uses', 'cv'])->map(fn ($key) => ($page = Site::page($key)) ? ['label' => loc($page->title), 'url' => Locale::url($key)] : null)->filter();

@@ -16,7 +16,7 @@ class SitemapController extends Controller
     }
 
     /** Search and AI crawlers named explicitly, so it is clear they are welcome. */
-    private const CRAWLERS = ['*', 'GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-SearchBot', 'Claude-User', 'PerplexityBot', 'Perplexity-User', 'Google-Extended', 'Applebot-Extended', 'Bingbot'];
+    private const CRAWLERS = ['*', 'Googlebot', 'GPTBot', 'OAI-SearchBot', 'ChatGPT-User', 'ClaudeBot', 'Claude-SearchBot', 'Claude-User', 'PerplexityBot', 'Perplexity-User', 'Google-Extended', 'Applebot-Extended', 'Bingbot'];
 
     public function robots(): Response
     {
@@ -63,13 +63,16 @@ class SitemapController extends Controller
                 return $line((string) loc($p->title, $l), Locale::route('blog.show', ['slug' => $p->slugFor($l)], $l), trim(preg_replace('/\s+/', ' ', strip_tags((string) loc($p->excerpt, $l)))));
             })->filter()->values()->all();
 
-        $related = collect(config('site.founder.same_as', []))->merge(array_column(Site::social(), 'url'))->unique()
-            ->map(fn ($url) => $line(preg_replace('#^https?://(www\.)?#', '', rtrim($url, '/')), $url))->values()->all();
+        $notes = config('site.founder.related_sites', []);
+        $related = collect(array_keys($notes))->merge(config('site.founder.same_as', []))->merge(array_column(Site::social(), 'url'))->unique()
+            ->map(fn ($url) => $line(preg_replace('#^https?://(www\.)?#', '', rtrim($url, '/')), $url, $notes[$url] ?? ''))->values()->all();
+        $a = config('site.address');
 
         $sections = [
             '# '.config('site.founder.name'),
             '> '.__('site.founder.bio'),
             trans('site.founder.bio', [], 'nl'),
+            __('site.llms.details', ['address' => $a['street'].', '.$a['postal_code'].' '.$a['locality'].', '.$a['country']]),
             implode("\n", ['## '.__('site.llms.pages'), ...$pages]),
             $projects ? implode("\n", ['## '.__('site.llms.projects'), ...$projects]) : null,
             $articles ? implode("\n", ['## '.__('site.llms.articles'), ...$articles]) : null,

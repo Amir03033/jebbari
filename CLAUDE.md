@@ -10,7 +10,7 @@ Read `docs/BRIEF.md` in full before writing any code. It is the design and build
 - Phase 3.5 (visual redesign): built and tested, awaiting owner review. See `docs/VISUAL-REDESIGN.md` and `docs/VISUAL-COMPARISON.md`. Do not start further phases.
 - Phase 4 (premium redesign: Geist, full light and dark themes, new motion layer): built and tested, awaiting owner review. See `docs/PREMIUM-REDESIGN.md`; where it differs from `docs/BRIEF.md`, it wins.
 - Phase 5 (now / uses / CV pages, FAQ, GitHub, newsletter, command menu, statistics, cobalt accent): built and tested, awaiting owner review. See `docs/PHASE-5.md`.
-- AI and search visibility (About page `/nl/over-mij`, Person JSON-LD, robots.txt, llms.txt): built, phases 1 to 3 of `docs/AI-VISIBILITY.md`. No education anywhere; Iran Digital Lifeline is not mentioned; the barber project is "BarberCuts".
+- AI and search visibility (About page `/nl/over-mij`, Person JSON-LD, robots.txt, llms.txt): built, phases 1 to 3 of `docs/AI-VISIBILITY.md`. No education anywhere; Iran Digital Lifeline is not mentioned; the barber project is "barbercuts.nl" (https://barbercuts.nl). One address only: Professor W.H. Keesomlaan 12, 1183 DJ Amstelveen (config/site.php). No VAT number anywhere.
 - Do not deploy or open a PR without the owner's approval.
 
 ## Stack

@@ -101,12 +101,12 @@ class DraftAboutPage extends Command
                     'body' => [
                         'nl' => '<ul>'
                             .'<li><strong>ServerScope</strong>: een SaaS-platform om servers en online omgevingen te monitoren, gebouwd met Laravel.</li>'
-                            .'<li><strong>BarberCuts</strong>: een mobile-first boekingswebapp voor een kapper, gebouwd met Laravel.</li>'
+                            .'<li><strong><a href="https://barbercuts.nl">barbercuts.nl</a></strong>: een mobile-first boekingswebapp voor een kapper, gebouwd met Laravel.</li>'
                             .'<li><strong><a href="https://amirs.life">amirs.life</a></strong>: mijn persoonlijke site en testomgeving, gebouwd met Laravel 11 en Filament 3.</li>'
                             .'</ul><p>Meer staat op de pagina <a href="/nl/werk">Werk</a>.</p>',
                         'en' => '<ul>'
                             .'<li><strong>ServerScope</strong>: a SaaS platform for monitoring servers and online environments, built with Laravel.</li>'
-                            .'<li><strong>BarberCuts</strong>: a mobile-first booking web app for a barber, built with Laravel.</li>'
+                            .'<li><strong><a href="https://barbercuts.nl">barbercuts.nl</a></strong>: a mobile-first booking web app for a barber, built with Laravel.</li>'
                             .'<li><strong><a href="https://amirs.life">amirs.life</a></strong>: my personal site and test environment, built with Laravel 11 and Filament 3.</li>'
                             .'</ul><p>More on the <a href="/en/work">Work</a> page.</p>',
                     ],

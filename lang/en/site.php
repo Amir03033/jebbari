@@ -119,7 +119,6 @@ return [
         'email' => 'Email',
         'privacy' => 'Privacy',
         'kvk' => 'KvK',
-        'btw' => 'VAT',
     ],
 
     'cta' => [
@@ -252,6 +251,7 @@ return [
     // The standard short bio (docs/AI-VISIBILITY.md): use it word for word everywhere.
     // /llms.txt is always written in English, so these lines exist only here.
     'llms' => [
+        'details' => 'Amir Jebbari founded Jebbari and built it himself. Jebbari designs and builds web applications and websites. Address: :address. Stack: Laravel (PHP), Vue 3, TypeScript, Filament, Blade, Tailwind. Fields: web applications, SaaS, server and web application security.',
         'pages' => 'Main pages',
         'about_nl' => 'Over mij',
         'about_note' => 'who Amir Jebbari is and what he does (Dutch)',

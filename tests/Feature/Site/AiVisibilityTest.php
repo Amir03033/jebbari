@@ -69,7 +69,7 @@ class AiVisibilityTest extends TestCase
         $this->assertStringContainsString('<title>Amir Jebbari · Oprichter van Jebbari, Amsterdam en Zwolle</title>', $nl);
         $this->assertStringContainsString(self::BIO_NL, $nl);
         $this->assertStringContainsString('href="https://amirs.life"', $nl);
-        $this->assertStringContainsString('BarberCuts', $nl);
+        $this->assertStringContainsString('barbercuts.nl', $nl);
         $this->assertStringContainsString('SaaS-platform om servers en online omgevingen te monitoren', $nl);
 
         $en = $this->get('/en/about')->assertOk()->getContent();
@@ -99,7 +99,7 @@ class AiVisibilityTest extends TestCase
             $this->assertSame(['@id' => $org['@id']], $person['worksFor']);
             $this->assertSame(['@id' => $person['@id']], $org['founder']);
             $this->assertSame(['@id' => $org['@id']], $site['publisher']);
-            $this->assertSame(['Amsterdam', 'Zwolle'], array_column(array_column($org['location'], 'address'), 'addressLocality'));
+            $this->assertSame('Amstelveen', $org['location']['address']['addressLocality']);
             $this->assertSame(['https://amirs.life', 'https://github.example.test/amir'], $person['sameAs']);
             $this->assertArrayNotHasKey('alumniOf', $person);
         }
@@ -154,5 +154,50 @@ class AiVisibilityTest extends TestCase
         $this->assertSame(url('/').'/#org', $article['publisher']['@id']);
 
         $this->assertStringContainsString('- [An article]('.url("/en/blog/{$post->slug_en}").'): Short excerpt.', $this->get('/llms.txt')->getContent());
+    }
+
+    public function test_the_one_address_is_amstelveen_in_the_footer_json_ld_and_llms_txt(): void
+    {
+        $this->publishSite();
+        $html = $this->get('/nl')->getContent();
+
+        $this->assertStringContainsString('Professor W.H. Keesomlaan 12', $html);
+        $this->assertStringContainsString('1183 DJ Amstelveen', $html);
+
+        $org = collect($this->jsonLd($html))->firstWhere('@type', 'ProfessionalService');
+        $address = ['@type' => 'PostalAddress', 'streetAddress' => 'Professor W.H. Keesomlaan 12', 'postalCode' => '1183 DJ', 'addressLocality' => 'Amstelveen', 'addressCountry' => 'NL'];
+        $this->assertSame($address, $org['address']);
+        $this->assertSame($address, $org['location']['address']);
+        $this->assertArrayNotHasKey('homeLocation', collect($this->jsonLd($html))->firstWhere('@type', 'Person'));
+
+        $this->assertStringContainsString('Professor W.H. Keesomlaan 12, 1183 DJ Amstelveen, The Netherlands', $this->get('/llms.txt')->getContent());
+    }
+
+    public function test_projects_are_credited_to_amir_and_llms_txt_describes_related_sites(): void
+    {
+        $this->publishSite();
+        $project = $this->makeProject();
+
+        $work = collect($this->jsonLd($this->get("/en/work/{$project->slug_en}")->getContent()))->firstWhere('@type', 'CreativeWork');
+        $this->assertSame(rtrim(url('/'), '/').'/#amir', $work['creator']['@id']);
+        $this->assertSame(rtrim(url('/'), '/').'/#org', $work['publisher']['@id']);
+
+        $txt = $this->get('/llms.txt')->getContent();
+        $this->assertStringContainsString('[barbercuts.nl](https://barbercuts.nl): Mobile-first booking web app for a barber, built by Amir Jebbari', $txt);
+        $this->assertStringContainsString("User-agent: Googlebot\n", $this->get('/robots.txt')->getContent());
+    }
+
+    public function test_no_public_page_mentions_education_or_the_sensitive_project(): void
+    {
+        $this->publishSite();
+        $this->artisan('cms:draft-about');
+        Page::where('key', 'about')->first()->publish();
+
+        foreach (['/nl', '/en', '/nl/over-mij', '/en/about', '/nl/werk', '/llms.txt'] as $url) {
+            $html = mb_strtolower($this->get($url)->getContent());
+            foreach (['opleiding', 'diploma', 'universiteit', 'hogeschool', 'education', 'university', 'alumni', 'hascredential', 'iran'] as $word) {
+                $this->assertStringNotContainsString($word, $html, "$url mentions '$word'");
+            }
+        }
     }
 }

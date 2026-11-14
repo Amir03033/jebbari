@@ -80,7 +80,13 @@
 - [ ] Enter the exact LinkedIn and GitHub URLs in Site > Social links (they feed the Person `sameAs` and `llms.txt`).
 - [ ] Check Cloudflare / Plesk for AI-bot blocking outside the app.
 - [x] ServerScope: "online SaaS platform for monitoring servers and online environments" (on the About page; copy it to the project page in the CMS).
-- [ ] BarberCuts: confirm the client agrees to be shown as a project and to a "Built by Amir Jebbari" footer credit.
+- [ ] barbercuts.nl: confirm the client agrees to be shown as a project and to a "Built by Amir Jebbari" footer credit.
 - [ ] Photo for the About page (own professional portrait): owner adds it later in the CMS (Image block on the About page).
 - [ ] Blog: check each article has a two-sentence summary in the excerpt field and an English version where possible.
 - [ ] Place the external profile texts (LinkedIn, GitHub, KVK, Google Business Profile) and the snippets for amirs.life and project sites.
+
+## Address and VAT (owner decision, 2026-11-14)
+
+- [x] One address everywhere: Professor W.H. Keesomlaan 12, 1183 DJ Amstelveen, The Netherlands (`config/site.php` > address): footer, Organization `address` and `location` in JSON-LD, llms.txt, privacy draft. The CMS address field is gone.
+- [x] No VAT (BTW) number anywhere: removed from the footer, JSON-LD (`vatID`) and the CMS company settings.
+- [ ] Decide whether the copy "gevestigd in Amsterdam en Zwolle / based in Amsterdam and Zwolle" (bio, hero label, meeting line) should change now that the address is in Amstelveen.

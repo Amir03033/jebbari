@@ -168,7 +168,7 @@ class SeoTest extends TestCase
         $this->assertSame('Jebbari', $org['name']);
         $this->assertSame(url('/nl'), $org['url']);
         $this->assertSame(['Netherlands', 'Zwolle', 'Amsterdam'], array_column($org['areaServed'], 'name'));
-        foreach (['address', 'telephone', 'email', 'sameAs', 'aggregateRating', 'review', 'foundingDate', 'numberOfEmployees'] as $key) {
+        foreach (['telephone', 'email', 'sameAs', 'aggregateRating', 'review', 'foundingDate', 'numberOfEmployees'] as $key) {
             $this->assertArrayNotHasKey($key, $org, "$key must not appear until the owner provides it");
         }
         $this->assertSame('WebSite', $data->firstWhere('@type', 'WebSite')['@type']);
@@ -183,7 +183,7 @@ class SeoTest extends TestCase
         $org = collect($this->jsonLd($this->get('/nl')->getContent()))->firstWhere('@type', 'ProfessionalService');
 
         $this->assertSame('Jebbari B.V.', $org['legalName']);
-        $this->assertSame('NL123456789B01', $org['vatID']);
+        $this->assertArrayNotHasKey('vatID', $org, 'no VAT number is published');
         $this->assertSame('studio@voorbeeld.test', $org['email']);
         $this->assertSame(['https://linkedin.example.test/x'], $org['sameAs']);
     }

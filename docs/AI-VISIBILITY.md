@@ -2,7 +2,7 @@
 
 Goal: when someone asks an AI or a search engine who Amir Jebbari is, the answer is correct, consistent and based on jebbari.nl.
 
-Hard rule: **no education** anywhere (no schools, degrees, `alumniOf`, `hasCredential`), on the site, in JSON-LD, in bios or articles. Iran Digital Lifeline is **not** mentioned publicly (owner decision). The barber project is published as **BarberCuts**.
+Hard rule: **no education** anywhere (no schools, degrees, `alumniOf`, `hasCredential`), on the site, in JSON-LD, in bios or articles. Iran Digital Lifeline is **not** mentioned publicly (owner decision). The barber project is published as **barbercuts.nl**.
 
 ## Standard bio (use word for word everywhere)
 
@@ -54,7 +54,7 @@ The `@id`s are `https://jebbari.nl/#amir`, `https://jebbari.nl/#org` and `https:
 </script>
 ```
 
-**ServerScope, BarberCuts and other project sites**: in the footer, `Gebouwd door <a href="https://jebbari.nl">Amir Jebbari</a>` (EN: `Built by Amir Jebbari`). Only on BarberCuts if the client agrees to the credit.
+**ServerScope, barbercuts.nl and other project sites**: in the footer, `Gebouwd door <a href="https://jebbari.nl">Amir Jebbari</a>` (EN: `Built by Amir Jebbari`). Only on barbercuts.nl if the client agrees to the credit.
 
 ## External profiles (phase 4, the owner places these)
 
@@ -69,7 +69,7 @@ The `@id`s are `https://jebbari.nl/#amir`, `https://jebbari.nl/#org` and `https:
   ```
   Profile name "Amir Jebbari", location Zwolle, website https://jebbari.nl, pin public repositories.
 - [ ] **KVK**: check trade name, activities and place.
-- [ ] **Google Business Profile**: for Jebbari, Zwolle as location, same description.
+- [ ] **Google Business Profile**: for Jebbari, address Professor W.H. Keesomlaan 12, 1183 DJ Amstelveen, The Netherlands, same description. No VAT number.
 - [ ] **Local directories**: owner chooses which (Zwolle / Overijssel).
 - [ ] **Product Hunt / Indie Hackers / Show HN**: for ServerScope once it is public.
 - [ ] **Guest article or interview** (Laravel community, Dev.to, local business blog).

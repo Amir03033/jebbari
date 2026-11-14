@@ -119,7 +119,6 @@ return [
         'email' => 'E-mail',
         'privacy' => 'Privacy',
         'kvk' => 'KvK',
-        'btw' => 'BTW',
     ],
 
     'cta' => [

@@ -3,7 +3,6 @@
 namespace App\Filament\Pages\Settings;
 
 use BackedEnum;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Support\Icons\Heroicon;
@@ -29,9 +28,6 @@ class CompanySettings extends SettingsPage
             Section::make('Bedrijf')->description('Verschijnt in de voet van de website en in de zoekmachinegegevens.')->columns(['default' => 1, 'md' => 2])->schema([
                 TextInput::make('legal_name')->label('Bedrijfsnaam (statutair)')->maxLength(160),
                 TextInput::make('kvk')->label('KvK-nummer')->maxLength(20),
-                TextInput::make('btw')->label('BTW-nummer')->maxLength(30),
-                Textarea::make('registered_address')->label('Vestigingsadres (zoals bij de KvK)')->rows(3)->maxLength(300)
-                    ->helperText('Publiceer geen adres voor een andere stad tenzij dat echt een adres of werkplek is.'),
             ]),
         ];
     }

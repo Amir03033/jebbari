@@ -21,7 +21,7 @@ Werk de stappen van boven naar beneden af. Teksten om te kopiëren staan in `doc
 
 1. **Site > Social links**: vul je exacte LinkedIn- en GitHub-URL in (en eventueel X). Die komen automatisch in de structured data en in llms.txt.
 2. **Projecten > ServerScope**: zet als omschrijving "Online SaaS-platform om servers en online omgevingen te monitoren." (EN: "Online SaaS platform for monitoring servers and online environments."), voeg de link naar de ServerScope-site toe en publiceer.
-3. **Projecten**: heet het kappersproject nog "JF Cuts"? Hernoem het naar **BarberCuts** (NL en EN, en de slug).
+3. **Projecten**: heet het kappersproject nog "JF Cuts"? Hernoem het naar **barbercuts.nl** (NL en EN, en de slug).
 4. **Foto (later)**: Pagina's > Over mij > blok "Afbeelding" toevoegen, met een eigen portretfoto en alt-tekst "Amir Jebbari".
 5. **Blog**: laat het samenvattingsveld van elk artikel beginnen met twee zinnen die op zichzelf een antwoord geven, en maak waar het kan een Engelse versie.
 
@@ -36,7 +36,7 @@ Werk de stappen van boven naar beneden af. Teksten om te kopiëren staan in `doc
 |---|---|
 | **amirs.life** | Korte bio met link naar jebbari.nl op de homepage of over-pagina, en de `Person`-JSON-LD in de layout (beide staan kant-en-klaar in `docs/AI-VISIBILITY.md`, "Other sites"). |
 | **ServerScope** | In de footer: "Gebouwd door [Amir Jebbari](https://jebbari.nl)" (EN: "Built by Amir Jebbari"). Op de homepage of over-pagina één zin: "ServerScope is een online SaaS-platform om servers en online omgevingen te monitoren, gebouwd door Amir Jebbari, oprichter van Jebbari." Optioneel `SoftwareApplication`-JSON-LD met `"creator": {"@id": "https://jebbari.nl/#amir"}`. |
-| **BarberCuts** | Alleen als de klant akkoord is: "Gebouwd door Amir Jebbari" met link naar jebbari.nl in de footer. Zorg dat de naam overal BarberCuts is. |
+| **barbercuts.nl** | Alleen als de klant akkoord is: "Gebouwd door Amir Jebbari" met link naar jebbari.nl in de footer. Zorg dat de naam overal barbercuts.nl is. |
 | **Iran Digital Lifeline** | **Niets** aanpassen: geen link naar jebbari.nl en geen vermelding van je naam (bewuste keuze om het niet publiek te koppelen). |
 | **GitHub-repo's** | In de README van publieke repo's een regel "Built by [Amir Jebbari](https://jebbari.nl)", en op je profiel de README uit `docs/AI-VISIBILITY.md`. |
 
@@ -49,7 +49,7 @@ Gebruik overal de standaard-bio, woord voor woord:
 - [ ] **LinkedIn**: headline, Info-tekst, locatie Zwolle, website jebbari.nl. Geen opleidingen toevoegen of tonen.
 - [ ] **GitHub**: naam "Amir Jebbari", locatie Zwolle, website jebbari.nl, profiel-README.
 - [ ] **KVK**: controleer handelsnaam, activiteiten en plaats.
-- [ ] **Google Bedrijfsprofiel**: Jebbari, Zwolle als vestiging, dezelfde omschrijving, website jebbari.nl.
+- [ ] **Google Bedrijfsprofiel**: Jebbari, adres Professor W.H. Keesomlaan 12, 1183 DJ Amstelveen, dezelfde omschrijving, website jebbari.nl.
 - [ ] **Later**: lokale bedrijvengidsen (Zwolle/Overijssel), Product Hunt / Show HN voor ServerScope, cross-posts van je blogs op Dev.to of Hashnode met canonical-link naar jebbari.nl.
 
 ## 6. Indexeren en meten

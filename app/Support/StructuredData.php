@@ -9,8 +9,8 @@ use App\Models\Service;
 
 /**
  * schema.org JSON-LD. Built only from facts in the CMS: nothing is added to
- * make the business look bigger (no ratings, no reviews, no addresses that were
- * not provided).
+ * make the business look bigger (no ratings, no reviews). The only address is
+ * the one in config/site.php; no VAT number is published.
  */
 class StructuredData
 {
@@ -44,11 +44,9 @@ class StructuredData
             'url' => $homeUrl,
             'description' => loc(Settings::get('seo.default_description')) ?: __('site.meta_description'),
             'founder' => ['@id' => self::id('amir')],
-            // Cities only: no street address unless the owner provides one (brief section 9).
-            'location' => [
-                ['@type' => 'Place', 'address' => ['@type' => 'PostalAddress', 'addressLocality' => 'Amsterdam', 'addressCountry' => 'NL']],
-                ['@type' => 'Place', 'address' => ['@type' => 'PostalAddress', 'addressLocality' => 'Zwolle', 'addressCountry' => 'NL']],
-            ],
+            // The one address the owner gave (config/site.php).
+            'address' => self::address(),
+            'location' => ['@type' => 'Place', 'address' => self::address()],
             'areaServed' => [
                 ['@type' => 'Country', 'name' => 'Netherlands'],
                 ['@type' => 'City', 'name' => 'Zwolle'],
@@ -60,10 +58,6 @@ class StructuredData
             $data['legalName'] = $company['legal_name'];
         }
 
-        if (filled($company['btw'] ?? null)) {
-            $data['vatID'] = $company['btw'];
-        }
-
         if ($email = Site::email()) {
             $data['email'] = $email;
         }
@@ -73,6 +67,19 @@ class StructuredData
         }
 
         return $data;
+    }
+
+    public static function address(): array
+    {
+        $a = config('site.address');
+
+        return [
+            '@type' => 'PostalAddress',
+            'streetAddress' => $a['street'],
+            'postalCode' => $a['postal_code'],
+            'addressLocality' => $a['locality'],
+            'addressCountry' => $a['country_code'],
+        ];
     }
 
     public static function website(string $homeUrl): array
@@ -105,9 +112,6 @@ class StructuredData
             'url' => Site::pageUrl('about') ?? Locale::url('home'),
             'jobTitle' => loc($founder['job_title'] ?? null),
             'description' => __('site.founder.bio'),
-            'homeLocation' => filled($founder['home_location'] ?? null)
-                ? ['@type' => 'Place', 'address' => ['@type' => 'PostalAddress', 'addressLocality' => $founder['home_location'], 'addressCountry' => 'NL']]
-                : null,
             'knowsAbout' => $founder['knows_about'] ?? null,
             'worksFor' => ['@id' => self::id('org')],
             'sameAs' => $sameAs ?: null,
@@ -201,7 +205,8 @@ class StructuredData
             'keywords' => $project->stack ? implode(', ', $project->stack) : null,
             'dateCreated' => $project->year ? (string) $project->year : null,
             'image' => $image,
-            'creator' => ['@type' => 'ProfessionalService', '@id' => self::id('org'), 'name' => self::siteName()],
+            'creator' => ['@type' => 'Person', '@id' => self::id('amir'), 'name' => config('site.founder.name')],
+            'publisher' => ['@type' => 'ProfessionalService', '@id' => self::id('org'), 'name' => self::siteName()],
         ], fn ($v) => $v !== null && $v !== '');
     }
 }

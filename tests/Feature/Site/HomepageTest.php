@@ -235,9 +235,10 @@ class HomepageTest extends TestCase
         $this->assertStringNotContainsString('BTW', $html);
 
         Settings::save('company', ['legal_name' => 'Jebbari Testbedrijf', 'kvk' => '12345678', 'btw' => 'NL000000000B01']);
+        // A VAT number left in old settings is never shown (owner decision).
         Settings::save('social', ['links' => [['label' => 'LinkedIn', 'url' => 'https://linkedin.example.test/jebbari']]]);
 
-        $this->get('/nl')->assertSee('Jebbari Testbedrijf')->assertSee('KvK 12345678')->assertSee('BTW NL000000000B01')
+        $this->get('/nl')->assertSee('Jebbari Testbedrijf')->assertSee('KvK 12345678')->assertDontSee('NL000000000B01')->assertDontSee('BTW')
             ->assertSee('LinkedIn')->assertSee('https://linkedin.example.test/jebbari', false);
     }
 }
