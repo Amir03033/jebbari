@@ -100,7 +100,7 @@ class AiVisibilityTest extends TestCase
             $this->assertSame(['@id' => $person['@id']], $org['founder']);
             $this->assertSame(['@id' => $org['@id']], $site['publisher']);
             $this->assertSame('Amstelveen', $org['location']['address']['addressLocality']);
-            $this->assertSame(['https://amirs.life', 'https://github.example.test/amir'], $person['sameAs']);
+            $this->assertSame(['https://amirs.life', 'https://www.linkedin.com/in/amir-j-a3948b3a9', 'https://github.example.test/amir'], $person['sameAs']);
             $this->assertArrayNotHasKey('alumniOf', $person);
         }
     }
