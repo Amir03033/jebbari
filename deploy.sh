@@ -34,6 +34,12 @@ artisan() { "$PHP" artisan "$@"; }
 # ---------------------------------------------------------------- checks
 step "Checking the server"
 
+# Files created by root (caches, logs, uploads) cannot be written by the website afterwards.
+if [[ "$(id -u)" -eq 0 && "${ALLOW_ROOT:-}" != "1" ]]; then
+    fail "Do not run this as root. Log in as the site's system user (Plesk: Hosting settings > SSH access), or from root: su - <site user> -s /bin/bash"
+fi
+[[ "$(stat -c %U .)" == "$(id -un)" ]] || echo "Warning: this folder is owned by $(stat -c %U .), you are $(id -un). Run as the folder's owner."
+
 "$PHP" -r 'exit(version_compare(PHP_VERSION, "8.4.0", ">=") ? 0 : 1);' \
     || fail "PHP 8.4 or newer is needed (found $("$PHP" -r 'echo PHP_VERSION;')). Set PHP=/opt/plesk/php/8.4/bin/php"
 for ext in gd intl mbstring pdo fileinfo zip; do
