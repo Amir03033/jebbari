@@ -21,11 +21,21 @@ cd "$(dirname "$0")"
 PHP="${PHP:-php}"
 NPM="${NPM:-}"
 
-# Find npm: the NPM setting, then the PATH, then Plesk's Node.js extension (newest version first).
+# Find npm: the NPM setting wins; otherwise the newest Node among the PATH and
+# Plesk's Node.js extension (/opt/plesk/node/<version>/bin). The system Node on
+# Ubuntu is often too old, so it must not win just because it is on the PATH.
 if [[ -z "$NPM" ]]; then
-    NPM="$(command -v npm || ls -d /opt/plesk/node/*/bin/npm 2>/dev/null | sort -V | tail -n1 || true)"
+    best_version=""
+    for candidate in $(command -v npm || true) /opt/plesk/node/*/bin/npm /usr/local/bin/npm; do
+        [[ -x "$candidate" ]] || continue
+        version="$("$(dirname "$candidate")/node" -v 2>/dev/null | tr -d v || true)"
+        [[ -n "$version" ]] || continue
+        if [[ -z "$best_version" || "$(printf '%s\n%s\n' "$best_version" "$version" | sort -V | tail -n1)" == "$version" && "$version" != "$best_version" ]]; then
+            best_version="$version"
+            NPM="$candidate"
+        fi
+    done
 fi
-# npm starts "node" from the PATH, so put its own folder first.
 [[ "$NPM" == */* ]] && export PATH="$(dirname "$NPM"):$PATH"
 COMPOSER="${COMPOSER:-$(command -v composer || true)}"
 FIRST=false
@@ -59,7 +69,7 @@ done
     || fail "npm not found. Install Node.js 20.19+ (Plesk > Extensions > Node.js, then Websites & Domains > jebbari.nl > Node.js > Enable) or set NPM=/path/to/npm. Find it with: ls /opt/plesk/node/"
 command -v node >/dev/null || fail "node not found next to $NPM"
 node -e 'const [a,b]=process.versions.node.split(".").map(Number); process.exit(a>20||(a===20&&b>=19)?0:1)' \
-    || fail "Node.js 20.19 or newer is needed (found $(node -v)). Pick a newer version in Plesk > Node.js."
+    || fail "Node.js 20.19 or newer is needed; the newest found is $(node -v) ($NPM). Add Node.js 22 or 24 in Plesk: Tools & Settings > Node.js (or Extensions > Node.js), then run this again. Installed Plesk versions: $(ls /opt/plesk/node 2>/dev/null | tr '\n' ' ')"
 echo "PHP $("$PHP" -r 'echo PHP_VERSION;'), Node $(node -v), npm $("$NPM" -v)"
 
 if [[ ! -f .env ]]; then
