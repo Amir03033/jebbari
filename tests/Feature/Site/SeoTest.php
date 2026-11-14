@@ -174,6 +174,46 @@ class SeoTest extends TestCase
         $this->assertSame('WebSite', $data->firstWhere('@type', 'WebSite')['@type']);
     }
 
+    public function test_every_page_links_organization_website_and_founder_through_stable_ids(): void
+    {
+        $post = $this->makePost();
+        $root = rtrim(url('/'), '/');
+
+        foreach (['/nl', '/en', '/nl/werk', "/nl/blog/{$post->slug_nl}"] as $url) {
+            $data = collect($this->jsonLd($this->get($url)->getContent()));
+            $org = $data->firstWhere('@type', 'ProfessionalService');
+            $person = $data->firstWhere('@type', 'Person');
+
+            $this->assertSame($root.'/#org', $org['@id'], $url);
+            $this->assertSame($root.'/#amir', $org['founder']['@id']);
+            $this->assertSame(['Amsterdam', 'Zwolle'], array_column(array_column($org['location'], 'address'), 'addressLocality'));
+            $this->assertSame($root.'/#website', $data->firstWhere('@type', 'WebSite')['@id']);
+            $this->assertSame($root.'/#org', $data->firstWhere('@type', 'WebSite')['publisher']['@id']);
+            $this->assertSame('Amir Jebbari', $person['name']);
+            $this->assertSame($root.'/#org', $person['worksFor']['@id']);
+            $this->assertContains('https://amirs.life', $person['sameAs']);
+            foreach (['alumniOf', 'hasCredential', 'hasOccupation', 'birthDate', 'address', 'email', 'telephone'] as $key) {
+                $this->assertArrayNotHasKey($key, $person, "Person must not have $key");
+            }
+        }
+
+        $this->assertStringContainsString('is de oprichter van Jebbari, gevestigd in Amsterdam en Zwolle', collect($this->jsonLd($this->get('/nl')->getContent()))->firstWhere('@type', 'Person')['description']);
+        $this->assertSame('Founder', collect($this->jsonLd($this->get('/en')->getContent()))->firstWhere('@type', 'Person')['jobTitle']);
+
+        $a = collect($this->jsonLd($this->get("/nl/blog/{$post->slug_nl}")->getContent()))->firstWhere('@type', 'BlogPosting');
+        $this->assertSame(['@type' => 'Person', '@id' => $root.'/#amir', 'name' => 'Amir Jebbari', 'url' => url('/nl/over-mij')], $a['author']);
+    }
+
+    public function test_the_about_page_is_a_profile_page_about_the_founder(): void
+    {
+        $data = collect($this->jsonLd($this->get('/en/about')->getContent()));
+        $profile = $data->firstWhere('@type', 'ProfilePage');
+
+        $this->assertSame(rtrim(url('/'), '/').'/#amir', $profile['mainEntity']['@id']);
+        $this->assertSame(url('/en/about'), $profile['url']);
+        $this->assertSame(url('/en/about'), $data->firstWhere('@type', 'Person')['url']);
+    }
+
     public function test_organization_data_includes_only_company_details_the_owner_entered(): void
     {
         Settings::save('company', ['legal_name' => 'Jebbari B.V.', 'btw' => 'NL123456789B01']);

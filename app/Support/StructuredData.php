@@ -14,16 +14,39 @@ use App\Models\Service;
  */
 class StructuredData
 {
+    /** Stable identifiers, the same on every page and in both languages, so the entities link up. */
+    public static function id(string $entity): string
+    {
+        return rtrim(url('/'), '/').'/#'.$entity;
+    }
+
+    /** A reference to an entity described elsewhere in the graph. */
+    public static function ref(string $entity): array
+    {
+        return ['@id' => self::id($entity)];
+    }
+
+    /** Organization, website and founder: on every public page. */
+    public static function base(): array
+    {
+        return [self::organization(Locale::url('home')), self::website(Locale::url('home')), self::person()];
+    }
+
     public static function organization(string $homeUrl): array
     {
         $company = Settings::group('company');
         $data = [
             '@context' => 'https://schema.org',
             '@type' => 'ProfessionalService',
-            '@id' => $homeUrl.'#organization',
+            '@id' => self::id('org'),
             'name' => Settings::get('seo.site_name') ?: config('site.name'),
             'url' => $homeUrl,
             'description' => loc(Settings::get('seo.default_description')) ?: __('site.meta_description'),
+            'founder' => self::ref('amir'),
+            'location' => [
+                ['@type' => 'Place', 'address' => ['@type' => 'PostalAddress', 'addressLocality' => 'Amsterdam', 'addressCountry' => 'NL']],
+                ['@type' => 'Place', 'address' => ['@type' => 'PostalAddress', 'addressLocality' => 'Zwolle', 'addressCountry' => 'NL']],
+            ],
             'areaServed' => [
                 ['@type' => 'Country', 'name' => 'Netherlands'],
                 ['@type' => 'City', 'name' => 'Zwolle'],
@@ -55,9 +78,48 @@ class StructuredData
         return [
             '@context' => 'https://schema.org',
             '@type' => 'WebSite',
+            '@id' => self::id('website'),
             'name' => Settings::get('seo.site_name') ?: config('site.name'),
             'url' => $homeUrl,
+            'publisher' => self::ref('org'),
+            'inLanguage' => Locale::all(),
+        ];
+    }
+
+    /** The founder. Facts from config/site.php only; never education. */
+    public static function person(): array
+    {
+        $person = config('site.person');
+        $locale = app()->getLocale();
+
+        return array_filter([
+            '@context' => 'https://schema.org',
+            '@type' => 'Person',
+            '@id' => self::id('amir'),
+            'name' => $person['name'],
+            'url' => Locale::url('about'),
+            'jobTitle' => $person['job_title'][$locale] ?? null,
+            'description' => $person['description'][$locale] ?? null,
+            'worksFor' => self::ref('org'),
+            'homeLocation' => ['@type' => 'City', 'name' => $person['home_location'], 'containedInPlace' => ['@type' => 'Country', 'name' => 'Netherlands']],
+            'knowsAbout' => $person['knows_about'],
+            'sameAs' => array_values(array_filter($person['same_as'])) ?: null,
+        ], fn ($v) => $v !== null && $v !== []);
+    }
+
+    /** The About page: a profile page about the founder. */
+    public static function profilePage(string $url, string $name): array
+    {
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'ProfilePage',
+            '@id' => $url.'#page',
+            'url' => $url,
+            'name' => $name,
             'inLanguage' => app()->getLocale(),
+            'isPartOf' => self::ref('website'),
+            'mainEntity' => self::ref('amir'),
+            'about' => self::ref('amir'),
         ];
     }
 
@@ -84,8 +146,8 @@ class StructuredData
             'mainEntityOfPage' => $url,
             'datePublished' => $post->published_at?->toIso8601String(),
             'dateModified' => $post->updated_at?->toIso8601String(),
-            'author' => ['@type' => 'Organization', 'name' => Settings::get('seo.site_name') ?: config('site.name')],
-            'publisher' => ['@type' => 'Organization', 'name' => Settings::get('seo.site_name') ?: config('site.name')],
+            'author' => ['@type' => 'Person', '@id' => self::id('amir'), 'name' => config('site.person.name'), 'url' => Locale::url('about')],
+            'publisher' => ['@type' => 'Organization', '@id' => self::id('org'), 'name' => Settings::get('seo.site_name') ?: config('site.name')],
         ];
 
         return array_filter($data + ($image ? ['image' => $image] : []), fn ($v) => $v !== null && $v !== '');
@@ -101,7 +163,7 @@ class StructuredData
             'url' => $url,
             'inLanguage' => app()->getLocale(),
             'areaServed' => ['@type' => 'Country', 'name' => 'Netherlands'],
-            'provider' => ['@type' => 'ProfessionalService', 'name' => Settings::get('seo.site_name') ?: config('site.name')],
+            'provider' => ['@type' => 'ProfessionalService', '@id' => self::id('org'), 'name' => Settings::get('seo.site_name') ?: config('site.name')],
         ], fn ($v) => $v !== null && $v !== '');
     }
 
@@ -118,7 +180,8 @@ class StructuredData
             'keywords' => $project->stack ? implode(', ', $project->stack) : null,
             'dateCreated' => $project->year ? (string) $project->year : null,
             'image' => $image,
-            'creator' => ['@type' => 'ProfessionalService', 'name' => Settings::get('seo.site_name') ?: config('site.name')],
+            'creator' => ['@type' => 'Person', '@id' => self::id('amir'), 'name' => config('site.person.name')],
+            'publisher' => ['@type' => 'ProfessionalService', '@id' => self::id('org'), 'name' => Settings::get('seo.site_name') ?: config('site.name')],
         ], fn ($v) => $v !== null && $v !== '');
     }
 }

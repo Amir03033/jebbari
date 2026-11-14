@@ -37,9 +37,11 @@ class Renderer
         $title = loc($page->title);
         $intro = collect($page->blocks ?? [])->firstWhere('type', 'intro');
 
-        $jsonld = $key === 'home'
-            ? [StructuredData::organization($canonical), StructuredData::website($canonical)]
-            : [StructuredData::breadcrumbs([['name' => __('site.nav.home'), 'url' => Locale::url('home')], ['name' => $title, 'url' => $canonical]])];
+        $jsonld = match ($key) {
+            'home' => [],
+            'about' => [StructuredData::profilePage($canonical, $title), StructuredData::breadcrumbs([['name' => __('site.nav.home'), 'url' => Locale::url('home')], ['name' => $title, 'url' => $canonical]])],
+            default => [StructuredData::breadcrumbs([['name' => __('site.nav.home'), 'url' => Locale::url('home')], ['name' => $title, 'url' => $canonical]])],
+        };
 
         $hero = $key === 'home' ? collect($page->blocks ?? [])->firstWhere('type', 'hero') : null;
 
