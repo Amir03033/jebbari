@@ -73,3 +73,14 @@
 - [ ] Lighthouse numbers for `config/specs.php` (the block stays hidden until then).
 - [ ] Mention the cookieless page-view counter and the newsletter in the privacy statement.
 - [ ] Decide how newsletters are sent (not built).
+
+## Added for AI and search visibility (docs/AI-VISIBILITY.md)
+
+- [ ] After deploying: run `php artisan cms:draft-about`, review the About text in /admin and publish it.
+- [ ] Enter the exact LinkedIn and GitHub URLs in Site > Social links (they feed the Person `sameAs` and `llms.txt`).
+- [ ] Check Cloudflare / Plesk for AI-bot blocking outside the app.
+- [x] ServerScope: "online SaaS platform for monitoring servers and online environments" (on the About page; copy it to the project page in the CMS).
+- [ ] BarberCuts: confirm the client agrees to be shown as a project and to a "Built by Amir Jebbari" footer credit.
+- [ ] Photo for the About page (own professional portrait): owner adds it later in the CMS (Image block on the About page).
+- [ ] Blog: check each article has a two-sentence summary in the excerpt field and an English version where possible.
+- [ ] Place the external profile texts (LinkedIn, GitHub, KVK, Google Business Profile) and the snippets for amirs.life and project sites.

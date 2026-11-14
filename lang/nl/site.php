@@ -101,7 +101,7 @@ return [
         'home' => 'Home',
         'work' => 'Werk',
         'services' => 'Diensten',
-        'about' => 'Over ons',
+        'about' => 'Over mij',
         'blog' => 'Blog',
         'contact' => 'Contact',
         'menu' => 'Menu',
@@ -197,6 +197,7 @@ return [
         'related' => 'Lees verder',
         'cta' => 'Wil je het bespreken?',
         'reading' => '{1} :count minuut lezen|[2,*] :count minuten lezen',
+        'by' => 'Door',
     ],
 
     'legal' => ['updated' => 'Laatst bijgewerkt'],
@@ -246,5 +247,10 @@ return [
         '429_title' => 'Te veel verzoeken',
         '429_text' => 'Wacht even en probeer het opnieuw.',
         'home' => 'Terug naar de homepage',
+    ],
+
+    // The standard short bio (docs/AI-VISIBILITY.md): use it word for word everywhere.
+    'founder' => [
+        'bio' => 'Amir Jebbari is de oprichter van Jebbari, gevestigd in Amsterdam en Zwolle. Hij bouwt webapplicaties met Laravel, Vue en TypeScript.',
     ],
 ];

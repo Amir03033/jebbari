@@ -4,6 +4,7 @@
     $date = $post->published_at?->timezone(config('site.timezone'));
     $locale = app()->getLocale();
     $contact = \App\Content\Site::pageUrl('contact');
+    $aboutUrl = \App\Content\Site::pageUrl('about');
 @endphp
 
 <x-layouts.app :seo="$seo" :preview="$preview">
@@ -11,6 +12,7 @@
         <x-page-opening number="01" :label="__('site.nav.blog')" :title="$title" :back="Locale::url('blog')" :back-label="__('site.nav.blog')" :meta="$post->category ? loc($post->category->name) : null" />
 
         <p class="t-label page-wide flex flex-wrap gap-x-6 gap-y-1 pb-10 text-muted md:pb-14" data-reveal="up">
+            <span>{{ __('site.blog.by') }} @if ($aboutUrl)<a href="{{ $aboutUrl }}" class="link link-bare" rel="author">{{ config('site.founder.name') }}</a>@else{{ config('site.founder.name') }}@endif</span>
             @if ($date)<time datetime="{{ $date->toDateString() }}">{{ $date->translatedFormat('j F Y') }}</time>@endif
             <span>{{ trans_choice('site.blog.reading', $minutes, ['count' => $minutes]) }}</span>
             @if ($post->category)<a href="{{ Locale::route('blog.category', ['slug' => $post->category->slugFor($locale)]) }}" class="link link-bare">{{ loc($post->category->name) }}</a>@endif

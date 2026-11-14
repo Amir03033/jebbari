@@ -247,7 +247,7 @@ class DetailPagesTest extends TestCase
 
     public function test_the_about_page_renders_its_blocks_and_falls_back_to_the_page_title(): void
     {
-        $this->get('/nl/over-ons')->assertOk()->assertSee('<h1', false)->assertSee('Over ons');
+        $this->get('/nl/over-mij')->assertOk()->assertSee('<h1', false)->assertSee('Over mij');
 
         $about = Page::where('key', 'about')->first();
         $about->update(['blocks' => [
@@ -257,7 +257,7 @@ class DetailPagesTest extends TestCase
         ]]);
         $about->fresh()->publish();
 
-        $this->get('/nl/over-ons')->assertSee('Ik bouw dingen')->assertSee('Vaardigheden')->assertSee('PHP')->assertSee('Eerlijk');
+        $this->get('/nl/over-mij')->assertSee('Ik bouw dingen')->assertSee('Vaardigheden')->assertSee('PHP')->assertSee('Eerlijk');
         $this->get('/en/about')->assertSee('I build things')->assertSee('Skills')->assertSee('Honest');
     }
 
@@ -314,7 +314,7 @@ class DetailPagesTest extends TestCase
         $project = $this->makeProject();
         $post = $this->makePost();
 
-        foreach (['/nl', '/en', '/nl/werk', '/nl/diensten', '/nl/over-ons', '/nl/blog', '/nl/contact', "/nl/diensten/{$service->slug_nl}", "/nl/werk/{$project->slug_nl}", "/nl/blog/{$post->slug_nl}"] as $url) {
+        foreach (['/nl', '/en', '/nl/werk', '/nl/diensten', '/nl/over-mij', '/nl/blog', '/nl/contact', "/nl/diensten/{$service->slug_nl}", "/nl/werk/{$project->slug_nl}", "/nl/blog/{$post->slug_nl}"] as $url) {
             $html = $this->get($url)->assertOk()->getContent();
 
             $this->assertSame(1, preg_match_all('/<h1\b/', $html), "$url needs exactly one h1");

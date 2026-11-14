@@ -23,6 +23,12 @@ Route::get('/', function (Request $request) {
 
 Route::get('/sitemap.xml', [SitemapController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
+Route::get('/llms.txt', [SitemapController::class, 'llms'])->name('llms');
+
+// Old URLs that moved. Registered before the locale groups so the legal catch-all never sees them.
+foreach (Locale::MOVED as $from => $to) {
+    Route::permanentRedirect($from, $to);
+}
 
 // Generated share image (Open Graph) for a project or an article.
 Route::get('/share/{locale}/{type}/{slug}.png', ShareImageController::class)->where('type', 'work|blog')->name('share');
