@@ -120,6 +120,8 @@ step "Building CSS and JavaScript"
 # ---------------------------------------------------------------- database
 step "Updating the database"
 artisan migrate --force
+# Calculator and meeting-type structure: adds only what is missing, never touches prices or edits.
+artisan db:seed --class=LeadFunnelSeeder --force
 
 if [[ "$FIRST" == true ]]; then
     step "Seeding the starting content (all drafts, nothing goes live)"

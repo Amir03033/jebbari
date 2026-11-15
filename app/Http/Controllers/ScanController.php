@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Concerns\LeadPages;
 use App\Http\Requests\StoreScanRequest;
 use App\Jobs\RunScan;
+use App\Models\Lead;
 use App\Models\Scan;
 use App\Scan\Turnstile;
 use App\Support\Locale;
@@ -21,6 +23,8 @@ use Illuminate\Support\Facades\RateLimiter;
  */
 class ScanController extends Controller
 {
+    use LeadPages;
+
     public function create(): View
     {
         $locale = app()->getLocale();
@@ -69,6 +73,19 @@ class ScanController extends Controller
             'ip_hash' => $ipHash,
             'contact_consent' => $request->boolean('contact_consent'),
         ]);
+
+        // "May contact me" turns the check into a lead in the shared overview.
+        if ($scan->contact_consent) {
+            $lead = Lead::create([
+                'source' => 'scan',
+                'email' => $scan->email,
+                'contact_consent' => true,
+                'locale' => $scan->locale,
+                'ip_hash' => $ipHash,
+                'choices' => ['scan' => ['url' => $scan->url, 'report' => Locale::route('scan.show', ['scan' => $scan->token])]],
+            ]);
+            $this->notifyOwner($lead, 'scan');
+        }
 
         // Without a queue worker (QUEUE_CONNECTION=sync) the scan runs after the response is sent.
         if (config('queue.default') === 'sync') {

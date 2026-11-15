@@ -4,6 +4,7 @@ namespace Tests\Feature\Scan;
 
 use App\Jobs\RunScan;
 use App\Mail\ScanReady;
+use App\Models\Lead;
 use App\Models\Scan;
 use App\Scan\CertificateInspector;
 use App\Scan\UrlGuard;
@@ -104,6 +105,11 @@ class ScanFlowTest extends TestCase
         $this->assertSame(64, strlen($scan->ip_hash));
         $this->assertNotSame('127.0.0.1', $scan->ip_hash);
         Queue::assertPushed(RunScan::class);
+
+        // "May contact me" also makes it a lead in the shared overview.
+        $lead = Lead::sole();
+        $this->assertSame(['scan', 'klant@example.com', true], [$lead->source, $lead->email, $lead->contact_consent]);
+        $this->assertSame('https://bakkerij.example', $lead->choice('scan.url'));
     }
 
     public function test_the_form_is_validated(): void
@@ -263,7 +269,8 @@ class ScanFlowTest extends TestCase
 
     public function test_the_scan_pages_are_in_the_sitemap_and_reports_are_not_crawled(): void
     {
-        $this->get('/sitemap.xml')->assertSee(url('/nl/scan'), false)->assertSee(url('/en/scan'), false);
-        $this->get('/robots.txt')->assertSee('Disallow: /nl/scan/');
+        $this->get('/sitemap.xml')->assertSee(url('/nl/scan'), false)->assertSee(url('/en/scan'), false)
+            ->assertSee(url('/nl/prijs'), false)->assertSee(url('/en/pricing'), false)->assertSee(url('/nl/afspraak'), false);
+        $this->get('/robots.txt')->assertSee('Disallow: /nl/scan/')->assertSee('Disallow: /nl/afspraak/beheer/')->assertSee('Disallow: /nl/aanvraag/');
     }
 }

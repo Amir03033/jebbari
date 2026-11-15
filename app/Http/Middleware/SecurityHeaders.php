@@ -52,7 +52,7 @@ class SecurityHeaders
     {
         $frames = $this->frameHosts();
 
-        if (Turnstile::enabled() && $request->routeIs('*.scan')) {
+        if (Turnstile::enabled() && $request->routeIs('*.scan', '*.price', '*.request.step', '*.appointment.details')) {
             $frames[] = Turnstile::HOST;
 
             return str_replace("script-src 'self'", "script-src 'self' ".Turnstile::HOST, self::PUBLIC_CSP).'; frame-src '.implode(' ', $frames);

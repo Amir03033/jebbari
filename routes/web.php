@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\PreviewController;
+use App\Http\Controllers\PriceController;
+use App\Http\Controllers\RequestController;
 use App\Http\Controllers\ScanController;
 use App\Http\Controllers\ShareImageController;
 use App\Http\Controllers\SiteController;
@@ -67,6 +70,25 @@ foreach (Locale::all() as $locale) {
         Route::post('scan', [ScanController::class, 'store'])->middleware('throttle:scan')->name($locale.'.scan.store');
         Route::get('scan/{scan}', [ScanController::class, 'show'])->where('scan', '[A-Za-z0-9]{40}')->name($locale.'.scan.show');
         Route::get('scan/{scan}/status', [ScanController::class, 'status'])->where('scan', '[A-Za-z0-9]{40}')->name($locale.'.scan.status');
+
+        // Lead funnel: price calculator, request wizard, appointments (docs/LEADS.md).
+        $slug = Locale::LEAD_SLUGS;
+        Route::get($slug['price'][$locale], [PriceController::class, 'show'])->name($locale.'.price');
+        Route::post($slug['price'][$locale], [PriceController::class, 'save'])->middleware('throttle:leads')->name($locale.'.price.save');
+
+        Route::get($slug['request'][$locale], [RequestController::class, 'start'])->name($locale.'.request');
+        Route::get($slug['request'][$locale].'/'.$slug['step'][$locale].'/{step}', [RequestController::class, 'step'])->whereNumber('step')->where('step', '[1-5]')->name($locale.'.request.step');
+        Route::post($slug['request'][$locale].'/'.$slug['step'][$locale].'/{step}', [RequestController::class, 'save'])->where('step', '[1-5]')->middleware('throttle:leads')->name($locale.'.request.save');
+        Route::get($slug['request'][$locale].'/'.$slug['resume'][$locale].'/{lead}', [RequestController::class, 'resume'])->where('lead', '[A-Za-z0-9]{40}')->name($locale.'.request.resume');
+        Route::get($slug['request'][$locale].'/'.$slug['sent'][$locale], [RequestController::class, 'done'])->name($locale.'.request.done');
+
+        Route::get($slug['appointment'][$locale], [AppointmentController::class, 'index'])->name($locale.'.appointment');
+        Route::get($slug['appointment'][$locale].'/'.$slug['manage'][$locale].'/{appointment}', [AppointmentController::class, 'manage'])->where('appointment', '[A-Za-z0-9]{40}')->name($locale.'.appointment.manage');
+        Route::post($slug['appointment'][$locale].'/'.$slug['manage'][$locale].'/{appointment}/'.$slug['cancel'][$locale], [AppointmentController::class, 'cancel'])->where('appointment', '[A-Za-z0-9]{40}')->middleware('throttle:leads')->name($locale.'.appointment.cancel');
+        Route::get($slug['appointment'][$locale].'/'.$slug['manage'][$locale].'/{appointment}/'.$slug['calendar'][$locale].'.ics', [AppointmentController::class, 'ics'])->where('appointment', '[A-Za-z0-9]{40}')->name($locale.'.appointment.ics');
+        Route::get($slug['appointment'][$locale].'/{type}', [AppointmentController::class, 'pick'])->whereNumber('type')->name($locale.'.appointment.pick');
+        Route::get($slug['appointment'][$locale].'/{type}/{slot}', [AppointmentController::class, 'details'])->whereNumber('type')->where('slot', '\d{4}-\d{2}-\d{2}T\d{2}:\d{2}')->name($locale.'.appointment.details');
+        Route::post($slug['appointment'][$locale].'/{type}/{slot}', [AppointmentController::class, 'book'])->whereNumber('type')->where('slot', '\d{4}-\d{2}-\d{2}T\d{2}:\d{2}')->middleware('throttle:leads')->name($locale.'.appointment.book');
 
         // Legal pages (privacy, terms) live at the slug the owner gives them. Must stay last.
         Route::get('{slug}', [SiteController::class, 'legal'])->where('slug', '[a-z0-9\-]+')->name($locale.'.legal');

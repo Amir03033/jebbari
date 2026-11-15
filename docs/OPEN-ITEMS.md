@@ -98,3 +98,11 @@
 - [ ] `PAGESPEED_API_KEY` in `.env` (without it Google's quota is very low and speed shows "not measured").
 - [ ] Turnstile: keys in `.env` if wanted. It adds the site's only third-party request, on the scan form only.
 - [ ] Run `php artisan migrate` on deploy (new `scans` table).
+
+## Added with the lead funnel (docs/LEADS.md)
+
+- [ ] Prices per calculator line (Admin > Prijzen & afspraken > Prijzen); the calculator stays "coming soon" until a project type has prices and is on.
+- [ ] Opening hours for appointments (Beschikbaarheid) and blocked days.
+- [ ] In-person meetings in Zwolle/Amsterdam: seeded off; switch on with a real address only if wanted.
+- [ ] Privacy statement: calculator, request and appointment data and retention.
+- [ ] Menu links and buttons to `/nl/prijs` and `/nl/afspraak`.

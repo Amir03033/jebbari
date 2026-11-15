@@ -89,6 +89,94 @@ Alpine.data('clock', (initial) => ({
     },
 }));
 
+/*
+ * Price calculator: the same arithmetic as App\Leads\PriceCalculator, live.
+ * Prices come from data-calc (rendered by the server); the server recomputes
+ * whatever is saved, so these numbers are for display only.
+ */
+Alpine.data('priceCalculator', () => ({
+    items: {},
+    names: {},
+    project: '',
+    size: '',
+    deadline: '',
+    extras: [],
+    format: null,
+
+    init() {
+        let data = { items: [], names: {} };
+
+        try {
+            data = JSON.parse(this.$el.dataset.calc || '{}');
+        } catch {
+            // Leave the server-rendered result in place.
+        }
+
+        this.items = Object.fromEntries((data.items || []).map((item) => [item.key, item]));
+        this.names = data.names || {};
+        this.format = new Intl.NumberFormat('nl-NL', { maximumFractionDigits: 0 });
+
+        const form = new FormData(this.$el);
+        this.project = form.get('project') || '';
+        this.size = form.get('size') || '';
+        this.deadline = form.get('deadline') || '';
+        this.extras = form.getAll('extras[]');
+        this.$el.classList.add('is-live');
+    },
+
+    money(value) {
+        return '€ ' + this.format.format(value);
+    },
+
+    span(min, max) {
+        return min === max ? this.money(min) : this.money(min) + ' – ' + this.money(max);
+    },
+
+    picked() {
+        const pick = (group, key) => (this.items[key] && this.items[key].group === group ? this.items[key] : null);
+
+        if (!pick('project', this.project)) {
+            return [];
+        }
+
+        return [
+            pick('project', this.project),
+            pick('size', this.size),
+            ...this.extras.map((key) => pick('extra', key)),
+            pick('deadline', this.deadline),
+        ].filter(Boolean);
+    },
+
+    get lines() {
+        return this.picked().map((item) => ({
+            key: item.key,
+            name: this.names[item.key] || item.key,
+            price: this.span(item.min, item.max),
+        }));
+    },
+
+    get range() {
+        const items = this.picked();
+
+        if (items.length === 0) {
+            return '–';
+        }
+
+        return this.span(
+            items.reduce((sum, item) => sum + item.min, 0),
+            items.reduce((sum, item) => sum + item.max, 0),
+        );
+    },
+
+    get empty() {
+        return this.picked().length === 0;
+    },
+
+    get filled() {
+        return this.picked().length > 0;
+    },
+}));
+
 window.Alpine = Alpine;
 Alpine.start();
 initMotion();

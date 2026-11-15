@@ -138,6 +138,8 @@
             <p class="t-statement text-muted md:max-w-[44ch]">{{ __('scan.report.cta_text') }}</p>
             <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
                 <x-button :href="$contactUrl">{{ __('scan.report.cta_button') }}<span class="arrow" aria-hidden="true">→</span></x-button>
+                <x-link :href="Locale::url('appointment')">{{ __('leads.cta.appointment') }}</x-link>
+                <x-link :href="Locale::url('price')">{{ __('leads.cta.calculator') }}</x-link>
                 <x-link :href="Locale::url('scan')">{{ __('scan.report.again') }}</x-link>
             </div>
         </x-cta-panel>
