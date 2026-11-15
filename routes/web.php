@@ -4,6 +4,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\PreviewController;
+use App\Http\Controllers\ScanController;
 use App\Http\Controllers\ShareImageController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\SitemapController;
@@ -60,6 +61,11 @@ foreach (Locale::all() as $locale) {
         Route::get(Locale::slug('services', $locale).'/{slug}', [SiteController::class, 'service'])->name($locale.'.services.show');
         Route::get(Locale::slug('blog', $locale).'/'.Locale::CATEGORY_SEGMENT[$locale].'/{slug}', [SiteController::class, 'category'])->name($locale.'.blog.category');
         Route::get(Locale::slug('blog', $locale).'/{slug}', [SiteController::class, 'post'])->name($locale.'.blog.show');
+
+        // Free website check: form, request (rate limited per visitor in the controller) and report.
+        Route::get('scan', [ScanController::class, 'create'])->name($locale.'.scan');
+        Route::post('scan', [ScanController::class, 'store'])->middleware('throttle:scan')->name($locale.'.scan.store');
+        Route::get('scan/{scan}', [ScanController::class, 'show'])->where('scan', '[A-Za-z0-9]{40}')->name($locale.'.scan.show');
 
         // Legal pages (privacy, terms) live at the slug the owner gives them. Must stay last.
         Route::get('{slug}', [SiteController::class, 'legal'])->where('slug', '[a-z0-9\-]+')->name($locale.'.legal');

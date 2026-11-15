@@ -10,6 +10,7 @@ use App\Models\Page;
 use App\Models\Post;
 use App\Models\PostCategory;
 use App\Models\Project;
+use App\Models\Scan;
 use App\Models\Service;
 use App\Models\Subscriber;
 use App\Models\Testimonial;
@@ -52,6 +53,7 @@ class AppServiceProvider extends ServiceProvider
             NavigationItem::class => OwnerOnlyPolicy::class,
             User::class => OwnerOnlyPolicy::class,
             Subscriber::class => OwnerOnlyPolicy::class,
+            Scan::class => OwnerOnlyPolicy::class,
             Activity::class => ActivityPolicy::class,
         ] as $model => $policy) {
             Gate::policy($model, $policy);
@@ -62,6 +64,9 @@ class AppServiceProvider extends ServiceProvider
             Limit::perMinute(3)->by($request->ip()),
             Limit::perHour(10)->by($request->ip()),
         ]);
+
+        // Website check form: a burst limit; the daily limit per visitor is in ScanController.
+        RateLimiter::for('scan', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
 
         Event::listen(MediaHasBeenAddedEvent::class, SanitizeUploadedImage::class);
 

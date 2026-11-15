@@ -23,7 +23,7 @@ class SitemapController extends Controller
         // One group for every crawler: a bot with its own group would otherwise skip the admin rules.
         $lines = [
             ...array_map(fn ($bot) => 'User-agent: '.$bot, self::CRAWLERS),
-            'Allow: /', 'Disallow: /admin', 'Disallow: /preview',
+            'Allow: /', 'Disallow: /admin', 'Disallow: /preview', 'Disallow: /nl/scan/', 'Disallow: /en/scan/',
             '', 'Sitemap: '.url('/sitemap.xml'),
         ];
 
@@ -122,6 +122,9 @@ class SitemapController extends Controller
         Site::services()->each(fn ($r) => $add($r, fn ($p, $l) => Locale::route('services.show', ['slug' => $p->slugFor($l)], $l)));
         Site::visible(Site::postsQuery()->get())->each(fn ($r) => $add($r, fn ($p, $l) => Locale::route('blog.show', ['slug' => $p->slugFor($l)], $l)));
         Site::categories()->each(fn ($r) => $add($r, fn ($p, $l) => Locale::route('blog.category', ['slug' => $p->slugFor($l)], $l)));
+
+        // The website check is not a CMS page: listed in both languages.
+        $entries->push(['urls' => collect(Locale::all())->mapWithKeys(fn ($l) => [$l => Locale::url('scan', $l)])->all(), 'lastmod' => null]);
 
         app()->setLocale($original);
 

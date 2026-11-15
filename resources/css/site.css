@@ -2156,3 +2156,220 @@
         transform: translateX(4px);
     }
 }
+
+/* ------------------------------------------------------------------
+   Website check (/scan): form, status and report. Quiet by design:
+   scores in type and hairlines, status as a small mark, the accent
+   only on "action needed".
+   ------------------------------------------------------------------ */
+@layer components {
+    .opening .t-statement {
+        overflow-wrap: anywhere;
+    }
+
+    .scan-what {
+        position: relative;
+        padding-block: 1.25rem;
+    }
+
+    .scan-limits {
+        display: grid;
+        gap: 0.75rem;
+        padding-left: 1.1rem;
+        list-style: disc;
+        max-width: 52ch;
+    }
+
+    /* Consent checkbox */
+    .check-row {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 0.75rem;
+        align-items: start;
+    }
+
+    .check-control {
+        appearance: none;
+        display: grid;
+        place-content: center;
+        width: 1.25rem;
+        height: 1.25rem;
+        margin-top: 0.15rem;
+        border: 1px solid var(--line-strong);
+        border-radius: 6px;
+        background-color: var(--surface);
+        cursor: pointer;
+        transition: border-color var(--dur-fast) var(--ease);
+    }
+
+    .check-control::before {
+        content: '';
+        width: 0.7rem;
+        height: 0.7rem;
+        border-radius: 3px;
+        background-color: var(--fg);
+        transform: scale(0);
+        transition: transform var(--dur-fast) var(--ease);
+    }
+
+    .check-control:checked::before {
+        transform: scale(1);
+    }
+
+    .check-control:hover {
+        border-color: var(--fg);
+    }
+
+    .check-control:focus-visible {
+        outline: 2px solid var(--signal);
+        outline-offset: 2px;
+    }
+
+    .check-control[aria-invalid='true'] {
+        border-color: var(--fg);
+    }
+
+    /* Status mark */
+    .scan-state {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+    }
+
+    .scan-state-mark {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 50%;
+        background-color: var(--muted);
+    }
+
+    .scan-state[data-state='warning'] .scan-state-mark {
+        border: 1px solid var(--fg);
+        background-color: transparent;
+    }
+
+    .scan-state[data-state='bad'] .scan-state-mark {
+        background-color: var(--signal);
+    }
+
+    .scan-state[data-state='skipped'] {
+        color: var(--muted);
+    }
+
+    .scan-state[data-state='skipped'] .scan-state-mark {
+        border: 1px dashed var(--muted);
+        background-color: transparent;
+    }
+
+    /* Scores */
+    .scan-scores {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 2.5rem 1.5rem;
+    }
+
+    .scan-score-lg {
+        grid-column: 1 / -1;
+    }
+
+    @media (min-width: 64rem) {
+        .scan-scores {
+            grid-template-columns: minmax(0, 2fr) repeat(4, minmax(0, 1fr));
+            align-items: end;
+        }
+
+        .scan-score-lg {
+            grid-column: auto;
+        }
+    }
+
+    .scan-score-num {
+        margin-top: 0.75rem;
+        font-size: clamp(2.75rem, 6vw, 4.5rem);
+        font-weight: 500;
+        line-height: 1;
+        letter-spacing: -0.04em;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .scan-score-lg .scan-score-num {
+        font-size: clamp(4.5rem, 12vw, 9rem);
+    }
+
+    .scan-bar {
+        position: relative;
+        display: block;
+        height: 1px;
+        margin-top: 1rem;
+        background-color: var(--line);
+        overflow: hidden;
+    }
+
+    .scan-bar > span {
+        position: absolute;
+        inset: 0;
+        background-color: var(--fg);
+        transform-origin: left;
+        transform: scaleX(0);
+        transition: transform var(--dur-reveal) var(--ease);
+    }
+
+    .scan-bar[data-step='1'] > span { transform: scaleX(0.1); }
+    .scan-bar[data-step='2'] > span { transform: scaleX(0.2); }
+    .scan-bar[data-step='3'] > span { transform: scaleX(0.3); }
+    .scan-bar[data-step='4'] > span { transform: scaleX(0.4); }
+    .scan-bar[data-step='5'] > span { transform: scaleX(0.5); }
+    .scan-bar[data-step='6'] > span { transform: scaleX(0.6); }
+    .scan-bar[data-step='7'] > span { transform: scaleX(0.7); }
+    .scan-bar[data-step='8'] > span { transform: scaleX(0.8); }
+    .scan-bar[data-step='9'] > span { transform: scaleX(0.9); }
+    .scan-bar[data-step='10'] > span { transform: scaleX(1); }
+
+    /* Checks */
+    .scan-check {
+        position: relative;
+        display: grid;
+        gap: 0.75rem 2rem;
+        padding-block: clamp(1.25rem, 2.4vw, 2rem);
+    }
+
+    @media (min-width: 48rem) {
+        .scan-check {
+            grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+            align-items: baseline;
+        }
+    }
+
+    .scan-check p,
+    .scan-advice {
+        max-width: 62ch;
+    }
+
+    .scan-advice {
+        display: grid;
+        gap: 1rem;
+        padding-left: 1rem;
+        border-left: 1px solid var(--line);
+    }
+
+    /* Waiting */
+    .scan-steps {
+        display: grid;
+        gap: 0.5rem;
+        border-top: 1px solid var(--line);
+    }
+
+    .scan-steps li {
+        display: flex;
+        gap: 1rem;
+        align-items: baseline;
+        padding-block: 0.75rem;
+        border-bottom: 1px solid var(--line);
+        color: var(--muted);
+    }
+
+    .scan-steps li.is-current {
+        color: var(--fg);
+    }
+}

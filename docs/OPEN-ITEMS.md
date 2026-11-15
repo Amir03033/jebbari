@@ -90,3 +90,11 @@
 - [x] One address everywhere: Professor W.H. Keesomlaan 12, 1183 DJ Amstelveen, The Netherlands (`config/site.php` > address): footer, Organization `address` and `location` in JSON-LD, llms.txt, privacy draft. The CMS address field is gone.
 - [x] No VAT (BTW) number anywhere: removed from the footer, JSON-LD (`vatID`) and the CMS company settings.
 - [ ] Decide whether the copy "gevestigd in Amsterdam en Zwolle / based in Amsterdam and Zwolle" (bio, hero label, meeting line) should change now that the address is in Amstelveen.
+
+## Added with the website check (docs/SCAN.md)
+
+- [ ] Privacy statement (CMS): add a paragraph on the website check (purpose, data, 90-day retention, Google PageSpeed).
+- [ ] Menu link to `/nl/scan` and `/en/scan` (Site > Navigation in the admin).
+- [ ] `PAGESPEED_API_KEY` in `.env` (without it Google's quota is very low and speed shows "not measured").
+- [ ] Turnstile: keys in `.env` if wanted. It adds the site's only third-party request, on the scan form only.
+- [ ] Run `php artisan migrate` on deploy (new `scans` table).
