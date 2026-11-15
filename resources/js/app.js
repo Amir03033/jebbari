@@ -1,5 +1,6 @@
 import Alpine from '@alpinejs/csp';
 import { initMotion } from './motion';
+import { initScanStatus } from './scan';
 
 /*
  * Header: clear at the top of the page, frosted once it moves, hidden while
@@ -91,3 +92,4 @@ Alpine.data('clock', (initial) => ({
 window.Alpine = Alpine;
 Alpine.start();
 initMotion();
+initScanStatus();

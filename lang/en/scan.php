@@ -62,6 +62,7 @@ return [
         'failed' => 'Failed',
         'pending_text' => 'Your check is queued and starts shortly.',
         'running_text' => 'I am fetching the page and running the checks. This usually takes less than a minute.',
+        'now' => 'Now:',
         'refresh' => 'This page refreshes by itself. You also get the link by email.',
         'steps' => ['Fetch the page', 'Security and SEO', 'Measure speed', 'Write the report'],
         'failed_title' => 'The check did not work',

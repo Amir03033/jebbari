@@ -235,12 +235,16 @@ class ScanFlowTest extends TestCase
         $scan = Scan::create(['url' => 'https://bakkerij.example', 'domain' => 'bakkerij.example', 'email' => 'k@example.com', 'locale' => 'nl', 'ip_hash' => 'x']);
 
         $html = $this->get('/nl/scan/'.$scan->token)->assertOk()->assertSee('Je website wordt gecontroleerd')->getContent();
-        $this->assertStringContainsString('<meta http-equiv="refresh" content="4">', $html);
+        $this->assertStringContainsString('<noscript><meta http-equiv="refresh" content="4"></noscript>', $html);
+        $this->assertStringContainsString('data-scan-live', $html);
+        $this->assertStringContainsString('data-status-url="'.url('/nl/scan/'.$scan->token.'/status').'"', $html);
         $this->assertCspClean($html);
+        $this->getJson('/nl/scan/'.$scan->token.'/status')->assertExactJson(['status' => 'pending'])->assertHeader('X-Robots-Tag', 'noindex, nofollow');
 
         $scan->forceFill(['created_at' => now()->subMinutes(30)])->save();
         $html = $this->get('/nl/scan/'.$scan->token)->assertSee(__('scan.error.stuck'))->getContent();
         $this->assertStringNotContainsString('http-equiv="refresh"', $html);
+        $this->getJson('/nl/scan/'.$scan->token.'/status')->assertExactJson(['status' => 'failed']);
 
         $this->get('/nl/scan/'.str_repeat('a', 40))->assertNotFound();
     }

@@ -2353,23 +2353,204 @@
         border-left: 1px solid var(--line);
     }
 
-    /* Waiting */
-    .scan-steps {
+    /* Waiting: a page sheet under a slow scan line, four phases that fill. */
+    .scan-live {
         display: grid;
-        gap: 0.5rem;
+        gap: 2.5rem;
+        max-width: 64rem;
+    }
+
+    @media (min-width: 48rem) {
+        .scan-live {
+            grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+            gap: 4rem;
+            align-items: start;
+        }
+    }
+
+    .scan-sheet {
+        position: relative;
+        display: grid;
+        gap: 0.75rem;
+        align-content: start;
+        aspect-ratio: 4 / 3;
+        padding: 1.5rem;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-card);
+        background-color: var(--card);
+        overflow: hidden;
+        isolation: isolate;
+    }
+
+    @media (min-width: 48rem) {
+        .scan-sheet {
+            aspect-ratio: 4 / 5;
+        }
+    }
+
+    .scan-sheet > span:not(.scan-beam) {
+        display: block;
+        height: 0.5rem;
+        border-radius: 999px;
+        background-color: var(--line-strong);
+        opacity: 0.55;
+        transition: opacity var(--dur-slow) var(--ease);
+    }
+
+    .scan-sheet-bar {
+        width: 35%;
+        margin-bottom: 1rem;
+    }
+
+    .scan-sheet > span.scan-sheet-title {
+        width: 80%;
+        height: 1.25rem;
+    }
+
+    .scan-sheet-line {
+        width: 100%;
+    }
+
+    .scan-sheet-line.is-short {
+        width: 62%;
+    }
+
+    .scan-sheet > span.scan-sheet-media {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
+        margin-block: 0.5rem;
+        border-radius: var(--radius-sm);
+        opacity: 0.35;
+    }
+
+    /* The scan line: a hairline in the accent with a soft wash behind it. */
+    .scan-beam {
+        position: absolute;
+        inset: 0 0 auto;
+        height: 22%;
+        border-bottom: 1px solid var(--signal);
+        background-color: var(--glow);
+        transform: translateY(-100%);
+        opacity: 0;
+        pointer-events: none;
+        z-index: -1;
+    }
+
+    .scan-live.is-live[data-status='running'] .scan-beam {
+        opacity: 1;
+        animation: scan-sweep 2.8s var(--ease-inout) infinite;
+    }
+
+    .scan-live.is-live[data-status='running'] .scan-sheet > span:not(.scan-beam) {
+        animation: scan-read 2.8s var(--ease-inout) infinite;
+    }
+
+    .scan-sheet > span:nth-child(2) { animation-delay: 0.15s; }
+    .scan-sheet > span:nth-child(3) { animation-delay: 0.45s; }
+    .scan-sheet > span:nth-child(4) { animation-delay: 0.6s; }
+    .scan-sheet > span:nth-child(5) { animation-delay: 1s; }
+    .scan-sheet > span:nth-child(6) { animation-delay: 1.5s; }
+    .scan-sheet > span:nth-child(7) { animation-delay: 1.7s; }
+    .scan-sheet > span:nth-child(8) { animation-delay: 1.9s; }
+    .scan-sheet > span:nth-child(9) { animation-delay: 2.1s; }
+    .scan-sheet > span:nth-child(10) { animation-delay: 2.3s; }
+
+    @keyframes scan-sweep {
+        from { transform: translateY(-100%); }
+        to { transform: translateY(460%); }
+    }
+
+    @keyframes scan-read {
+        0%, 100% { opacity: 0.55; }
+        12% { opacity: 1; }
+        40% { opacity: 0.55; }
+    }
+
+    .scan-phases {
         border-top: 1px solid var(--line);
     }
 
-    .scan-steps li {
-        display: flex;
-        gap: 1rem;
+    .scan-phase {
+        position: relative;
+        display: grid;
+        grid-template-columns: 2.25rem minmax(0, 1fr) auto;
         align-items: baseline;
-        padding-block: 0.75rem;
+        padding-block: 0.9rem;
         border-bottom: 1px solid var(--line);
         color: var(--muted);
+        transition: color var(--dur-base) var(--ease);
     }
 
-    .scan-steps li.is-current {
+    .scan-phase[data-state='active'],
+    .scan-phase[data-state='done'] {
         color: var(--fg);
+    }
+
+    /* The bottom hairline fills as the phase runs. */
+    .scan-phase-fill {
+        position: absolute;
+        inset: auto 0 -1px;
+        height: 1px;
+        overflow: hidden;
+    }
+
+    .scan-phase-fill > span {
+        position: absolute;
+        inset: 0;
+        background-color: var(--fg);
+        transform-origin: left;
+        transform: scaleX(0);
+        transition: transform 300ms linear;
+    }
+
+    /* Done: a small full stop lands. */
+    .scan-phase-mark {
+        width: 0.45rem;
+        height: 0.45rem;
+        border-radius: 50%;
+        background-color: var(--signal);
+        transform: scale(0);
+        transition: transform var(--dur-base) var(--ease);
+    }
+
+    .scan-phase[data-state='done'] .scan-phase-mark {
+        transform: scale(1);
+    }
+
+    .scan-now {
+        display: none;
+        min-height: 1.4em;
+        overflow: hidden;
+    }
+
+    .scan-live.is-live[data-status='running'] .scan-now {
+        display: block;
+    }
+
+    .scan-now-name {
+        display: inline-block;
+        color: var(--fg);
+    }
+
+    .scan-now-name.is-in {
+        animation: scan-name 500ms var(--ease) both;
+    }
+
+    @keyframes scan-name {
+        from { opacity: 0; transform: translateY(60%); }
+        to { opacity: 1; transform: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .scan-live.is-live[data-status='running'] .scan-beam,
+        .scan-live.is-live[data-status='running'] .scan-sheet > span:not(.scan-beam),
+        .scan-now-name.is-in {
+            animation: none;
+        }
+
+        .scan-live.is-live[data-status='running'] .scan-beam {
+            opacity: 0;
+        }
     }
 }

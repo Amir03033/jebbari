@@ -66,6 +66,7 @@ foreach (Locale::all() as $locale) {
         Route::get('scan', [ScanController::class, 'create'])->name($locale.'.scan');
         Route::post('scan', [ScanController::class, 'store'])->middleware('throttle:scan')->name($locale.'.scan.store');
         Route::get('scan/{scan}', [ScanController::class, 'show'])->where('scan', '[A-Za-z0-9]{40}')->name($locale.'.scan.show');
+        Route::get('scan/{scan}/status', [ScanController::class, 'status'])->where('scan', '[A-Za-z0-9]{40}')->name($locale.'.scan.status');
 
         // Legal pages (privacy, terms) live at the slug the owner gives them. Must stay last.
         Route::get('{slug}', [SiteController::class, 'legal'])->where('slug', '[a-z0-9\-]+')->name($locale.'.legal');

@@ -62,6 +62,7 @@ return [
         'failed' => 'Niet gelukt',
         'pending_text' => 'Je check staat in de wachtrij en start zo.',
         'running_text' => 'Ik haal de pagina op en draai de checks. Dit duurt meestal minder dan een minuut.',
+        'now' => 'Nu:',
         'refresh' => 'Deze pagina ververst vanzelf. Je krijgt de link ook per e-mail.',
         'steps' => ['Pagina ophalen', 'Beveiliging en SEO', 'Snelheid meten', 'Rapport maken'],
         'failed_title' => 'De check is niet gelukt',

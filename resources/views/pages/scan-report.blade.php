@@ -12,25 +12,54 @@
 
 <x-layouts.app :title="$title" :noindex="true" :alternates="$alternates">
     @if ($waiting)
-        {{-- Refreshes itself until the job is done: no JavaScript needed. --}}
+        {{-- Without JavaScript the page refreshes itself; with it, scan.js polls the status and reloads once. --}}
         @push('head')
-            <meta http-equiv="refresh" content="4">
+            <noscript><meta http-equiv="refresh" content="4"></noscript>
         @endpush
+
+        @php
+            $checkNames = collect(__('scan.check'))->pluck('title')->values()->all();
+        @endphp
 
         <section class="opening error-stage">
             <span class="opening-glow" aria-hidden="true"></span>
             <div class="page-wide relative" data-reveal="group">
                 <p class="t-label rise text-muted" data-delay="1">01 / {{ __('scan.page.label') }} · {{ $scan->domain }}</p>
                 <h1 class="t-display mt-6"><x-lines :lines="[__('scan.status.title')]" /></h1>
-                <div class="grid-12 mt-10 md:mt-16">
-                    <div class="col-span-12 md:col-span-6 md:col-start-7">
-                        <p class="t-statement rise text-muted" data-delay="4" role="status">{{ __('scan.status.'.$scan->status.'_text') }}</p>
-                        <ol class="scan-steps rise mt-8" data-delay="5">
+
+                <div class="scan-live rise mt-10 md:mt-16" data-delay="4" data-scan-live
+                    data-status="{{ $scan->status }}"
+                    data-status-url="{{ Locale::route('scan.status', ['scan' => $scan->token]) }}"
+                    data-started="{{ ($scan->started_at ?? $scan->created_at)->getTimestamp() }}"
+                    data-checks="{{ json_encode($checkNames) }}">
+                    <div class="scan-sheet" aria-hidden="true">
+                        <span class="scan-sheet-bar"></span>
+                        <span class="scan-sheet-title"></span>
+                        <span class="scan-sheet-line"></span>
+                        <span class="scan-sheet-line is-short"></span>
+                        <span class="scan-sheet-media"></span>
+                        <span class="scan-sheet-line"></span>
+                        <span class="scan-sheet-line is-short"></span>
+                        <span class="scan-sheet-line"></span>
+                        <span class="scan-sheet-line is-short"></span>
+                        <span class="scan-sheet-line"></span>
+                        <span class="scan-beam"></span>
+                    </div>
+
+                    <div>
+                        <p class="t-statement text-muted" role="status" data-scan-text data-pending="{{ __('scan.status.pending_text') }}" data-running="{{ __('scan.status.running_text') }}">{{ __('scan.status.'.$scan->status.'_text') }}</p>
+                        <ol class="scan-phases mt-8">
                             @foreach (__('scan.status.steps') as $step)
-                                <li @class(['is-current' => $scan->status === Scan::RUNNING ? $loop->index === 1 : $loop->first])><span class="t-label text-muted">{{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</span> {{ $step }}</li>
+                                <li class="scan-phase" data-scan-phase="{{ $loop->index }}">
+                                    <span class="t-label text-muted">{{ str_pad($loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                                    <span class="scan-phase-name">{{ $step }}</span>
+                                    <span class="scan-phase-mark" aria-hidden="true"></span>
+                                    <span class="scan-phase-fill" aria-hidden="true"><span></span></span>
+                                </li>
                             @endforeach
                         </ol>
-                        <p class="rise mt-8 text-sm text-muted" data-delay="6">{{ __('scan.status.refresh') }}</p>
+                        <p class="scan-now t-label mt-6 text-muted" aria-hidden="true"><span>{{ __('scan.status.now') }}</span> <span class="scan-now-name" data-scan-now>{{ $checkNames[0] ?? '' }}</span></p>
+                        <p class="mt-6 text-sm text-muted">{{ __('scan.status.refresh') }}</p>
                     </div>
                 </div>
             </div>

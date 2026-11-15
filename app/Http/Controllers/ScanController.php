@@ -9,6 +9,7 @@ use App\Scan\Turnstile;
 use App\Support\Locale;
 use App\Support\Seo;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
@@ -88,5 +89,12 @@ class ScanController extends Controller
 
         // A report is private to whoever has the link: never cached or indexed.
         return response($view)->header('Cache-Control', 'no-store, private')->header('X-Robots-Tag', 'noindex, nofollow');
+    }
+
+    /** Polled by the status page: only the state, never the results. */
+    public function status(Scan $scan): JsonResponse
+    {
+        return response()->json(['status' => $scan->isStuck() ? Scan::FAILED : $scan->status])
+            ->header('Cache-Control', 'no-store, private')->header('X-Robots-Tag', 'noindex, nofollow');
     }
 }
