@@ -110,5 +110,9 @@
     @include('partials.footer')
 
     @include('partials.command-menu')
+
+    @if (\App\Support\SiteOffline::isOn() && auth()->check())
+        @include('partials.offline-bar')
+    @endif
 </body>
 </html>

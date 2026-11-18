@@ -372,3 +372,199 @@
         padding-bottom: 0.25rem;
     }
 }
+
+/* ------------------------------------------------------------------
+   Offline notice for signed-in team members (the site is offline for visitors)
+   ------------------------------------------------------------------ */
+@layer components {
+    .offline-bar {
+        position: fixed;
+        z-index: 60;
+        left: 50%;
+        bottom: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem 1.25rem;
+        width: max-content;
+        max-width: calc(100vw - 2rem);
+        padding: 0.75rem 1.25rem;
+        border: 1px solid var(--panel-line);
+        border-radius: var(--radius-card);
+        background-color: var(--panel);
+        color: var(--panel-fg);
+        box-shadow: var(--shadow);
+        transform: translateX(-50%);
+    }
+
+    .offline-bar .t-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.625rem;
+    }
+
+    .offline-bar-dot {
+        width: 0.4375rem;
+        height: 0.4375rem;
+        border-radius: 50%;
+        background-color: var(--panel-signal);
+    }
+
+    .offline-bar a {
+        color: var(--panel-signal);
+    }
+}
+
+/* ------------------------------------------------------------------
+   Proposal pages (/nl/voorstel/{token})
+   ------------------------------------------------------------------ */
+@layer components {
+    .proposal-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem 2rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--line);
+    }
+
+    .proposal-print {
+        margin-left: auto;
+    }
+
+    .proposal-flash {
+        width: fit-content;
+        padding: 0.875rem 1.25rem;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-sm);
+        background-color: var(--card);
+    }
+
+    .proposal-row {
+        position: relative;
+        display: grid;
+        gap: 0.5rem 1.5rem;
+        padding-block: 1.5rem;
+    }
+
+    @media (min-width: 48rem) {
+        .proposal-row {
+            grid-template-columns: 4rem minmax(0, 5fr) minmax(0, 6fr);
+            align-items: baseline;
+        }
+    }
+
+    .proposal-prices {
+        width: 100%;
+        border-collapse: collapse;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .proposal-prices th,
+    .proposal-prices td {
+        padding: 1rem 0;
+        border-top: 1px solid var(--line);
+        text-align: left;
+        font-weight: 400;
+        vertical-align: baseline;
+    }
+
+    .proposal-prices td:last-child {
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .proposal-prices td:nth-child(2) {
+        padding-inline: 1rem;
+        white-space: nowrap;
+    }
+
+    .proposal-prices tfoot th,
+    .proposal-prices tfoot td {
+        border-top: 1px solid var(--fg);
+        font-size: 1.25rem;
+        font-weight: 500;
+    }
+
+    .proposal-prices tfoot td.t-label {
+        font-size: 0.75rem;
+    }
+
+    .proposal-decide {
+        padding: clamp(1.5rem, 3vw, 2.75rem);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-card);
+        background-color: var(--card);
+    }
+}
+
+@media print {
+    .proposal-print,
+    .proposal-decide form,
+    .proposal-decide details {
+        display: none;
+    }
+}
+
+/* ------------------------------------------------------------------
+   Website watch card on the scan report
+   ------------------------------------------------------------------ */
+@layer components {
+    .scan-watch {
+        display: grid;
+        gap: 2rem;
+        padding: clamp(1.5rem, 3vw, 2.75rem);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-card);
+        background-color: var(--card);
+    }
+
+    @media (min-width: 64rem) {
+        .scan-watch {
+            grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+            align-items: end;
+            gap: 3rem;
+        }
+    }
+
+    .scan-watch-note {
+        padding: 1rem 1.25rem;
+        border: 1px solid var(--line-strong);
+        border-radius: var(--radius-sm);
+        background-color: var(--surface);
+    }
+}
+
+@media print {
+    .scan-print,
+    .scan-watch-wrap,
+    #scan-cta {
+        display: none;
+    }
+}
+
+/* ------------------------------------------------------------------
+   Live uptime on case studies
+   ------------------------------------------------------------------ */
+@layer components {
+    .uptime-now {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+    }
+
+    .uptime-dot {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 50%;
+        background-color: var(--signal);
+    }
+
+    .uptime-now[data-ok='false'] .uptime-dot {
+        background-color: transparent;
+        box-shadow: inset 0 0 0 1.5px var(--fg);
+    }
+}
+

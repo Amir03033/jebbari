@@ -65,6 +65,18 @@
                                     <dd class="mt-3"><ul class="t-label flex flex-wrap gap-2">@foreach ($stack as $tech)<li class="chip">{{ $tech }}</li>@endforeach</ul></dd>
                                 </div>
                             @endif
+                            @if ($uptime = \App\Uptime\Monitor::summary($project))
+                                <div class="rise border-t border-line pt-3">
+                                    <dt class="t-label text-muted">{{ __('site.project.uptime_label') }}</dt>
+                                    <dd class="mt-2 grid gap-1">
+                                        @if ($uptime['online'] !== null)
+                                            <span class="uptime-now" data-ok="{{ $uptime['online'] ? 'true' : 'false' }}"><span class="uptime-dot" aria-hidden="true"></span>{{ $uptime['online'] ? __('site.project.uptime_online') : __('site.project.uptime_offline') }}</span>
+                                        @endif
+                                        <span class="tabular-nums">{{ __('site.project.uptime_value', ['uptime' => number_format($uptime['uptime'], 2, app()->getLocale() === 'nl' ? ',' : '.', '')]) }}@if ($uptime['ms']) · {{ __('site.project.uptime_ms', ['ms' => $uptime['ms']]) }}@endif</span>
+                                        <span class="text-sm text-muted">{{ __('site.project.uptime_note', ['checks' => number_format($uptime['checks'], 0, ',', '.')]) }}</span>
+                                    </dd>
+                                </div>
+                            @endif
                             @if ($project->url)
                                 <div class="rise border-t border-line pt-3"><dt class="t-label text-muted">{{ __('site.project.visit') }}</dt><dd class="mt-1"><x-link :href="$project->url" rel="noopener" target="_blank" arrow>{{ parse_url($project->url, PHP_URL_HOST) }}</x-link></dd></div>
                             @endif

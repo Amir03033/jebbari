@@ -53,6 +53,8 @@ class ProjectResource extends Resource
                 Translated::text('outcome', 'Resultaat (één eerlijke zin, alleen invullen als het klopt)'),
                 TagsInput::make('stack')->label('Technologie'),
                 TextInput::make('url')->label('Link naar het project (optioneel)')->url()->maxLength(255),
+                Toggle::make('monitor')->label('Live meten (uptime en snelheid)')
+                    ->helperText('Elke 5 minuten één verzoek naar de link hierboven. Op de projectpagina verschijnen uptime en responstijd van de laatste 30 dagen, zodra er genoeg metingen zijn (na ongeveer 2 uur).'),
             ]),
             Section::make('Afbeeldingen')->schema([
                 PublishingUi::mediaSelect('cover_media_id', 'Hoofdafbeelding'),

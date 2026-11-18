@@ -132,3 +132,10 @@ h1 {
         }
     }
 }
+
+.mail {
+    color: var(--ink);
+    text-decoration: underline;
+    text-decoration-color: var(--signal);
+    text-underline-offset: 0.2em;
+}

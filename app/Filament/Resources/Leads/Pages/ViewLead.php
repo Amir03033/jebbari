@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Leads\Pages;
 
 use App\Filament\Resources\Leads\LeadResource;
+use App\Filament\Resources\Proposals\ProposalResource;
 use App\Models\Lead;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -21,6 +22,9 @@ class ViewLead extends ViewRecord
             Action::make('reply')->label('Mailen')->icon('heroicon-o-envelope')
                 ->visible(fn () => filled($this->getRecord()->email))
                 ->url(fn () => 'mailto:'.$this->getRecord()->email),
+            Action::make('proposal')->label('Maak voorstel')->icon('heroicon-o-document-text')
+                ->visible(fn () => filled($this->getRecord()->email) && auth()->user()?->isOwner())
+                ->url(fn () => ProposalResource::getUrl('create', ['lead' => $this->getRecord()->id])),
             Action::make('update')->label('Status en notities')->icon('heroicon-o-pencil-square')
                 ->fillForm(fn () => ['status' => $this->getRecord()->status, 'notes' => $this->getRecord()->notes])
                 ->schema([

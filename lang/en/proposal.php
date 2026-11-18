@@ -1,0 +1,57 @@
+<?php
+
+// Personal proposals (/en/proposal/{token}). docs/PROPOSALS.md
+return [
+    'label' => 'Proposal',
+    'meta_title' => 'Proposal',
+    'for' => 'For :name',
+    'date' => 'Prepared on :date',
+    'valid' => 'Valid until :date',
+    'valid_label' => 'Valid until',
+    'intro' => 'Introduction',
+    'scope' => 'What I will build',
+    'timeline' => 'Timeline',
+    'prices' => 'Investment',
+    'terms' => 'Terms',
+    'total' => 'Total',
+    'period' => [
+        'once' => 'one-off',
+        'month' => 'per month',
+        'year' => 'per year',
+    ],
+    'print' => 'Save as PDF',
+    'print_hint' => 'Choose "Save as PDF" in the print dialog.',
+    'questions' => 'Questions about this proposal? Email',
+
+    'decide' => 'Your decision',
+    'accept_intro' => 'Happy with it? Enter your name and confirm. You will get a confirmation by email right away, and I will be in touch within one working day about the start.',
+    'name' => 'Your full name',
+    'agree' => 'I accept this proposal',
+    'agree_terms' => 'I accept this proposal and the :terms',
+    'terms_link' => 'terms and conditions',
+    'accept' => 'Accept proposal',
+    'decline_open' => 'Not for you? Let me know',
+    'decline_reason' => 'Why not? (optional, it helps me)',
+    'decline' => 'Decline proposal',
+
+    'accepted_title' => 'Accepted',
+    'accepted_text' => 'Accepted by :name on :date. Thank you, I will be in touch within one working day about the start.',
+    'declined_title' => 'Proposal declined',
+    'declined_text' => 'This proposal was declined on :date. Thank you for letting me know.',
+    'expired_title' => 'This proposal has expired',
+    'expired_text' => 'The proposal was valid until :date. Still interested? Send me a message and I will prepare a new one.',
+    'flash_accepted' => 'Thank you! Your acceptance has been recorded.',
+    'flash_declined' => 'Your choice has been recorded. Thank you for letting me know.',
+
+    'mail' => [
+        'sent_subject' => 'Your proposal: :title',
+        'sent_title' => 'Hi :name, your proposal is ready',
+        'sent_intro' => 'As discussed, I have prepared a proposal for you. You can read it online and accept it there straight away.',
+        'sent_button' => 'View the proposal',
+        'accepted_subject' => 'Confirmation: you accepted :title',
+        'accepted_title' => 'Thank you, :name',
+        'accepted_intro' => 'Your acceptance of the proposal has been recorded. I will be in touch within one working day about the start. The proposal stays available through the link below.',
+        'accepted_on' => 'Accepted on',
+        'footer' => 'You are receiving this email because a proposal was prepared for you on jebbari.nl.',
+    ],
+];

@@ -88,3 +88,24 @@ scan can wait up to a minute before it starts. The job's own timeout is 110 s.
   (and `/en/scan` for English).
 - PageSpeed API key and, if wanted, Turnstile keys in `.env`.
 - Optional PDF export and the "later" items in the plan are not built.
+
+## Website watch (monthly checks)
+
+Under every finished report: "Houd mijn website in de gaten". The visitor ticks the
+consent box and gets a confirmation email (double opt-in, link valid 7 days). Then,
+every month, the same check runs again and they get an email with the scores, the
+change since last month, and a warning plus "Laat jebbari dit oplossen" when a
+category dropped 10 points or more (or the average 5). If the site does not load
+they get a plain "I could not reach your site" email. Every email has an unsubscribe
+link; unsubscribing deletes the watch. At most 3 watched sites per email address.
+
+- Runs are ordinary scans linked to the watch (`scans.scan_watch_id`), kept 90 days like other scans.
+- Unconfirmed sign-ups are deleted after 7 days (`model:prune`).
+- Started by `php artisan scan:watch` (hourly in the schedule) or, without a scheduler,
+  queued at most once an hour after a page visit.
+- The report also has **Opslaan als pdf** (browser print, no PDF library); the print
+  layout hides the buttons, the watch card and the call to action.
+- Admin: Inbox > Website-watches (owner only): who, which site, last score, next check; delete stops it.
+- Privacy statement: add the watch (email and site address, monthly check, until unsubscribed).
+
+Code: `App\Scan\Watch`, `App\Models\ScanWatch`, `ScanWatchController`, mails `WatchConfirm`, `WatchReport`, `WatchDown`.

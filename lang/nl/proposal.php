@@ -1,0 +1,57 @@
+<?php
+
+// Personal proposals (/nl/voorstel/{token}). docs/PROPOSALS.md
+return [
+    'label' => 'Voorstel',
+    'meta_title' => 'Voorstel',
+    'for' => 'Voor :name',
+    'date' => 'Opgesteld op :date',
+    'valid' => 'Geldig tot :date',
+    'valid_label' => 'Geldig tot',
+    'intro' => 'Toelichting',
+    'scope' => 'Wat ik voor je bouw',
+    'timeline' => 'Planning',
+    'prices' => 'Investering',
+    'terms' => 'Voorwaarden',
+    'total' => 'Totaal',
+    'period' => [
+        'once' => 'eenmalig',
+        'month' => 'per maand',
+        'year' => 'per jaar',
+    ],
+    'print' => 'Opslaan als pdf',
+    'print_hint' => 'Kies "Opslaan als pdf" in het printvenster.',
+    'questions' => 'Vragen over dit voorstel? Mail naar',
+
+    'decide' => 'Jouw beslissing',
+    'accept_intro' => 'Akkoord? Vul je naam in en bevestig. Je krijgt direct een bevestiging per e-mail en ik neem binnen één werkdag contact op over de start.',
+    'name' => 'Je volledige naam',
+    'agree' => 'Ik ga akkoord met dit voorstel',
+    'agree_terms' => 'Ik ga akkoord met dit voorstel en de :terms',
+    'terms_link' => 'algemene voorwaarden',
+    'accept' => 'Akkoord geven',
+    'decline_open' => 'Liever niet? Laat het me weten',
+    'decline_reason' => 'Waarom niet? (optioneel, helpt me verder)',
+    'decline' => 'Voorstel afwijzen',
+
+    'accepted_title' => 'Akkoord gegeven',
+    'accepted_text' => 'Akkoord gegeven door :name op :date. Bedankt, ik neem binnen één werkdag contact op over de start.',
+    'declined_title' => 'Voorstel afgewezen',
+    'declined_text' => 'Dit voorstel is op :date afgewezen. Bedankt voor het laten weten.',
+    'expired_title' => 'Dit voorstel is verlopen',
+    'expired_text' => 'Het voorstel was geldig tot :date. Wil je alsnog verder? Stuur me een bericht, dan maak ik een nieuw voorstel.',
+    'flash_accepted' => 'Bedankt! Je akkoord is vastgelegd.',
+    'flash_declined' => 'Je keuze is vastgelegd. Bedankt voor het laten weten.',
+
+    'mail' => [
+        'sent_subject' => 'Je voorstel: :title',
+        'sent_title' => 'Hoi :name, je voorstel staat klaar',
+        'sent_intro' => 'Zoals besproken heb ik een voorstel voor je gemaakt. Je leest het online, en kunt er ook direct akkoord op geven.',
+        'sent_button' => 'Bekijk het voorstel',
+        'accepted_subject' => 'Bevestiging: akkoord op :title',
+        'accepted_title' => 'Bedankt, :name',
+        'accepted_intro' => 'Je akkoord op het voorstel is vastgelegd. Ik neem binnen één werkdag contact op over de start. Het voorstel blijft via de link hieronder te bekijken.',
+        'accepted_on' => 'Akkoord gegeven op',
+        'footer' => 'Je ontvangt deze e-mail omdat er een voorstel voor je is gemaakt op jebbari.nl.',
+    ],
+];

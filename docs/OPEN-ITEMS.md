@@ -112,3 +112,13 @@
 - [ ] In-person meetings in Zwolle/Amsterdam: seeded off; switch on with a real address only if wanted.
 - [ ] Privacy statement: calculator, request and appointment data and retention.
 - [ ] Menu links and buttons to `/nl/prijs` and `/nl/afspraak`.
+
+## Added in Phase 7 (docs/PHASE-7.md)
+
+- [ ] Run `php artisan migrate` on deploy (proposals, scan_watches, uptime_checks, two new columns).
+- [ ] Add a Plesk scheduled task for `schedule:run` every minute (uptime every 5 minutes, watch hourly, cleanup daily). Works without it, less regularly.
+- [ ] Switch on "Live meten" for the projects whose live site may be measured (and check the link is the public homepage).
+- [ ] Privacy statement: website watch (email, site address, monthly check, until unsubscribed) and proposals (name and acceptance time).
+- [ ] Publish the terms page so proposals link to it on acceptance.
+- [ ] Fix the menu: "Scan" and "Nu" in the Dutch header link to `/en/scan` and `/en/now` (Site > Navigation).
+

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Prunable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
 /**
@@ -47,6 +48,12 @@ class Scan extends Model
         static::creating(function (Scan $scan) {
             $scan->token ??= Str::random(40);
         });
+    }
+
+    /** Set when this scan is a monthly run of a website watch. */
+    public function watch(): BelongsTo
+    {
+        return $this->belongsTo(ScanWatch::class, 'scan_watch_id');
     }
 
     public function getRouteKeyName(): string

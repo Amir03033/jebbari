@@ -36,6 +36,9 @@ class Locale
         'manage' => ['nl' => 'beheer', 'en' => 'manage'],
         'cancel' => ['nl' => 'annuleren', 'en' => 'cancel'],
         'calendar' => ['nl' => 'agenda', 'en' => 'calendar'],
+        'proposal' => ['nl' => 'voorstel', 'en' => 'proposal'],
+        'accept' => ['nl' => 'akkoord', 'en' => 'accept'],
+        'decline' => ['nl' => 'afwijzen', 'en' => 'decline'],
     ];
 
     /** Old paths that moved, answered with a 301 (the NL About page used to be "over-ons"). */

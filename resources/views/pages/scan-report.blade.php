@@ -132,7 +132,34 @@
 
         <div class="page pb-16" data-reveal="up">
             <p class="text-sm text-muted md:max-w-[62ch]">{{ __('scan.report.disclaimer') }}</p>
+            <p class="scan-print mt-8 flex flex-wrap items-center gap-x-5 gap-y-2">
+                <x-button type="button" variant="secondary" data-print>{{ __('scan.watch.print') }}<span class="arrow" aria-hidden="true">↓</span></x-button>
+                <span class="text-sm text-muted">{{ __('scan.watch.print_hint') }}</span>
+            </p>
         </div>
+
+        @unless ($scan->scan_watch_id)
+            <section id="watch" class="scan-watch-wrap" aria-labelledby="watch-title">
+                <div class="page pb-16">
+                    <div class="scan-watch" data-reveal="up">
+                        <div>
+                            <p class="t-label text-muted">{{ __('scan.watch.label') }}</p>
+                            <h2 id="watch-title" class="t-h2 mt-4">{{ __('scan.watch.title') }}</h2>
+                            <p class="mt-4 max-w-[52ch] text-muted">{{ __('scan.watch.text', ['domain' => $scan->domain]) }}</p>
+                        </div>
+                        @if (session('watch'))
+                            <p class="scan-watch-note" role="status">{{ __('scan.watch.'.session('watch'), ['max' => \App\Models\ScanWatch::MAX_PER_EMAIL]) }}</p>
+                        @else
+                            <form method="post" action="{{ Locale::route('scan.watch', ['scan' => $scan->token]) }}" class="grid content-start gap-5" novalidate>
+                                @csrf
+                                <x-scan.checkbox name="consent" :label="__('scan.watch.consent', ['email' => $scan->email])" required :error="$errors->first('consent')" />
+                                <div><x-button type="submit">{{ __('scan.watch.button') }}<span class="arrow" aria-hidden="true">→</span></x-button></div>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+            </section>
+        @endunless
 
         <x-cta-panel :lines="[__('scan.report.cta_title')]" :label="__('scan.name')" id="scan-cta">
             <p class="t-statement text-muted md:max-w-[44ch]">{{ __('scan.report.cta_text') }}</p>

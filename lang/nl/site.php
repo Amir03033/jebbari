@@ -155,6 +155,12 @@ return [
         'client' => 'Klant',
         'stack' => 'Technologie',
         'visit' => 'Bekijk',
+        'uptime_label' => 'Live gemeten',
+        'uptime_online' => 'Nu online',
+        'uptime_offline' => 'Nu niet bereikbaar',
+        'uptime_value' => ':uptime% uptime',
+        'uptime_ms' => 'gemiddeld :ms ms',
+        'uptime_note' => 'Laatste 30 dagen, :checks metingen door jebbari.nl zelf.',
         'brief' => 'De opdracht',
         'built' => 'Wat is gebouwd',
         'outcome' => 'Resultaat',
@@ -251,5 +257,16 @@ return [
     // The standard short bio (docs/AI-VISIBILITY.md): use it word for word everywhere.
     'founder' => [
         'bio' => 'Amir Jebbari is de oprichter van Jebbari, gevestigd in Amsterdam en Zwolle. Hij bouwt webapplicaties met Laravel, Vue en TypeScript.',
+    ],
+    // Shown while the owner has taken the site offline (Admin > Site > Website online).
+    'offline' => [
+        'label' => 'Tijdelijk offline',
+        'title' => 'Even niet bereikbaar',
+        'text' => 'De website is tijdelijk offline. Kom later nog eens terug.',
+        'back' => 'Verwacht terug: :time',
+        'format' => 'l j F, H:i',
+        'reach' => 'Vragen? Mail naar',
+        'banner' => 'De website staat offline voor bezoekers. Jij ziet hem omdat je bent ingelogd.',
+        'banner_link' => 'Zet weer online',
     ],
 ];

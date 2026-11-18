@@ -7,6 +7,7 @@ use App\Models\Scan;
 use App\Scan\FetchFailed;
 use App\Scan\Scanner;
 use App\Scan\UnsafeUrl;
+use App\Scan\Watch;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Mail;
@@ -50,7 +51,10 @@ class RunScan implements ShouldQueue
             $scan->update(['status' => Scan::FAILED, 'error' => 'internal', 'finished_at' => now()]);
         }
 
-        if ($scan->status === Scan::DONE) {
+        if ($scan->scan_watch_id) {
+            // A monthly run of a website watch: the comparison mail instead of "your report is ready".
+            Watch::finished($scan);
+        } elseif ($scan->status === Scan::DONE) {
             try {
                 Mail::to($scan->email)->send(new ScanReady($scan));
             } catch (Throwable $e) {
