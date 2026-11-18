@@ -99,7 +99,8 @@
 
 ## Added with the website check (docs/SCAN.md)
 
-- [ ] Privacy statement (CMS): add a paragraph on the website check (purpose, data, 90-day retention, Google PageSpeed).
+- [x] Privacy statement: proposed by `content:fill` (review and publish). Note: contact messages and leads with an email address are not deleted automatically; remove them after 12 months as the statement says.
+- [x] Privacy statement: website check (covered by `content:fill`).
 - [ ] Menu link to `/nl/scan` and `/en/scan` (Site > Navigation in the admin).
 - [ ] `PAGESPEED_API_KEY` in `.env` (without it Google's quota is very low and speed shows "not measured").
 - [ ] Turnstile: keys in `.env` if wanted. It adds the site's only third-party request, on the scan form only.
@@ -110,7 +111,7 @@
 - [ ] Prices per calculator line (Admin > Prijzen & afspraken > Prijzen); the calculator stays "coming soon" until a project type has prices and is on.
 - [ ] Opening hours for appointments (Beschikbaarheid) and blocked days.
 - [ ] In-person meetings in Zwolle/Amsterdam: seeded off; switch on with a real address only if wanted.
-- [ ] Privacy statement: calculator, request and appointment data and retention.
+- [x] Privacy statement: calculator, request and appointment data and retention (covered by `content:fill`).
 - [ ] Menu links and buttons to `/nl/prijs` and `/nl/afspraak`.
 
 ## Added in Phase 7 (docs/PHASE-7.md)
@@ -118,7 +119,7 @@
 - [ ] Run `php artisan migrate` on deploy (proposals, scan_watches, uptime_checks, two new columns).
 - [ ] Add a Plesk scheduled task for `schedule:run` every minute (uptime every 5 minutes, watch hourly, cleanup daily). Works without it, less regularly.
 - [ ] Switch on "Live meten" for the projects whose live site may be measured (and check the link is the public homepage).
-- [ ] Privacy statement: website watch (email, site address, monthly check, until unsubscribed) and proposals (name and acceptance time).
+- [x] Privacy statement: website watch and proposals (covered by `content:fill`).
 - [ ] Publish the terms page so proposals link to it on acceptance.
 - [ ] Fix the menu: "Scan" and "Nu" in the Dutch header link to `/en/scan` and `/en/now` (Site > Navigation).
 

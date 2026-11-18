@@ -35,6 +35,7 @@ class SiteFillSeeder extends Seeder
         $this->about();
         $this->uses();
         $this->homeSeo();
+        $this->privacy();
         $this->services();
         $this->projects();
     }
@@ -142,6 +143,108 @@ class SiteFillSeeder extends Seeder
 
         $page->saveFromForm(['seo' => $seo]);
         self::$report[] = 'Home: SEO-omschrijving in de ik-vorm'.$this->state($page);
+    }
+
+    /**
+     * The privacy statement covered only the contact form. It now also covers
+     * the website check and watch, the calculator, requests, appointments,
+     * proposals, the newsletter and the statistics, with the retention the code
+     * really applies. The owner's facts (Onholland B.V., KvK, address, the 12
+     * months for contact) are kept as they are on the live page.
+     */
+    private function privacy(): void
+    {
+        $page = Page::query()->where('key', 'privacy')->first();
+
+        if (! $page) {
+            return;
+        }
+
+        $current = json_encode($page->withDraft()->blocks ?? []);
+
+        if (str_contains($current, 'Website-check en website-watch')) {
+            self::$report[] = 'Privacy: al bijgewerkt, ongewijzigd';
+
+            return;
+        }
+
+        $body = $this->t(
+            '<h2>Wie is verantwoordelijk?</h2>'
+            .'<p>Onholland B.V., handelend onder de naam Jebbari, is verantwoordelijk voor de verwerking van persoonsgegevens via deze website.</p>'
+            .'<ul><li>Bedrijfsnaam: Onholland B.V.</li><li>Handelsnaam: Jebbari</li><li>KvK-nummer: 93721382</li><li>Vestigingsadres: Professor W.H. Keesomlaan 12, 1183 DJ Amstelveen, Nederland</li><li>Website: https://jebbari.nl</li></ul>'
+            .'<h2>Kort gezegd</h2>'
+            .'<p>We verzamelen alleen wat nodig is voor wat je zelf aanvraagt. Er zijn geen tracking- of advertentiecookies, geen Google Analytics en je gegevens worden nooit verkocht. De website zelf slaat je IP-adres niet op; waar dat nodig is tegen misbruik bewaren we alleen een onomkeerbaar versleutelde code ervan. Zoals bij vrijwel elke website houdt de webserver wel korte tijd technische logbestanden bij, met onder meer IP-adressen, voor beveiliging en het oplossen van storingen.</p>'
+            .'<h2>Contactformulier</h2>'
+            .'<p>Wat: je naam, e-mailadres, bedrijfsnaam en budgetindicatie (als je die invult) en je bericht. Waarom: om je vraag te beantwoorden en eventueel een opdracht voor te bereiden. Hoe lang: maximaal 12 maanden na het laatste contact, tenzij langer nodig is voor een overeenkomst of een wettelijke plicht.</p>'
+            .'<h2>Website-check en website-watch</h2>'
+            .'<p>Bij de gratis website-check geef je het adres van een webpagina en je e-mailadres op, en je geeft toestemming voor de check. Je kunt er ook voor kiezen dat ik contact met je opneem; dan wordt je check een aanvraag (zie hieronder). Het rapport en je e-mailadres worden na 90 dagen automatisch verwijderd.</p>'
+            .'<p>Voor de snelheidsmeting wordt het adres van de gecontroleerde pagina naar Google PageSpeed Insights gestuurd. Google krijgt alleen dat adres, niet je e-mailadres of andere gegevens.</p>'
+            .'<p>Zet je de website-watch aan, dan bewaren we je e-mailadres, het adres van je website en de laatste scores, zodat je elke maand een nieuwe check met de verschillen krijgt. Dat gebeurt pas nadat je het via de link in je e-mail hebt bevestigd; een niet-bevestigde aanmelding wordt na 7 dagen verwijderd. Elke e-mail bevat een afmeldlink. Na afmelden worden je gegevens direct verwijderd. De maandelijkse rapporten zelf worden, net als andere checks, na 90 dagen verwijderd.</p>'
+            .'<h2>Prijscalculator, aanvragen en afspraken</h2>'
+            .'<p>In de prijscalculator en het aanvraagformulier bewaren we je keuzes en antwoorden. Laat je geen contactgegevens achter, dan wordt een onafgemaakte aanvraag na 30 dagen automatisch verwijderd. Laat je wel gegevens achter (naam, e-mailadres en eventueel telefoonnummer en bedrijfsnaam), dan gebruiken we die om je aanvraag te behandelen en bewaren we ze maximaal 12 maanden na het laatste contact, tenzij langer nodig is voor een overeenkomst.</p>'
+            .'<p>Plan je een afspraak, dan bewaren we je naam, e-mailadres, eventueel je telefoonnummer, het soort gesprek en het tijdstip. Je krijgt een bevestiging en een herinnering per e-mail. Afspraken worden een jaar na de datum van het gesprek automatisch verwijderd.</p>'
+            .'<h2>Voorstellen</h2>'
+            .'<p>Krijg je een persoonlijk voorstel, dan staat dat op een privé-link met je naam, e-mailadres en eventueel bedrijfsnaam. Om te weten of het voorstel is ontvangen, zien we of en wanneer de link is geopend. Geef je akkoord, dan leggen we als bewijs vast welke naam je hebt ingevuld, het tijdstip en een versleutelde code van je IP-adres. Voorstellen bewaren we zolang dat nodig is voor de overeenkomst en de wettelijke bewaartermijn voor de administratie.</p>'
+            .'<h2>Nieuwsbrief</h2>'
+            .'<p>Meld je je aan voor de nieuwsbrief, dan bewaren we je e-mailadres en het moment waarop je de aanmelding hebt bevestigd. Je kunt je altijd afmelden via de link in elke e-mail.</p>'
+            .'<h2>Cookies en statistieken</h2>'
+            .'<p>Deze website gebruikt geen tracking- of advertentiecookies en geen externe analyseplatforms. Er worden alleen functionele cookies gebruikt, die formulieren beveiligen en je sessie bijhouden. Je keuze voor een licht of donker thema wordt alleen in je eigen browser bewaard.</p>'
+            .'<p>We tellen zelf hoe vaak een pagina wordt bekeken: per pagina en per dag een getal, zonder cookies, zonder IP-adres en zonder iets wat naar jou herleidbaar is. Stuurt je browser "Do Not Track" of "Global Privacy Control" mee, dan tellen we je bezoek niet.</p>'
+            .'<h2>Andere partijen</h2>'
+            .'<p>De website draait op een eigen VPS-server. Voor het versturen van e-mail en het hosten worden externe dienstverleners gebruikt; met partijen die namens ons persoonsgegevens verwerken sluiten we waar nodig een verwerkersovereenkomst.</p>'
+            .'<p>Op de formulieren van de website-check en de aanvragen kan Cloudflare Turnstile worden gebruikt om spam tegen te houden. Alleen op die formulieren, en alleen als het is ingeschakeld, maakt je browser dan verbinding met Cloudflare. Een live demo in een projectpagina wordt pas geladen als je daar zelf op klikt; die demo staat op de website van het betreffende project.</p>'
+            .'<h2>Beveiliging</h2>'
+            .'<p>We nemen passende technische en organisatorische maatregelen om persoonsgegevens te beschermen tegen verlies, misbruik, onbevoegde toegang en ongewenste openbaarmaking. De website wordt alleen via een versleutelde verbinding (HTTPS) aangeboden.</p>'
+            .'<h2>Jouw rechten</h2>'
+            .'<p>Je hebt het recht om je gegevens in te zien, te laten corrigeren of te laten verwijderen (voor zover wettelijk toegestaan), bezwaar te maken tegen een verwerking, je toestemming in te trekken en je gegevens over te laten dragen. Mail daarvoor naar info@jebbari.nl. Je kunt ook een klacht indienen bij de Autoriteit Persoonsgegevens.</p>'
+            .'<h2>Contact</h2>'
+            .'<p>Onholland B.V., handelend als Jebbari<br>Professor W.H. Keesomlaan 12, 1183 DJ Amstelveen, Nederland<br>E-mail: info@jebbari.nl</p>'
+            .'<p>Deze privacyverklaring kan worden aangepast als de dienstverlening of de wetgeving verandert. Laatst bijgewerkt: november 2026.</p>',
+
+            '<h2>Who is responsible?</h2>'
+            .'<p>Onholland B.V., operating under the trade name Jebbari, is responsible for the processing of personal data through this website.</p>'
+            .'<ul><li>Company name: Onholland B.V.</li><li>Trade name: Jebbari</li><li>Chamber of Commerce (KvK) number: 93721382</li><li>Registered address: Professor W.H. Keesomlaan 12, 1183 DJ Amstelveen, the Netherlands</li><li>Website: https://jebbari.nl</li></ul>'
+            .'<h2>In short</h2>'
+            .'<p>We only collect what is needed for what you ask for yourself. There are no tracking or advertising cookies, no Google Analytics, and your data is never sold. The website itself does not store your IP address; where it is needed against misuse, we only keep an irreversibly encrypted code of it. As with almost any website, the web server does keep technical log files for a short time, including IP addresses, for security and troubleshooting.</p>'
+            .'<h2>Contact form</h2>'
+            .'<p>What: your name, email address, company name and budget indication (if you fill them in) and your message. Why: to answer your question and, where relevant, prepare an assignment. How long: at most 12 months after the last contact, unless longer is needed for an agreement or a legal obligation.</p>'
+            .'<h2>Website check and website watch</h2>'
+            .'<p>For the free website check you enter the address of a web page and your email address, and you consent to the check. You can also choose to let me contact you; your check then becomes a request (see below). The report and your email address are deleted automatically after 90 days.</p>'
+            .'<p>To measure speed, the address of the checked page is sent to Google PageSpeed Insights. Google receives only that address, not your email address or any other data.</p>'
+            .'<p>If you turn on the website watch, we keep your email address, your website\'s address and the latest scores, so you receive a new check with the differences every month. This only starts after you confirm it through the link in your email; an unconfirmed sign-up is deleted after 7 days. Every email contains an unsubscribe link. When you unsubscribe, your data is deleted immediately. The monthly reports themselves are deleted after 90 days, like other checks.</p>'
+            .'<h2>Price calculator, requests and appointments</h2>'
+            .'<p>In the price calculator and the request form we keep your choices and answers. If you leave no contact details, an unfinished request is deleted automatically after 30 days. If you do (name, email address and possibly phone number and company name), we use them to handle your request and keep them for at most 12 months after the last contact, unless longer is needed for an agreement.</p>'
+            .'<p>If you book an appointment, we keep your name, email address, possibly your phone number, the type of meeting and the time. You receive a confirmation and a reminder by email. Appointments are deleted automatically one year after the date of the meeting.</p>'
+            .'<h2>Proposals</h2>'
+            .'<p>If you receive a personal proposal, it is on a private link with your name, email address and possibly your company name. To know whether it arrived, we see whether and when the link was opened. If you accept it, we record as proof the name you entered, the time and an encrypted code of your IP address. Proposals are kept as long as needed for the agreement and the statutory retention period for the accounts.</p>'
+            .'<h2>Newsletter</h2>'
+            .'<p>If you sign up for the newsletter, we keep your email address and the moment you confirmed the sign-up. You can unsubscribe at any time through the link in every email.</p>'
+            .'<h2>Cookies and statistics</h2>'
+            .'<p>This website uses no tracking or advertising cookies and no external analytics platforms. Only functional cookies are used, which protect forms and keep your session. Your choice of a light or dark theme is stored only in your own browser.</p>'
+            .'<p>We count page views ourselves: one number per page per day, without cookies, without IP addresses and without anything that can be traced back to you. If your browser sends "Do Not Track" or "Global Privacy Control", your visit is not counted.</p>'
+            .'<h2>Other parties</h2>'
+            .'<p>The website runs on our own VPS server. External service providers are used for hosting and sending email; where required we enter into a data processing agreement with parties that process personal data on our behalf.</p>'
+            .'<p>Cloudflare Turnstile may be used on the website check and request forms to stop spam. Only on those forms, and only when it is switched on, does your browser then connect to Cloudflare. A live demo on a project page only loads when you click it; that demo runs on the website of the project concerned.</p>'
+            .'<h2>Security</h2>'
+            .'<p>We take appropriate technical and organisational measures to protect personal data against loss, misuse, unauthorised access and unwanted disclosure. The website is only served over an encrypted connection (HTTPS).</p>'
+            .'<h2>Your rights</h2>'
+            .'<p>You have the right to access your data, have it corrected or deleted (where legally permitted), object to processing, withdraw your consent and have your data transferred. Email info@jebbari.nl to do so. You can also lodge a complaint with the Dutch Data Protection Authority (Autoriteit Persoonsgegevens).</p>'
+            .'<h2>Contact</h2>'
+            .'<p>Onholland B.V., trading as Jebbari<br>Professor W.H. Keesomlaan 12, 1183 DJ Amstelveen, the Netherlands<br>Email: info@jebbari.nl</p>'
+            .'<p>This privacy statement may be updated when the services or the law change. Last updated: November 2026.</p>',
+        );
+
+        $seo = $page->withDraft()->seo ?? [];
+        $seo['description'] = $this->t(
+            'Welke gegevens jebbari.nl verwerkt, waarom en hoe lang: contact, website-check, aanvragen, afspraken, voorstellen en nieuwsbrief. Geen trackingcookies.',
+            'What data jebbari.nl processes, why and for how long: contact, website check, requests, appointments, proposals and newsletter. No tracking cookies.',
+        );
+
+        $page->saveFromForm([
+            'blocks' => [$this->block('rich_text', ['label' => $this->t('', ''), 'body' => $body])],
+            'seo' => $seo,
+        ]);
+        self::$report[] = 'Privacy: volledige verklaring bijgewerkt (alle formulieren en bewaartermijnen)'.$this->state($page);
     }
 
     // --------------------------------------------------------------- services

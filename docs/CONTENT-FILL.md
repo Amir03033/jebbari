@@ -12,6 +12,7 @@ Run on the server: `php artisan content:fill`. Running it again changes nothing.
 | Over mij (and so the CV) | No skills block: the CV's "Vaardigheden" showed the process steps | Skills block: web applications and SaaS, backend, frontend, servers and security, monitoring (from the About text and the stack page) |
 | Stack | Only the site and basics | Block "Eigen producten": Filament and Livewire, Python (ServerScope agent), React/Vite/Chart.js, MariaDB/MySQL, Nginx/Plesk, AI agents (Irooni), all from the project pages |
 | Home (SEO) | Description said "Wij" and "digital studio" | First-person description |
+| Privacy | Covered only the contact form; a stray "Algemene Voorwaarden" heading; the SEO description was the About text | Full statement: contact, website check and watch (incl. Google PageSpeed), calculator, requests, appointments, proposals, newsletter, cookies, own statistics, Turnstile, demos, rights. Retention as the code applies it (90 days, 7 days, 30 days, 1 year); your facts (Onholland B.V., KvK, address, 12 months for contact) kept |
 | 7 services | Summaries/texts in "wij/we" while the site speaks as "ik" | Same content, first person, NL and EN (only where the text still says wij/we) |
 | BarberCuts | "Resultaat" heading with no text | Result from the changelog: version 1.0 live on barbercuts.nl since November 2026 |
 | ServerScope | No timeline | Four phases from the article "Van idee naar product", without dates (only real dates go there) |

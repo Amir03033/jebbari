@@ -85,6 +85,13 @@ class ContentFillTest extends TestCase
         $this->assertSame('Een eigen platform.', $scope->withDraft()->outcome['nl']);
         $this->assertCount(4, $scope->withDraft()->timeline);
 
+        // Privacy: every form is covered, the owner's facts stay, the wrong heading is gone.
+        $privacy = json_encode(Page::where('key', 'privacy')->first()->withDraft()->blocks, JSON_UNESCAPED_UNICODE);
+        foreach (['Onholland B.V.', '93721382', 'Website-check en website-watch', '90 dagen', '30 dagen', 'Google PageSpeed', 'Voorstellen', 'Nieuwsbrief', 'Do Not Track'] as $needle) {
+            $this->assertStringContainsString($needle, $privacy);
+        }
+        $this->assertStringNotContainsString('Algemene Voorwaarden', $privacy);
+
         // Publishing makes it live: the CV gets real skills.
         $about->publish();
         $this->get('/nl/cv')->assertSee('Webapplicaties en SaaS')->assertSee('Vue 3, TypeScript');
