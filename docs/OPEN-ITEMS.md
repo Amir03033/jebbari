@@ -122,3 +122,9 @@
 - [ ] Publish the terms page so proposals link to it on acceptance.
 - [ ] Fix the menu: "Scan" and "Nu" in the Dutch header link to `/en/scan` and `/en/now` (Site > Navigation).
 
+## Content fill (docs/CONTENT-FILL.md)
+
+- [ ] After deploying, run `php artisan content:fill`, then review and publish in /admin: Over mij, Stack, Home, the seven services and the projects.
+- [ ] ReviewsPilot: add the technology and, if there is one, a link.
+- [ ] Irooni: add interface screenshots to the gallery.
+
