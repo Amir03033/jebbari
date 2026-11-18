@@ -18,18 +18,30 @@
     $outcome = loc($project->outcome);
     $contact = Site::pageUrl('contact');
     $hasOverview = $summary || $brief || $meta->isNotEmpty() || $stack->isNotEmpty() || $project->url;
-    $n = 1;
-    $number = function () use (&$n) {
-        return str_pad((string) ++$n, 2, '0', STR_PAD_LEFT);
-    };
     $timeline = collect($project->timeline ?? [])->filter(fn ($i) => loc($i['title'] ?? null))->values();
     $changelog = collect($project->changelog ?? [])->filter(fn ($i) => loc($i['notes'] ?? null))->values();
-    $galleryLayout = ['md:col-span-12', 'md:col-span-6', 'md:col-span-6 md:mt-24', 'md:col-span-8 md:col-start-4', 'md:col-span-7', 'md:col-span-5 md:mt-20'];
+    $uptime = \App\Uptime\Monitor::summary($project);
+
+    // Section numbers for what is present, computed once (component props can be evaluated twice).
+    $present = array_keys(array_filter([
+        'overview' => $summary || $brief,
+        'what' => $built || $features || $objectives,
+        'interface' => $gallery->isNotEmpty(),
+        'compare' => $project->before && $project->after,
+        'demo' => (bool) $project->demo_url,
+        'progress' => $timeline->isNotEmpty() || $changelog->isNotEmpty(),
+        'outcome' => (bool) $outcome,
+    ]));
+    $no = fn (string $key) => str_pad((string) (array_search($key, $present, true) + 2), 2, '0', STR_PAD_LEFT);
 @endphp
 
 <x-layouts.app :seo="$seo" :preview="$preview">
+    {{--
+        A case study, kept calm: the name and the cover, one row of facts, the
+        story, what it does, the screens, how it went, and the result. One idea
+        per section, no decorative cards.
+    --}}
     <article>
-        {{-- 1. The opening: the name, large, then the cover at the full width of the page. --}}
         <x-page-opening number="01" :label="__('site.nav.work')" :title="$title"
             :back="Locale::url('work')" :back-label="__('site.nav.work')" :meta="collect([loc($project->kind), $project->year])->filter()->implode(' · ')" />
 
@@ -45,86 +57,98 @@
             </div>
         </div>
 
-        {{-- 2. Overview: what it is, in a large voice, with the facts beside it. --}}
-        @if ($hasOverview)
-            <section>
-                <x-section-label :number="$number()" :label="__('site.project.overview')" />
-                <div class="page section-body">
-                    <div class="grid-12 gap-y-12" data-reveal="group">
-                        <div class="col-span-12 md:col-span-8 md:col-start-5 md:order-2">
-                            @if ($summary)<p class="t-statement rise">{{ $summary }}</p>@endif
-                            @if ($brief)<p class="t-body rise mt-8 text-muted" data-delay="2">{{ $brief }}</p>@endif
+        {{-- The facts in one quiet row under the cover. --}}
+        @if ($meta->isNotEmpty() || $stack->isNotEmpty() || $project->url || $uptime)
+            <div class="page">
+                <dl class="case-facts" data-reveal="group">
+                    @foreach ($meta as [$term, $value])
+                        <div class="rise"><dt class="t-label text-muted">{{ $term }}</dt><dd>{{ $value }}</dd></div>
+                    @endforeach
+                    @if ($project->url)
+                        <div class="rise"><dt class="t-label text-muted">{{ __('site.project.visit') }}</dt><dd><x-link :href="$project->url" rel="noopener" target="_blank" arrow>{{ parse_url($project->url, PHP_URL_HOST) }}</x-link></dd></div>
+                    @endif
+                    @if ($uptime)
+                        <div class="rise">
+                            <dt class="t-label text-muted">{{ __('site.project.uptime_label') }}</dt>
+                            <dd>
+                                @if ($uptime['online'] !== null)
+                                    <span class="uptime-now" data-ok="{{ $uptime['online'] ? 'true' : 'false' }}"><span class="uptime-dot" aria-hidden="true"></span>{{ $uptime['online'] ? __('site.project.uptime_online') : __('site.project.uptime_offline') }}</span>
+                                @endif
+                                <span class="block tabular-nums">{{ __('site.project.uptime_value', ['uptime' => number_format($uptime['uptime'], 2, $locale === 'nl' ? ',' : '.', '')]) }}{{ $uptime['ms'] ? ' · '.__('site.project.uptime_ms', ['ms' => $uptime['ms']]) : '' }}</span>
+                                <span class="mt-1 block text-sm text-muted">{{ __('site.project.uptime_note', ['checks' => number_format($uptime['checks'], 0, ',', '.')]) }}</span>
+                            </dd>
                         </div>
-                        <dl class="col-span-12 grid content-start gap-6 md:col-span-4 md:order-1">
-                            @foreach ($meta as [$term, $value])
-                                <div class="rise border-t border-line pt-3"><dt class="t-label text-muted">{{ $term }}</dt><dd class="mt-1 tabular-nums">{{ $value }}</dd></div>
-                            @endforeach
-                            @if ($stack->isNotEmpty())
-                                <div class="rise border-t border-line pt-3">
-                                    <dt class="t-label text-muted">{{ __('site.project.stack') }}</dt>
-                                    <dd class="mt-3"><ul class="t-label flex flex-wrap gap-2">@foreach ($stack as $tech)<li class="chip">{{ $tech }}</li>@endforeach</ul></dd>
-                                </div>
-                            @endif
-                            @if ($uptime = \App\Uptime\Monitor::summary($project))
-                                <div class="rise border-t border-line pt-3">
-                                    <dt class="t-label text-muted">{{ __('site.project.uptime_label') }}</dt>
-                                    <dd class="mt-2 grid gap-1">
-                                        @if ($uptime['online'] !== null)
-                                            <span class="uptime-now" data-ok="{{ $uptime['online'] ? 'true' : 'false' }}"><span class="uptime-dot" aria-hidden="true"></span>{{ $uptime['online'] ? __('site.project.uptime_online') : __('site.project.uptime_offline') }}</span>
-                                        @endif
-                                        <span class="tabular-nums">{{ __('site.project.uptime_value', ['uptime' => number_format($uptime['uptime'], 2, app()->getLocale() === 'nl' ? ',' : '.', '')]) }}@if ($uptime['ms']) · {{ __('site.project.uptime_ms', ['ms' => $uptime['ms']]) }}@endif</span>
-                                        <span class="text-sm text-muted">{{ __('site.project.uptime_note', ['checks' => number_format($uptime['checks'], 0, ',', '.')]) }}</span>
-                                    </dd>
-                                </div>
-                            @endif
-                            @if ($project->url)
-                                <div class="rise border-t border-line pt-3"><dt class="t-label text-muted">{{ __('site.project.visit') }}</dt><dd class="mt-1"><x-link :href="$project->url" rel="noopener" target="_blank" arrow>{{ parse_url($project->url, PHP_URL_HOST) }}</x-link></dd></div>
-                            @endif
-                        </dl>
+                    @endif
+                    @if ($stack->isNotEmpty())
+                        <div class="case-facts-wide rise">
+                            <dt class="t-label text-muted">{{ __('site.project.stack') }}</dt>
+                            <dd><ul class="t-label mt-1 flex flex-wrap gap-2">@foreach ($stack as $tech)<li class="chip">{{ $tech }}</li>@endforeach</ul></dd>
+                        </div>
+                    @endif
+                </dl>
+            </div>
+        @endif
+
+        {{-- The story: what it is and what was asked, in one readable column. --}}
+        @if ($summary || $brief)
+            <section>
+                <x-section-label :number="$no('overview')" :label="__('site.project.overview')" />
+                <div class="page section-body">
+                    <div class="grid-12" data-reveal="group">
+                        <div class="col-span-12 md:col-span-9 lg:col-span-8 lg:col-start-5">
+                            @if ($summary)<p class="t-statement rise">{{ $summary }}</p>@endif
+                            @if ($brief)<p class="t-body rise mt-8 max-w-[62ch] text-muted" data-delay="2">{{ $brief }}</p>@endif
+                        </div>
                     </div>
                 </div>
             </section>
         @endif
 
-        {{-- 3. Objectives. --}}
-        @if ($objectives)
-            <x-statement-list :items="$objectives" :number="$number()" :label="__('site.project.objectives')" />
-        @endif
-
-        {{-- 4. Features and implementation: the story of what was built, and what it does. --}}
-        @if ($built || $features)
-            <section class="bg-paper-2">
-                <x-section-label :number="$number()" :label="__('site.project.features')" />
+        {{-- What it does: how it was built, the goals and the features, as plain lists. --}}
+        @if ($built || $features || $objectives)
+            <section>
+                <x-section-label :number="$no('what')" :label="__('site.project.what')" />
                 <div class="page section-body">
-                    <div class="grid-12 gap-y-12" data-reveal="group">
-                        @if ($built)
-                            <div class="col-span-12 md:col-span-5"><x-rich-text :html="$built" class="rise" /></div>
+                    @if ($built)
+                        <div class="grid-12 mb-14 md:mb-20" data-reveal="group">
+                            <div class="col-span-12 md:col-span-9 lg:col-span-8 lg:col-start-5"><x-rich-text :html="$built" class="rise" /></div>
+                        </div>
+                    @endif
+                    <div class="grid-12 gap-y-12">
+                        @if ($objectives)
+                            <div @class(['col-span-12', 'lg:col-span-4' => $features])>
+                                <h3 class="t-label text-muted">{{ __('site.project.objectives') }}</h3>
+                                <ul class="case-list case-goals mt-4" data-reveal="group">
+                                    @foreach ($objectives as $goal)<li class="rise">{{ $goal }}</li>@endforeach
+                                </ul>
+                            </div>
                         @endif
                         @if ($features)
-                            <ol @class(['col-span-12 grid gap-4 sm:grid-cols-2', 'md:col-span-7' => $built, 'md:col-span-12 lg:grid-cols-3' => ! $built])>
-                                @foreach ($features as $feature)
-                                    <li class="feature-card spot rise" data-delay="{{ min($loop->index, 4) }}">
-                                        <span class="t-label text-muted">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
-                                        <p class="t-h3 mt-6">{{ $feature }}</p>
-                                    </li>
-                                @endforeach
-                            </ol>
+                            <div @class(['col-span-12', 'lg:col-span-7 lg:col-start-6' => $objectives])>
+                                <h3 class="t-label text-muted">{{ __('site.project.features') }}</h3>
+                                <ol class="case-list case-features mt-4" data-reveal="group">
+                                    @foreach ($features as $feature)
+                                        <li class="rise"><span class="t-label text-muted">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span><span>{{ $feature }}</span></li>
+                                    @endforeach
+                                </ol>
+                            </div>
                         @endif
                     </div>
                 </div>
             </section>
         @endif
 
-        {{-- 5. Interface: the screenshots, composed rather than stacked. --}}
+        {{-- The screens: the first wide, the rest two by two. --}}
         @if ($gallery->isNotEmpty())
             <section aria-label="{{ __('site.project.interface') }}">
-                <x-section-label :number="$number()" :label="__('site.project.interface')" :meta="'('.$gallery->count().')'" />
+                <x-section-label :number="$no('interface')" :label="__('site.project.interface')" :meta="'('.$gallery->count().')'" />
                 <div class="page section-body">
-                    <div class="grid-12 gap-y-12 md:gap-y-20">
+                    <div class="grid-12 gap-y-10 md:gap-x-10 md:gap-y-14">
                         @foreach ($gallery as $item)
-                            <figure @class(['col-span-12', $galleryLayout[$loop->index % count($galleryLayout)]]) data-reveal="group">
-                                <div class="plate-frame" data-ratio="{{ in_array($loop->index % count($galleryLayout), [5], true) ? 'tall' : 'wide' }}">
-                                    <div class="plate-clip"><div class="plate-reveal"><x-picture :asset="$item['asset']" sizes="(min-width: 1360px) 1264px, 100vw" /></div></div>
+                            @php($wide = $loop->first || ($loop->last && $loop->count % 2 === 0))
+                            <figure @class(['col-span-12', 'md:col-span-6' => ! $wide]) data-reveal="group">
+                                <div class="plate-frame" data-ratio="{{ $wide ? 'wide' : 'standard' }}">
+                                    <div class="plate-clip"><div class="plate-reveal"><x-picture :asset="$item['asset']" :sizes="$wide ? '(min-width: 1360px) 1264px, 100vw' : '(min-width: 768px) 50vw, 100vw'" /></div></div>
                                 </div>
                                 @if ($item['caption'])<figcaption class="t-label mt-4 text-muted">{{ $item['caption'] }}</figcaption>@endif
                             </figure>
@@ -137,7 +161,7 @@
         {{-- Before and after: one frame, a handle to drag between the two. --}}
         @if ($project->before && $project->after)
             <section>
-                <x-section-label :number="$number()" :label="__('site.project.compare')" />
+                <x-section-label :number="$no('compare')" :label="__('site.project.compare')" />
                 <div class="page section-body" data-reveal="group">
                     <div class="compare plate-frame rise" data-ratio="wide" data-compare>
                         <div class="compare-layer"><x-picture :asset="$project->after" sizes="(min-width: 1360px) 1264px, 100vw" /></div>
@@ -154,7 +178,7 @@
         {{-- Live demo: the real product in a frame, loaded only when asked for. --}}
         @if ($project->demo_url)
             <section>
-                <x-section-label :number="$number()" :label="__('site.project.demo')" />
+                <x-section-label :number="$no('demo')" :label="__('site.project.demo')" />
                 <div class="page section-body" data-reveal="group">
                     <div class="demo rise" data-demo="{{ $project->demo_url }}" data-demo-title="{{ $title }}">
                         <div class="demo-bar t-label text-muted">
@@ -172,87 +196,58 @@
             </section>
         @endif
 
-        {{-- Timeline: the milestones, in order. --}}
-        @if ($timeline->isNotEmpty())
+        {{-- How it went: the milestones, with the release notes folded away. --}}
+        @if ($timeline->isNotEmpty() || $changelog->isNotEmpty())
             <section>
-                <x-section-label :number="$number()" :label="__('site.project.timeline')" :meta="'('.$timeline->count().')'" />
+                <x-section-label :number="$no('progress')" :label="__('site.project.progress')" />
                 <div class="page section-body">
-                    <ol class="timeline" data-process>
-                        <span class="process-track" aria-hidden="true"><span class="process-fill"></span></span>
-                        @foreach ($timeline as $item)
-                            <li class="timeline-item process-step" data-step data-reveal="group">
-                                <span class="timeline-dot" aria-hidden="true"></span>
-                                <p class="t-label rise">{{ $item['date'] ?? '' }}</p>
-                                <h3 class="t-h3 rise mt-2" data-delay="1">{{ loc($item['title']) }}</h3>
-                                @if (loc($item['text'] ?? null))
-                                    <p class="rise mt-2 max-w-[56ch]" data-delay="2">{{ loc($item['text']) }}</p>
-                                @endif
-                            </li>
-                        @endforeach
-                    </ol>
+                    @if ($timeline->isNotEmpty())
+                        <ol class="case-steps" data-reveal="group">
+                            @foreach ($timeline as $item)
+                                <li class="rise" data-delay="{{ min($loop->index, 4) }}">
+                                    <span class="t-label text-muted">{{ ($item['date'] ?? '') ?: str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                                    <div>
+                                        <h3 class="case-step-title">{{ loc($item['title']) }}</h3>
+                                        @if (loc($item['text'] ?? null))<p class="mt-1 max-w-[56ch] text-muted">{{ loc($item['text']) }}</p>@endif
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ol>
+                    @endif
+                    @if ($changelog->isNotEmpty())
+                        <details @class(['case-releases', 'mt-10' => $timeline->isNotEmpty()])>
+                            <summary class="t-label">{{ __('site.project.releases', ['count' => $changelog->count()]) }}</summary>
+                            <dl class="mt-6">
+                                @foreach ($changelog as $release)
+                                    <div class="case-release">
+                                        <dt><span class="font-medium">{{ $release['version'] ?? '' }}</span> <span class="t-label text-muted">{{ $release['date'] ?? '' }}</span></dt>
+                                        <dd><ul class="changelog-notes">@foreach (PackagePricing::lines(loc($release['notes'])) as $note)<li>{{ $note }}</li>@endforeach</ul></dd>
+                                    </div>
+                                @endforeach
+                            </dl>
+                        </details>
+                    @endif
                 </div>
             </section>
         @endif
 
-        {{-- Changelog: release notes, newest first. --}}
-        @if ($changelog->isNotEmpty())
-            <section class="bg-paper-2">
-                <x-section-label :number="$number()" :label="__('site.project.changelog')" :meta="'('.$changelog->count().')'" />
-                <div class="page section-body">
-                    <dl class="def-list">
-                        @foreach ($changelog as $release)
-                            <div class="def-row" data-reveal="group">
-                                <span class="rule" aria-hidden="true"></span>
-                                <dt class="rise"><span class="t-h3">{{ $release['version'] ?? '' }}</span><span class="t-label mt-2 block text-muted">{{ $release['date'] ?? '' }}</span></dt>
-                                <dd class="rise" data-delay="1">
-                                    <ul class="changelog-notes">
-                                        @foreach (PackagePricing::lines(loc($release['notes'])) as $note)<li>{{ $note }}</li>@endforeach
-                                    </ul>
-                                </dd>
-                            </div>
-                        @endforeach
-                    </dl>
-                </div>
-            </section>
-        @endif
-
-        {{-- 6. Outcome: only when the owner wrote one. --}}
+        {{-- The result: one honest sentence, given room. --}}
         @if ($outcome)
             <section class="section-tight">
                 <div class="outcome panel on-ink">
                     <span class="cta-glow" aria-hidden="true"></span>
-                    <div class="page-wide relative py-20 md:py-36" data-reveal="group">
-                        <p class="t-label label-row"><span class="text-muted">{{ $number() }}</span> / {{ __('site.project.outcome') }}</p>
-                        <p class="t-display mt-8 md:mt-12 md:max-w-[92%]"><x-lines :lines="[$outcome]" /></p>
+                    <div class="page-wide relative py-16 md:py-24" data-reveal="group">
+                        <p class="t-label label-row"><span class="text-muted">{{ $no('outcome') }}</span> / {{ __('site.project.outcome') }}</p>
+                        <p class="t-h2 mt-6 md:mt-8 md:max-w-[28ch]"><x-lines :lines="[$outcome]" /></p>
                     </div>
                 </div>
             </section>
         @endif
 
         <div class="page pb-16 md:pb-24" data-reveal="up"><x-share :url="$seo['canonical']" :title="$title" /></div>
-
-        {{-- 7. Related work. --}}
-        @if ($related->isNotEmpty())
-            <section>
-                <x-section-label :number="$number()" :label="__('site.project.related')" />
-                <div class="page section-body">
-                    <div class="grid-12 gap-y-16">
-                        @foreach ($related as $item)
-                            <x-plate
-                                class="col-span-12 md:col-span-6"
-                                :href="Locale::route('work.show', ['slug' => $item->slugFor($locale)])"
-                                :number="str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT)"
-                                :title="loc($item->title)" :kind="loc($item->kind)" :year="$item->year"
-                                :stack="collect($item->stack)->take(2)->implode(' · ')" :summary="loc($item->summary)" :asset="$item->cover"
-                            />
-                        @endforeach
-                    </div>
-                </div>
-            </section>
-        @endif
     </article>
 
-    {{-- 8. Closing navigation: the next project, as large as the page is wide. --}}
+    {{-- The next project closes the page; it replaces a separate list of related work. --}}
     @if ($next)
         <div class="cta-wrap">
             <a href="{{ Locale::route('work.show', ['slug' => $next->slugFor($locale)]) }}" class="next-panel panel on-ink" data-cursor="{{ __('site.cta.view_case') }}" data-scroll="enter">

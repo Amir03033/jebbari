@@ -52,6 +52,9 @@ return [
         'mail_intro' => 'Bevestig je aanmelding voor de nieuwsbrief door deze link te openen:',
         'mail_ignore' => 'Heb je je niet aangemeld? Dan hoef je niets te doen; zonder bevestiging ontvang je niets.',
         'mail_unsubscribe' => 'Afmelden kan altijd via:',
+        'mail_read' => 'Lees het artikel',
+        'mail_footer' => 'Je krijgt deze e-mail omdat je je hebt aangemeld voor de nieuwsbrief van jebbari.nl.',
+        'mail_stop' => 'Afmelden',
     ],
     'cv' => [
         'print' => 'Opslaan als pdf',
@@ -140,6 +143,9 @@ return [
     'work' => ['all' => 'Al het werk', 'filter' => 'Filter op technologie', 'filter_empty' => 'Geen projecten met deze technologie.'],
 
     'project' => [
+        'what' => 'Wat het doet',
+        'progress' => 'Verloop',
+        'releases' => 'Versies (:count)',
         'timeline' => 'Tijdlijn',
         'changelog' => 'Changelog',
         'demo' => 'Live demo',

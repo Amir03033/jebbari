@@ -16,6 +16,7 @@ Read `docs/BRIEF.md` in full before writing any code. It is the design and build
 - Lead funnel (`/nl/prijs`, `/nl/aanvraag`, `/nl/afspraak`: price calculator, request wizard, appointments, one `leads` table): built and tested, awaiting owner review. See `docs/LEADS.md`. Never seed or invent prices.
 - Phase 7 (admin offline switch, proposals, website watch, live uptime): built and tested, awaiting owner review. See `docs/PHASE-7.md`.
 - Content fill from the live site (`php artisan content:fill`: skills, stack, first-person services, project results, ServerScope timeline, as unpublished changes): see `docs/CONTENT-FILL.md`.
+- Phase 8 (12-month retention, newsletter sending, admin dashboard, calmer case study): built and tested, awaiting owner review. See `docs/PHASE-8.md`.
 - Deploy with `./deploy.sh` (guide: `docs/DEPLOY.md`). Do not deploy or open a PR without the owner's approval.
 
 ## Stack

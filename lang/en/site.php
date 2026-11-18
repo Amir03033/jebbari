@@ -52,6 +52,9 @@ return [
         'mail_intro' => 'Confirm your newsletter subscription by opening this link:',
         'mail_ignore' => 'Did not sign up? Then you do not have to do anything; without confirmation you receive nothing.',
         'mail_unsubscribe' => 'You can always unsubscribe here:',
+        'mail_read' => 'Read the article',
+        'mail_footer' => 'You are receiving this email because you signed up for the jebbari.nl newsletter.',
+        'mail_stop' => 'Unsubscribe',
     ],
     'cv' => [
         'print' => 'Save as PDF',
@@ -140,6 +143,9 @@ return [
     'work' => ['all' => 'All work', 'filter' => 'Filter by technology', 'filter_empty' => 'No projects with this technology.'],
 
     'project' => [
+        'what' => 'What it does',
+        'progress' => 'Progress',
+        'releases' => 'Releases (:count)',
         'timeline' => 'Timeline',
         'changelog' => 'Changelog',
         'demo' => 'Live demo',

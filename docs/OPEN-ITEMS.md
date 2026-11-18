@@ -129,3 +129,8 @@
 - [ ] ReviewsPilot: add the technology and, if there is one, a link.
 - [ ] Irooni: add interface screenshots to the gallery.
 
+## Added in Phase 8 (docs/PHASE-8.md)
+
+- [ ] After deploying: look at the new dashboard and a case study page.
+- [ ] Send yourself a test newsletter (Inbox > Nieuwsbrieven > Testmail naar mij) to check mail delivery.
+

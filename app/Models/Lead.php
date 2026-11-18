@@ -55,10 +55,28 @@ class Lead extends Model
         return $query->whereNotNull('email');
     }
 
-    /** Unfinished, anonymous drafts go after config('leads.draft_days'). */
+    /**
+     * Unfinished, anonymous drafts go after config('leads.draft_days'). Leads with
+     * contact details go config('leads.contact_months') after the last contact,
+     * as the privacy statement promises, unless they led to an agreement (won, or
+     * an accepted proposal) or have an appointment that is still recent.
+     */
     public function prunable(): Builder
     {
-        return static::query()->whereNull('email')->where('updated_at', '<', now()->subDays(config('leads.draft_days')));
+        $cutoff = now()->subMonths(config('leads.contact_months'));
+
+        return static::query()->where(fn (Builder $q) => $q
+            ->where(fn (Builder $draft) => $draft->whereNull('email')->where('updated_at', '<', now()->subDays(config('leads.draft_days'))))
+            ->orWhere(fn (Builder $old) => $old->whereNotNull('email')
+                ->where('updated_at', '<', $cutoff)
+                ->where('status', '!=', 'won')
+                ->whereDoesntHave('appointments', fn (Builder $a) => $a->where('ends_at', '>=', $cutoff))
+                ->whereDoesntHave('proposals', fn (Builder $p) => $p->whereNotNull('accepted_at'))));
+    }
+
+    public function proposals(): HasMany
+    {
+        return $this->hasMany(Proposal::class);
     }
 
     public function choice(string $path, mixed $default = null): mixed

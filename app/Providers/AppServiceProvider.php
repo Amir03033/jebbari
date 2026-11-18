@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Jobs\CheckUptime;
+use App\Jobs\PruneOldRecords;
 use App\Jobs\RunDueWatches;
 use App\Listeners\SanitizeUploadedImage;
 use App\Models\Appointment;
@@ -13,6 +14,7 @@ use App\Models\Inquiry;
 use App\Models\Lead;
 use App\Models\MediaAsset;
 use App\Models\NavigationItem;
+use App\Models\Newsletter;
 use App\Models\Page;
 use App\Models\Post;
 use App\Models\PostCategory;
@@ -67,6 +69,7 @@ class AppServiceProvider extends ServiceProvider
             Scan::class => OwnerOnlyPolicy::class,
             ScanWatch::class => OwnerOnlyPolicy::class,
             Proposal::class => OwnerOnlyPolicy::class,
+            Newsletter::class => OwnerOnlyPolicy::class,
             Lead::class => InquiryPolicy::class,
             Appointment::class => InquiryPolicy::class,
             PriceItem::class => OwnerOnlyPolicy::class,
@@ -87,6 +90,11 @@ class AppServiceProvider extends ServiceProvider
 
             if (Cache::add('scan-watch.tick', true, 3600)) {
                 RunDueWatches::dispatch();
+            }
+
+            // Retention (privacy statement): once a day.
+            if (Cache::add('prune.tick', true, 86400)) {
+                PruneOldRecords::dispatch();
             }
 
             // Live uptime: at most every 10 minutes (every 5 with the scheduler).

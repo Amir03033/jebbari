@@ -158,7 +158,8 @@ class CalculatorAndWizardTest extends TestCase
         $draft = Lead::create(['source' => 'wizard']);
         $draft->forceFill(['updated_at' => now()->subDays(31)])->saveQuietly();
         $real = Lead::create(['source' => 'wizard', 'email' => 'a@example.com']);
-        $real->forceFill(['updated_at' => now()->subDays(400)])->saveQuietly();
+        // Within the 12 months of the privacy statement (RetentionTest covers what happens after).
+        $real->forceFill(['updated_at' => now()->subDays(300)])->saveQuietly();
 
         $this->artisan('model:prune', ['--model' => [Lead::class]])->assertSuccessful();
 

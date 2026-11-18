@@ -70,14 +70,30 @@ class DetailPagesTest extends TestCase
         }
     }
 
-    public function test_project_pages_list_related_work_by_shared_technology(): void
+    public function test_a_case_study_ends_with_the_next_project_only_never_a_draft(): void
     {
-        $main = $this->makeProject(['title' => ['nl' => 'Hoofd', 'en' => 'Main'], 'stack' => ['Laravel', 'Vue']]);
-        $this->makeProject(['title' => ['nl' => 'Verwant', 'en' => 'Related'], 'stack' => ['Laravel']]);
+        $main = $this->makeProject(['title' => ['nl' => 'Hoofd', 'en' => 'Main'], 'stack' => ['Laravel', 'Vue'], 'published_at' => now()->subDay()]);
+        $this->makeProject(['title' => ['nl' => 'Verwant', 'en' => 'Related'], 'stack' => ['Laravel'], 'published_at' => now()->subDays(2)]);
         $this->makeProject(['title' => ['nl' => 'Concept', 'en' => 'Draft'], 'stack' => ['Laravel']], publish: false);
 
-        $this->get("/nl/werk/{$main->slug_nl}")->assertSee('Gerelateerd werk')->assertSee('Verwant')->assertDontSee('Concept')
-            ->assertDontSee('href="'.url("/nl/werk/{$main->slug_nl}").'" class="plate', false);
+        // The calm layout has one closing "next project" panel instead of a separate related list.
+        $this->get("/nl/werk/{$main->slug_nl}")->assertDontSee('Gerelateerd werk')->assertSee('Verwant')->assertDontSee('Concept');
+    }
+
+    public function test_case_study_sections_are_numbered_without_gaps(): void
+    {
+        $main = $this->makeProject([
+            'title' => ['nl' => 'Hoofd', 'en' => 'Main'],
+            'summary' => ['nl' => 'Kort.', 'en' => 'Short.'],
+            'features' => ['nl' => 'Een functie', 'en' => 'A feature'],
+            'timeline' => [['date' => 'maart 2026', 'title' => ['nl' => 'Start', 'en' => 'Start'], 'text' => ['nl' => '', 'en' => '']]],
+            'outcome' => ['nl' => 'Het werkt.', 'en' => 'It works.'],
+        ]);
+
+        $html = $this->get("/nl/werk/{$main->slug_nl}")->getContent();
+        preg_match_all('/label-row[^>]*>\s*(?:<span[^>]*>)?(\d{2})/', $html, $m);
+
+        $this->assertSame(['02', '03', '04', '05'], array_slice($m[1], 0, 4));
     }
 
     public function test_the_work_index_lists_published_projects_and_has_a_fallback_when_empty(): void

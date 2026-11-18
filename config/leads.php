@@ -14,5 +14,6 @@ return [
 
     // Housekeeping.
     'draft_days' => 30,             // unfinished requests without contact details are deleted after this
-    'appointment_days' => 365,      // appointments are deleted this long after they ended
+    'appointment_days' => 365,
+    'contact_months' => 12,         // leads and contact messages with contact details go this long after the last contact (privacy statement)      // appointments are deleted this long after they ended
 ];
