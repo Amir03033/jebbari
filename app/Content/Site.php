@@ -31,6 +31,40 @@ class Site
     // ------------------------------------------------------------ visibility
 
     /** @param  Collection<int, Model>  $records */
+    /** @var array<string, mixed> lookups already done in this request */
+    private static array $memo = [];
+
+    private static ?string $memoScope = null;
+
+    /**
+     * Remembers a lookup for the rest of this request, so a page that asks for
+     * the same content twenty times (menus, links, blocks) queries it once.
+     * Scoped to the current request and the content version, so a publish or
+     * the next request always sees fresh data.
+     */
+    private static function memo(string $key, \Closure $resolve): mixed
+    {
+        $scope = spl_object_id(request()).'.'.ContentCache::version().'.'.app()->getLocale();
+
+        if (self::$memoScope !== $scope) {
+            self::$memo = [];
+            self::$memoScope = $scope;
+        }
+
+        if (! array_key_exists($key, self::$memo)) {
+            self::$memo[$key] = $resolve();
+        }
+
+        return self::$memo[$key];
+    }
+
+    /** Forget the remembered lookups (after content changes within the same request). */
+    public static function forget(): void
+    {
+        self::$memo = [];
+        self::$memoScope = null;
+    }
+
     public static function visible(Collection $records, ?string $locale = null): Collection
     {
         $locale ??= app()->getLocale();
@@ -52,9 +86,20 @@ class Site
 
     public static function page(string $key): ?Page
     {
-        $page = Page::query()->published()->where('key', $key)->first();
+        return self::memo("page.$key", function () use ($key) {
+            $page = self::publishedPage($key);
 
-        return $page && $page->isTranslatedIn(app()->getLocale()) ? $page : null;
+            return $page && $page->isTranslatedIn(app()->getLocale()) ? $page : null;
+        });
+    }
+
+    /** The published page with this key, in any language (remembered for the request). */
+    private static function publishedPage(string $key): ?Page
+    {
+        // All published system pages in one query: menus and links ask for many of them.
+        $pages = self::memo('published-pages', fn () => Page::query()->published()->whereNotNull('key')->get()->keyBy('key'));
+
+        return $pages->get($key);
     }
 
     public static function legalPage(string $slug, ?string $locale = null): ?Page
@@ -69,6 +114,11 @@ class Site
 
     /** @return Collection<int, Service> */
     public static function services(?array $ids = null): Collection
+    {
+        return self::memo('services.'.json_encode($ids), fn () => self::loadServices($ids));
+    }
+
+    private static function loadServices(?array $ids): Collection
     {
         $query = Service::query()->published()->with('image.media')->orderBy('sort')->orderBy('id');
 
@@ -88,6 +138,11 @@ class Site
     }
 
     public static function projects(bool $featured = false, ?array $ids = null): Collection
+    {
+        return self::memo('projects.'.(int) $featured.'.'.json_encode($ids), fn () => self::loadProjects($featured, $ids));
+    }
+
+    private static function loadProjects(bool $featured, ?array $ids): Collection
     {
         $query = Project::query()->published()->with('cover.media');
 
@@ -197,7 +252,7 @@ class Site
             return Locale::url($key, $locale);
         }
 
-        $slug = Page::query()->published()->where('kind', 'legal')->where('key', $key)->value("slug_{$locale}");
+        $slug = self::memo("legal-slug.$key.$locale", fn () => Page::query()->published()->where('kind', 'legal')->where('key', $key)->value("slug_{$locale}"));
 
         return $slug ? Locale::route('legal', ['slug' => $slug], $locale) : null;
     }
@@ -210,12 +265,17 @@ class Site
      */
     public static function navigation(string $location): Collection
     {
+        return self::memo("nav.$location", fn () => self::loadNavigation($location));
+    }
+
+    private static function loadNavigation(string $location): Collection
+    {
         $locale = app()->getLocale();
 
         return NavigationItem::query()->where('location', $location)->where('is_visible', true)->orderBy('sort')->get()
             ->map(function (NavigationItem $item) use ($locale) {
                 if ($item->page_key) {
-                    $page = Page::query()->published()->where('key', $item->page_key)->first();
+                    $page = self::publishedPage($item->page_key);
 
                     if (! $page || ! $page->isTranslatedIn($locale)) {
                         return null;

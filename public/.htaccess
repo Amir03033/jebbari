@@ -23,3 +23,25 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# ---------------------------------------------------------------- browser caching
+# Built files carry a content hash in their name (app-XXXX.css), so a new version
+# is a new URL: browsers may keep them for a year. Uploaded images change rarely:
+# a month. The other fixed files (favicon, error-page CSS, admin CSS): a day.
+# Pages themselves are never cached here; Laravel decides for those.
+<IfModule mod_headers.c>
+    <If "%{REQUEST_URI} =~ m#^/build/assets/#">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </If>
+    <ElseIf "%{REQUEST_URI} =~ m#^/storage/#">
+        Header set Cache-Control "public, max-age=2592000"
+    </ElseIf>
+    <ElseIf "%{REQUEST_URI} =~ m#\.(?:css|js|svg|png|ico|webmanifest)$#">
+        Header set Cache-Control "public, max-age=86400"
+    </ElseIf>
+</IfModule>
+
+# Compress text files on the way out (if the server does not already).
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css application/javascript text/javascript application/json image/svg+xml text/plain text/xml application/xml
+</IfModule>

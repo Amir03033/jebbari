@@ -6,6 +6,8 @@ import { initScanStatus } from './scan';
  * Header: clear at the top of the page, frosted once it moves, hidden while
  * reading down and back on the way up. Also owns the full-screen mobile menu.
  */
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
 Alpine.data('siteHeader', () => ({
     open: false,
     hidden: false,
@@ -22,7 +24,7 @@ Alpine.data('siteHeader', () => ({
 
         this.scrolled = y > 8;
 
-        if (this.open || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        if (this.open || reducedMotion.matches) {
             return;
         }
 
