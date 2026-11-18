@@ -3,36 +3,51 @@
 @php
     $steps = collect($data['steps'] ?? [])->filter(fn ($s) => loc($s['title'] ?? null))->values();
     $label = loc($data['label'] ?? null);
+    $pad = fn (int $n) => str_pad((string) $n, 2, '0', STR_PAD_LEFT);
 @endphp
 
 {{--
-    A sticky stage: the numeral on the left rolls from 01 to 04 as each step passes,
-    a hairline fills beside the steps. The active step comes from a passive scroll
+    How I work. On a laptop the left column stays in view: a numeral that rolls
+    from 01 to 04 and an index of the steps with a line that fills, so you
+    always know where you are. The steps are cards on the right that settle
+    under the header one after another. On phones, and with reduced motion,
+    the cards are a plain list. The active step comes from a passive scroll
     handler (motion.js); nothing takes over scrolling.
 --}}
 <section class="process" data-process>
     <x-section-label :number="$number" :label="loc($data['heading'] ?? null) ?: $label" :meta="'('.$steps->count().')'" />
     <div class="page section-body">
-        <div class="grid-12 gap-y-12">
-            <div class="col-span-12 md:col-span-5">
-                <div class="md:sticky md:top-28" data-reveal="group">
-                    <div class="process-numerals" aria-hidden="true">
-                        @foreach ($steps as $step)<span class="process-num">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>@endforeach
+        <div class="grid-12 gap-y-8">
+            {{-- A visual summary of the steps that follow; the cards carry the same words. --}}
+            <div class="hidden md:col-span-5 md:block" aria-hidden="true">
+                <div class="process-aside" data-reveal="group">
+                    <div class="process-numerals rise">
+                        @foreach ($steps as $step)<span class="process-num">{{ $pad($loop->iteration) }}</span>@endforeach
+                    </div>
+                    <div class="process-index rise" data-delay="1">
+                        <span class="process-track"><span class="process-fill"></span></span>
+                        <ol>
+                            @foreach ($steps as $step)
+                                <li class="process-index-item"><span class="t-label">{{ $pad($loop->iteration) }}</span>{{ loc($step['title']) }}</li>
+                            @endforeach
+                        </ol>
                     </div>
                 </div>
             </div>
-            <div class="relative col-span-12 pl-8 md:col-span-6 md:col-start-7 md:pl-14">
-                <span class="process-track" aria-hidden="true"><span class="process-fill"></span></span>
+
+            <ol class="process-cards col-span-12 md:col-span-7">
                 @foreach ($steps as $step)
-                    <div class="process-step py-10 md:py-20" data-step>
-                        <p class="t-label">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</p>
-                        <h3 class="t-h2 mt-4">{{ loc($step['title']) }}</h3>
-                        @if (loc($step['description'] ?? null))
-                            <p class="t-statement mt-5 max-w-[26ch]">{{ loc($step['description']) }}</p>
-                        @endif
-                    </div>
+                    <li class="process-card-wrap" data-step>
+                        <div class="process-card" data-reveal="group">
+                            <p class="t-label rise text-muted">{{ $pad($loop->iteration) }} / {{ $pad($steps->count()) }}</p>
+                            <h3 class="t-h2 rise mt-6" data-delay="1">{{ loc($step['title']) }}</h3>
+                            @if (loc($step['description'] ?? null))
+                                <p class="t-statement rise mt-4 max-w-[30ch] text-muted" data-delay="2">{{ loc($step['description']) }}</p>
+                            @endif
+                        </div>
+                    </li>
                 @endforeach
-            </div>
+            </ol>
         </div>
     </div>
 </section>

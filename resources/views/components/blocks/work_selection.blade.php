@@ -5,7 +5,9 @@
     use App\Support\Locale;
 
     $mode = $data['mode'] ?? 'featured';
-    $projects = Site::projects($mode === 'featured', $mode === 'selected' ? ($data['project_ids'] ?? []) : null)->take(max(1, min(4, (int) ($data['limit'] ?? 4))));
+    $limit = max(1, min(4, (int) ($data['limit'] ?? 4)));
+    // Featured projects lead; the newest other projects fill the remaining places.
+    $projects = $mode === 'selected' ? Site::projects(false, $data['project_ids'] ?? [])->take($limit) : Site::highlights($limit);
     $workIndex = Site::pageUrl('work');
     $locale = app()->getLocale();
     $count = $projects->count();

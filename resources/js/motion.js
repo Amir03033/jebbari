@@ -154,8 +154,9 @@ function initField() {
 
     const paint = () => {
         frame = 0;
-        field.style.setProperty('--gx', `${x.toFixed(1)}px`);
-        field.style.setProperty('--gy', `${y.toFixed(1)}px`);
+        // Written on the stage, so the light and the project showcase both read it.
+        stage.style.setProperty('--gx', `${x.toFixed(1)}px`);
+        stage.style.setProperty('--gy', `${y.toFixed(1)}px`);
     };
 
     stage.addEventListener('pointermove', (event) => {
@@ -841,6 +842,15 @@ function initTheme() {
             return;
         }
 
+        // The circle grows from the centre of the switch to the farthest corner.
+        const box = event.target.closest('[data-theme-toggle]').getBoundingClientRect();
+        const x = box.left + box.width / 2;
+        const y = box.top + box.height / 2;
+        const r = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+
+        root.style.setProperty('--tx', `${x.toFixed(0)}px`);
+        root.style.setProperty('--ty', `${y.toFixed(0)}px`);
+        root.style.setProperty('--tr', `${r.toFixed(0)}px`);
         root.classList.add('theme-switching');
         document.startViewTransition(apply).finished.finally(() => root.classList.remove('theme-switching'));
     });

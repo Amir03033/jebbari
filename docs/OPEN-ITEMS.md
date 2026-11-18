@@ -90,3 +90,10 @@
 - [x] One address everywhere: Professor W.H. Keesomlaan 12, 1183 DJ Amstelveen, The Netherlands (`config/site.php` > address): footer, Organization `address` and `location` in JSON-LD, llms.txt, privacy draft. The CMS address field is gone.
 - [x] No VAT (BTW) number anywhere: removed from the footer, JSON-LD (`vatID`) and the CMS company settings.
 - [ ] Decide whether the copy "gevestigd in Amsterdam en Zwolle / based in Amsterdam and Zwolle" (bio, hero label, meeting line) should change now that the address is in Amstelveen.
+
+## Added in Phase 6 (UI upgrades)
+
+- [ ] Review the UI upgrades (`docs/UI-UPGRADES.md`, screenshots in `docs/screenshots/phase-6/`).
+- [ ] The homepage now fills the work section with the newest projects after the featured ones (up to 4). Switch the block to "Alleen mijn selectie" if you prefer a fixed choice.
+- [ ] Check the floating header, the circular theme switch and the step cards on iPhone Safari and a Mac.
+

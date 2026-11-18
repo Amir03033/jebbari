@@ -102,6 +102,18 @@ class Site
         return self::visible($query->orderBy('sort')->orderByDesc('year')->orderBy('id')->get());
     }
 
+    /**
+     * Featured projects first (in their featured order), then the other
+     * published projects, up to $limit. Used where the homepage should show a
+     * fuller picture of the work than the featured list alone.
+     *
+     * @return Collection<int, Project>
+     */
+    public static function highlights(int $limit): Collection
+    {
+        return self::projects(true)->concat(self::projects())->unique('id')->take($limit)->values();
+    }
+
     /** @return Collection<int, Testimonial> */
     public static function testimonials(bool $featured = true, ?array $ids = null): Collection
     {
