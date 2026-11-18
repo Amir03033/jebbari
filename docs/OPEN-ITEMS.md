@@ -97,3 +97,18 @@
 - [ ] The homepage now fills the work section with the newest projects after the featured ones (up to 4). Switch the block to "Alleen mijn selectie" if you prefer a fixed choice.
 - [ ] Check the floating header, the circular theme switch and the step cards on iPhone Safari and a Mac.
 
+## Added with the website check (docs/SCAN.md)
+
+- [ ] Privacy statement (CMS): add a paragraph on the website check (purpose, data, 90-day retention, Google PageSpeed).
+- [ ] Menu link to `/nl/scan` and `/en/scan` (Site > Navigation in the admin).
+- [ ] `PAGESPEED_API_KEY` in `.env` (without it Google's quota is very low and speed shows "not measured").
+- [ ] Turnstile: keys in `.env` if wanted. It adds the site's only third-party request, on the scan form only.
+- [ ] Run `php artisan migrate` on deploy (new `scans` table).
+
+## Added with the lead funnel (docs/LEADS.md)
+
+- [ ] Prices per calculator line (Admin > Prijzen & afspraken > Prijzen); the calculator stays "coming soon" until a project type has prices and is on.
+- [ ] Opening hours for appointments (Beschikbaarheid) and blocked days.
+- [ ] In-person meetings in Zwolle/Amsterdam: seeded off; switch on with a real address only if wanted.
+- [ ] Privacy statement: calculator, request and appointment data and retention.
+- [ ] Menu links and buttons to `/nl/prijs` and `/nl/afspraak`.

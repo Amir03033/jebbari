@@ -66,7 +66,7 @@
                             <x-field name="email" type="email" :label="__('site.contact.email')" required autocomplete="email" maxlength="190" :value="old('email')" :error="$errors->first('email')" />
                             <x-field name="company" :label="__('site.contact.company')" autocomplete="organization" maxlength="160" :value="old('company')" :error="$errors->first('company')" />
                             <x-field name="budget" type="select" :label="__('site.contact.budget')" :options="$budgets" :value="old('budget')" :error="$errors->first('budget')" />
-                            <x-field name="message" type="textarea" :label="__('site.contact.message')" required maxlength="5000" :value="old('message')" :error="$errors->first('message')" />
+                            <x-field name="message" type="textarea" :label="__('site.contact.message')" required maxlength="5000" :value="old('message', \App\Scan\Report::contactMessage(request()->query('scan')))" :error="$errors->first('message')" />
 
                             <div><x-button type="submit">{{ __('site.contact.send') }}<span class="arrow" aria-hidden="true">→</span></x-button></div>
                             <p class="text-sm text-muted">{{ __('site.contact.privacy_note') }}

@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Content\Site;
+use App\Scan\Turnstile;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -27,7 +28,7 @@ class SecurityHeaders
 
         // Skip while the Vite dev server is running (it needs a looser policy).
         if (! file_exists(public_path('hot'))) {
-            $response->headers->set('Content-Security-Policy', $isAdmin ? self::ADMIN_CSP : self::PUBLIC_CSP.$this->frames());
+            $response->headers->set('Content-Security-Policy', $isAdmin ? self::ADMIN_CSP : $this->publicCsp($request));
         }
 
         $response->headers->set('X-Content-Type-Options', 'nosniff');
@@ -46,8 +47,23 @@ class SecurityHeaders
         return $response;
     }
 
+    /** The strict policy, plus Cloudflare Turnstile on the website check form when it is switched on. */
+    private function publicCsp(Request $request): string
+    {
+        $frames = $this->frameHosts();
+
+        if (Turnstile::enabled() && $request->routeIs('*.scan', '*.price', '*.request.step', '*.appointment.details')) {
+            $frames[] = Turnstile::HOST;
+
+            return str_replace("script-src 'self'", "script-src 'self' ".Turnstile::HOST, self::PUBLIC_CSP).'; frame-src '.implode(' ', $frames);
+        }
+
+        return self::PUBLIC_CSP.($frames ? '; frame-src '.implode(' ', $frames) : '');
+    }
+
     /** Live demos on case studies may be embedded, and nothing else: only the hosts the owner entered. */
-    private function frames(): string
+    /** @return list<string> */
+    private function frameHosts(): array
     {
         try {
             $hosts = Site::demoHosts();
@@ -55,6 +71,6 @@ class SecurityHeaders
             $hosts = [];
         }
 
-        return $hosts ? '; frame-src '.implode(' ', array_map(fn ($h) => 'https://'.$h, $hosts)) : '';
+        return array_map(fn ($h) => 'https://'.$h, $hosts);
     }
 }

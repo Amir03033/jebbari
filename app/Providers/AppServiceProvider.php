@@ -3,13 +3,20 @@
 namespace App\Providers;
 
 use App\Listeners\SanitizeUploadedImage;
+use App\Models\Appointment;
+use App\Models\AppointmentType;
+use App\Models\AvailabilityRule;
+use App\Models\BlockedDate;
 use App\Models\Inquiry;
+use App\Models\Lead;
 use App\Models\MediaAsset;
 use App\Models\NavigationItem;
 use App\Models\Page;
 use App\Models\Post;
 use App\Models\PostCategory;
+use App\Models\PriceItem;
 use App\Models\Project;
+use App\Models\Scan;
 use App\Models\Service;
 use App\Models\Subscriber;
 use App\Models\Testimonial;
@@ -52,6 +59,13 @@ class AppServiceProvider extends ServiceProvider
             NavigationItem::class => OwnerOnlyPolicy::class,
             User::class => OwnerOnlyPolicy::class,
             Subscriber::class => OwnerOnlyPolicy::class,
+            Scan::class => OwnerOnlyPolicy::class,
+            Lead::class => InquiryPolicy::class,
+            Appointment::class => InquiryPolicy::class,
+            PriceItem::class => OwnerOnlyPolicy::class,
+            AppointmentType::class => OwnerOnlyPolicy::class,
+            AvailabilityRule::class => OwnerOnlyPolicy::class,
+            BlockedDate::class => OwnerOnlyPolicy::class,
             Activity::class => ActivityPolicy::class,
         ] as $model => $policy) {
             Gate::policy($model, $policy);
@@ -62,6 +76,15 @@ class AppServiceProvider extends ServiceProvider
             Limit::perMinute(3)->by($request->ip()),
             Limit::perHour(10)->by($request->ip()),
         ]);
+
+        // Lead funnel forms (calculator, request wizard, appointments): generous for real people, tight for scripts.
+        RateLimiter::for('leads', fn (Request $request) => [
+            Limit::perMinute(20)->by($request->ip()),
+            Limit::perHour(120)->by($request->ip()),
+        ]);
+
+        // Website check form: a burst limit; the daily limit per visitor is in ScanController.
+        RateLimiter::for('scan', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
 
         Event::listen(MediaHasBeenAddedEvent::class, SanitizeUploadedImage::class);
 

@@ -63,8 +63,14 @@ class StoreInquiryRequest extends FormRequest
     /** @return bool true when the form was loaded between 4 seconds and 24 hours ago */
     public function timeIsPlausible(): bool
     {
+        return self::plausibleTime((string) $this->input('_t'));
+    }
+
+    /** Shared with the website check form. */
+    public static function plausibleTime(string $token): bool
+    {
         try {
-            $loaded = (int) Crypt::decryptString((string) $this->input('_t'));
+            $loaded = (int) Crypt::decryptString($token);
         } catch (DecryptException) {
             return false;
         }

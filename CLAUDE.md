@@ -12,6 +12,8 @@ Read `docs/BRIEF.md` in full before writing any code. It is the design and build
 - Phase 5 (now / uses / CV pages, FAQ, GitHub, newsletter, command menu, statistics, cobalt accent): built and tested, awaiting owner review. See `docs/PHASE-5.md`.
 - AI and search visibility (About page `/nl/over-mij`, Person JSON-LD, robots.txt, llms.txt): built, phases 1 to 3 of `docs/AI-VISIBILITY.md`. No education anywhere; Iran Digital Lifeline is not mentioned; the barber project is "barbercuts.nl" (https://barbercuts.nl). One address only: Professor W.H. Keesomlaan 12, 1183 DJ Amstelveen (config/site.php). No VAT number anywhere.
 - Phase 6 (UI upgrades: hero showcase, fuller homepage work, compact services, even work grid, process cards, floating header, circular theme switch): built and tested, awaiting owner review. See `docs/UI-UPGRADES.md`.
+- Website check (`/nl/scan`, `/en/scan`: SSRF-safe single-page scan, report, mail, admin leads): built and tested, awaiting owner review. See `docs/SCAN.md`.
+- Lead funnel (`/nl/prijs`, `/nl/aanvraag`, `/nl/afspraak`: price calculator, request wizard, appointments, one `leads` table): built and tested, awaiting owner review. See `docs/LEADS.md`. Never seed or invent prices.
 - Deploy with `./deploy.sh` (guide: `docs/DEPLOY.md`). Do not deploy or open a PR without the owner's approval.
 
 ## Stack
