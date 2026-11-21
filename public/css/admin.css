@@ -1,0 +1,356 @@
+/*
+ * Admin dashboard (App\Filament\Pages\Dashboard). Plain CSS on Filament's own
+ * colour variables (--gray-*, --primary-*, --danger-*, ...), so the light and
+ * dark admin themes both follow. Loaded after Filament's styles.
+ */
+
+.jb-welcome {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.25rem 2rem;
+    padding: 1.75rem 1.75rem 1.5rem;
+    border-radius: 1rem;
+    background:
+        radial-gradient(60% 120% at 100% 0%, rgb(91 120 255 / 0.22), transparent 70%),
+        var(--gray-950);
+    color: #fff;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 20px 40px -24px rgb(0 0 0 / 0.35);
+}
+
+.dark .jb-welcome {
+    border: 1px solid rgb(255 255 255 / 0.08);
+    background:
+        radial-gradient(60% 120% at 100% 0%, rgb(91 120 255 / 0.18), transparent 70%),
+        var(--gray-900);
+}
+
+.jb-eyebrow {
+    margin: 0;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gray-500);
+}
+
+.jb-welcome .jb-eyebrow {
+    color: rgb(255 255 255 / 0.55);
+}
+
+.jb-greeting {
+    margin: 0.5rem 0 0;
+    font-size: clamp(1.625rem, 1.2rem + 1.4vw, 2.25rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+}
+
+.jb-dot {
+    display: inline-block;
+    width: 0.32em;
+    height: 0.32em;
+    margin-left: 0.06em;
+    border-radius: 50%;
+    background-color: var(--info-400);
+}
+
+.jb-status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.875rem 0 0;
+    font-size: 0.875rem;
+    color: rgb(255 255 255 / 0.75);
+}
+
+.jb-status strong {
+    color: #fff;
+}
+
+.jb-status-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--success-400);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--success-400) 22%, transparent);
+}
+
+.jb-status[data-offline='true'] .jb-status-dot {
+    background-color: var(--danger-400);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--danger-400) 25%, transparent);
+}
+
+.jb-welcome .jb-link {
+    color: #fff;
+}
+
+.jb-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.jb-link {
+    font-weight: 500;
+    color: var(--primary-600);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in oklab, currentColor 35%, transparent);
+    text-underline-offset: 0.2em;
+}
+
+.dark .jb-link {
+    color: var(--primary-400);
+}
+
+.jb-list {
+    display: grid;
+    margin: -0.25rem 0;
+    padding: 0;
+    list-style: none;
+}
+
+.jb-list > li + li {
+    border-top: 1px solid var(--gray-100);
+}
+
+.dark .jb-list > li + li {
+    border-top-color: rgb(255 255 255 / 0.06);
+}
+
+.jb-row {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.75rem 0.25rem;
+    color: inherit;
+    border-radius: 0.5rem;
+    transition: background-color 150ms ease;
+}
+
+a.jb-row:hover,
+a.jb-row:focus-visible {
+    background-color: var(--gray-50);
+}
+
+.dark a.jb-row:hover,
+.dark a.jb-row:focus-visible {
+    background-color: rgb(255 255 255 / 0.04);
+}
+
+.jb-row-text {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+}
+
+.jb-row-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--gray-950);
+}
+
+.dark .jb-row-title {
+    color: #fff;
+}
+
+.jb-row-hint,
+.jb-muted {
+    overflow: hidden;
+    font-size: 0.8125rem;
+    color: var(--gray-500);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.jb-muted {
+    white-space: normal;
+}
+
+.jb-icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.625rem;
+    background-color: var(--gray-100);
+    color: var(--gray-600);
+}
+
+.jb-icon svg,
+.jb-chevron {
+    width: 1.125rem;
+    height: 1.125rem;
+}
+
+.jb-icon[data-tone='warning'] { background-color: color-mix(in oklab, var(--warning-500) 14%, transparent); color: var(--warning-600); }
+.jb-icon[data-tone='danger'] { background-color: color-mix(in oklab, var(--danger-500) 14%, transparent); color: var(--danger-600); }
+.jb-icon[data-tone='info'] { background-color: color-mix(in oklab, var(--info-500) 14%, transparent); color: var(--info-600); }
+
+.dark .jb-icon { background-color: rgb(255 255 255 / 0.06); color: var(--gray-300); }
+.dark .jb-icon[data-tone='warning'] { color: var(--warning-400); }
+.dark .jb-icon[data-tone='danger'] { color: var(--danger-400); }
+.dark .jb-icon[data-tone='info'] { color: var(--info-400); }
+
+.jb-chevron {
+    flex: none;
+    color: var(--gray-400);
+}
+
+.jb-empty {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.5rem 0.25rem;
+    font-size: 0.875rem;
+    color: var(--gray-600);
+}
+
+.dark .jb-empty {
+    color: var(--gray-400);
+}
+
+.jb-empty-icon {
+    flex: none;
+    width: 1.75rem;
+    height: 1.75rem;
+    color: var(--success-500);
+}
+
+.jb-date {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.75rem;
+    padding: 0.25rem 0;
+    border: 1px solid var(--gray-200);
+    border-radius: 0.625rem;
+    line-height: 1.1;
+}
+
+.dark .jb-date {
+    border-color: rgb(255 255 255 / 0.1);
+}
+
+.jb-date span {
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--primary-600);
+}
+
+.jb-date strong {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.jb-bars {
+    display: grid;
+    gap: 0.625rem;
+    margin: 0.75rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.jb-bars li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.25rem 0.75rem;
+    font-size: 0.8125rem;
+}
+
+.jb-bar-label {
+    overflow: hidden;
+    color: var(--gray-700);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dark .jb-bar-label {
+    color: var(--gray-300);
+}
+
+.jb-bar-value {
+    font-variant-numeric: tabular-nums;
+    color: var(--gray-500);
+}
+
+.jb-bar {
+    grid-column: 1 / -1;
+    height: 0.375rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background-color: var(--gray-100);
+}
+
+.dark .jb-bar {
+    background-color: rgb(255 255 255 / 0.06);
+}
+
+.jb-bar > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background-color: #5b78ff;
+}
+
+.jb-gap {
+    margin-top: 1.5rem;
+}
+
+.jb-compact .jb-row {
+    padding-block: 0.5rem;
+}
+
+.jb-pulse {
+    flex: none;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-inline: 0.375rem;
+    border-radius: 50%;
+    background-color: var(--success-500);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--success-500) 20%, transparent);
+}
+
+.jb-pulse[data-state='down'] {
+    background-color: var(--danger-500);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--danger-500) 20%, transparent);
+}
+
+.jb-pulse[data-state='wait'] {
+    background-color: var(--gray-300);
+    box-shadow: none;
+}
+
+.jb-numbers {
+    display: grid;
+    gap: 0.5rem;
+    margin: 1.5rem 0 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--gray-100);
+}
+
+.dark .jb-numbers {
+    border-top-color: rgb(255 255 255 / 0.06);
+}
+
+.jb-numbers > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.8125rem;
+}
+
+.jb-numbers dt {
+    color: var(--gray-500);
+}
+
+.jb-numbers dd {
+    margin: 0;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}

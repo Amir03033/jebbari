@@ -2341,3 +2341,728 @@
         }
     }
 }
+
+/* ------------------------------------------------------------------
+   Website check (/scan): form, status and report. Quiet by design:
+   scores in type and hairlines, status as a small mark, the accent
+   only on "action needed".
+   ------------------------------------------------------------------ */
+@layer components {
+    .opening .t-statement {
+        overflow-wrap: anywhere;
+    }
+
+    .scan-what {
+        position: relative;
+        padding-block: 1.25rem;
+    }
+
+    .scan-limits {
+        display: grid;
+        gap: 0.75rem;
+        padding-left: 1.1rem;
+        list-style: disc;
+        max-width: 52ch;
+    }
+
+    /* Consent checkbox */
+    .check-row {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 0.75rem;
+        align-items: start;
+    }
+
+    .check-control {
+        appearance: none;
+        display: grid;
+        place-content: center;
+        width: 1.25rem;
+        height: 1.25rem;
+        margin-top: 0.15rem;
+        border: 1px solid var(--line-strong);
+        border-radius: 6px;
+        background-color: var(--surface);
+        cursor: pointer;
+        transition: border-color var(--dur-fast) var(--ease);
+    }
+
+    .check-control::before {
+        content: '';
+        width: 0.7rem;
+        height: 0.7rem;
+        border-radius: 3px;
+        background-color: var(--fg);
+        transform: scale(0);
+        transition: transform var(--dur-fast) var(--ease);
+    }
+
+    .check-control:checked::before {
+        transform: scale(1);
+    }
+
+    .check-control:hover {
+        border-color: var(--fg);
+    }
+
+    .check-control:focus-visible {
+        outline: 2px solid var(--signal);
+        outline-offset: 2px;
+    }
+
+    .check-control[aria-invalid='true'] {
+        border-color: var(--fg);
+    }
+
+    /* Status mark */
+    .scan-state {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+    }
+
+    .scan-state-mark {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 50%;
+        background-color: var(--muted);
+    }
+
+    .scan-state[data-state='warning'] .scan-state-mark {
+        border: 1px solid var(--fg);
+        background-color: transparent;
+    }
+
+    .scan-state[data-state='bad'] .scan-state-mark {
+        background-color: var(--signal);
+    }
+
+    .scan-state[data-state='skipped'] {
+        color: var(--muted);
+    }
+
+    .scan-state[data-state='skipped'] .scan-state-mark {
+        border: 1px dashed var(--muted);
+        background-color: transparent;
+    }
+
+    /* Scores */
+    .scan-scores {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 2.5rem 1.5rem;
+    }
+
+    .scan-score-lg {
+        grid-column: 1 / -1;
+    }
+
+    @media (min-width: 64rem) {
+        .scan-scores {
+            grid-template-columns: minmax(0, 2fr) repeat(4, minmax(0, 1fr));
+            align-items: end;
+        }
+
+        .scan-score-lg {
+            grid-column: auto;
+        }
+    }
+
+    .scan-score-num {
+        margin-top: 0.75rem;
+        font-size: clamp(2.75rem, 6vw, 4.5rem);
+        font-weight: 500;
+        line-height: 1;
+        letter-spacing: -0.04em;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .scan-score-lg .scan-score-num {
+        font-size: clamp(4.5rem, 12vw, 9rem);
+    }
+
+    .scan-bar {
+        position: relative;
+        display: block;
+        height: 1px;
+        margin-top: 1rem;
+        background-color: var(--line);
+        overflow: hidden;
+    }
+
+    .scan-bar > span {
+        position: absolute;
+        inset: 0;
+        background-color: var(--fg);
+        transform-origin: left;
+        transform: scaleX(0);
+        transition: transform var(--dur-reveal) var(--ease);
+    }
+
+    .scan-bar[data-step='1'] > span { transform: scaleX(0.1); }
+    .scan-bar[data-step='2'] > span { transform: scaleX(0.2); }
+    .scan-bar[data-step='3'] > span { transform: scaleX(0.3); }
+    .scan-bar[data-step='4'] > span { transform: scaleX(0.4); }
+    .scan-bar[data-step='5'] > span { transform: scaleX(0.5); }
+    .scan-bar[data-step='6'] > span { transform: scaleX(0.6); }
+    .scan-bar[data-step='7'] > span { transform: scaleX(0.7); }
+    .scan-bar[data-step='8'] > span { transform: scaleX(0.8); }
+    .scan-bar[data-step='9'] > span { transform: scaleX(0.9); }
+    .scan-bar[data-step='10'] > span { transform: scaleX(1); }
+
+    /* Checks */
+    .scan-check {
+        position: relative;
+        display: grid;
+        gap: 0.75rem 2rem;
+        padding-block: clamp(1.25rem, 2.4vw, 2rem);
+    }
+
+    @media (min-width: 48rem) {
+        .scan-check {
+            grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+            align-items: baseline;
+        }
+    }
+
+    .scan-check p,
+    .scan-advice {
+        max-width: 62ch;
+    }
+
+    .scan-advice {
+        display: grid;
+        gap: 1rem;
+        padding-left: 1rem;
+        border-left: 1px solid var(--line);
+    }
+
+    /* Waiting: a page sheet under a slow scan line, four phases that fill. */
+    .scan-live {
+        display: grid;
+        gap: 2.5rem;
+        max-width: 64rem;
+    }
+
+    @media (min-width: 48rem) {
+        .scan-live {
+            grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+            gap: 4rem;
+            align-items: start;
+        }
+    }
+
+    .scan-sheet {
+        position: relative;
+        display: grid;
+        gap: 0.75rem;
+        align-content: start;
+        aspect-ratio: 4 / 3;
+        padding: 1.5rem;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-card);
+        background-color: var(--card);
+        overflow: hidden;
+        isolation: isolate;
+    }
+
+    @media (min-width: 48rem) {
+        .scan-sheet {
+            aspect-ratio: 4 / 5;
+        }
+    }
+
+    .scan-sheet > span:not(.scan-beam) {
+        display: block;
+        height: 0.5rem;
+        border-radius: 999px;
+        background-color: var(--line-strong);
+        opacity: 0.55;
+        transition: opacity var(--dur-slow) var(--ease);
+    }
+
+    .scan-sheet-bar {
+        width: 35%;
+        margin-bottom: 1rem;
+    }
+
+    .scan-sheet > span.scan-sheet-title {
+        width: 80%;
+        height: 1.25rem;
+    }
+
+    .scan-sheet-line {
+        width: 100%;
+    }
+
+    .scan-sheet-line.is-short {
+        width: 62%;
+    }
+
+    .scan-sheet > span.scan-sheet-media {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
+        margin-block: 0.5rem;
+        border-radius: var(--radius-sm);
+        opacity: 0.35;
+    }
+
+    /* The scan line: a hairline in the accent with a soft wash behind it. */
+    .scan-beam {
+        position: absolute;
+        inset: 0 0 auto;
+        height: 22%;
+        border-bottom: 1px solid var(--signal);
+        background-color: var(--glow);
+        transform: translateY(-100%);
+        opacity: 0;
+        pointer-events: none;
+        z-index: -1;
+    }
+
+    .scan-live.is-live[data-status='running'] .scan-beam {
+        opacity: 1;
+        animation: scan-sweep 2.8s var(--ease-inout) infinite;
+    }
+
+    .scan-live.is-live[data-status='running'] .scan-sheet > span:not(.scan-beam) {
+        animation: scan-read 2.8s var(--ease-inout) infinite;
+    }
+
+    .scan-sheet > span:nth-child(2) { animation-delay: 0.15s; }
+    .scan-sheet > span:nth-child(3) { animation-delay: 0.45s; }
+    .scan-sheet > span:nth-child(4) { animation-delay: 0.6s; }
+    .scan-sheet > span:nth-child(5) { animation-delay: 1s; }
+    .scan-sheet > span:nth-child(6) { animation-delay: 1.5s; }
+    .scan-sheet > span:nth-child(7) { animation-delay: 1.7s; }
+    .scan-sheet > span:nth-child(8) { animation-delay: 1.9s; }
+    .scan-sheet > span:nth-child(9) { animation-delay: 2.1s; }
+    .scan-sheet > span:nth-child(10) { animation-delay: 2.3s; }
+
+    @keyframes scan-sweep {
+        from { transform: translateY(-100%); }
+        to { transform: translateY(460%); }
+    }
+
+    @keyframes scan-read {
+        0%, 100% { opacity: 0.55; }
+        12% { opacity: 1; }
+        40% { opacity: 0.55; }
+    }
+
+    .scan-phases {
+        border-top: 1px solid var(--line);
+    }
+
+    .scan-phase {
+        position: relative;
+        display: grid;
+        grid-template-columns: 2.25rem minmax(0, 1fr) auto;
+        align-items: baseline;
+        padding-block: 0.9rem;
+        border-bottom: 1px solid var(--line);
+        color: var(--muted);
+        transition: color var(--dur-base) var(--ease);
+    }
+
+    .scan-phase[data-state='active'],
+    .scan-phase[data-state='done'] {
+        color: var(--fg);
+    }
+
+    /* The bottom hairline fills as the phase runs. */
+    .scan-phase-fill {
+        position: absolute;
+        inset: auto 0 -1px;
+        height: 1px;
+        overflow: hidden;
+    }
+
+    .scan-phase-fill > span {
+        position: absolute;
+        inset: 0;
+        background-color: var(--fg);
+        transform-origin: left;
+        transform: scaleX(0);
+        transition: transform 300ms linear;
+    }
+
+    /* Done: a small full stop lands. */
+    .scan-phase-mark {
+        width: 0.45rem;
+        height: 0.45rem;
+        border-radius: 50%;
+        background-color: var(--signal);
+        transform: scale(0);
+        transition: transform var(--dur-base) var(--ease);
+    }
+
+    .scan-phase[data-state='done'] .scan-phase-mark {
+        transform: scale(1);
+    }
+
+    .scan-now {
+        display: none;
+        min-height: 1.4em;
+        overflow: hidden;
+    }
+
+    .scan-live.is-live[data-status='running'] .scan-now {
+        display: block;
+    }
+
+    .scan-now-name {
+        display: inline-block;
+        color: var(--fg);
+    }
+
+    .scan-now-name.is-in {
+        animation: scan-name 500ms var(--ease) both;
+    }
+
+    @keyframes scan-name {
+        from { opacity: 0; transform: translateY(60%); }
+        to { opacity: 1; transform: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .scan-live.is-live[data-status='running'] .scan-beam,
+        .scan-live.is-live[data-status='running'] .scan-sheet > span:not(.scan-beam),
+        .scan-now-name.is-in {
+            animation: none;
+        }
+
+        .scan-live.is-live[data-status='running'] .scan-beam {
+            opacity: 0;
+        }
+    }
+}
+
+/* ------------------------------------------------------------------
+   Lead funnel: price calculator, request wizard, appointments.
+   Choices as quiet cards, a hairline progress, plain links for days
+   and times. Colours from tokens only.
+   ------------------------------------------------------------------ */
+@layer components {
+    .choice-grid {
+        display: grid;
+        gap: 0.75rem;
+    }
+
+    @media (min-width: 40rem) {
+        .choice-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    .choice {
+        position: relative;
+        display: block;
+        cursor: pointer;
+    }
+
+    .choice-input {
+        position: absolute;
+        opacity: 0;
+        width: 1px;
+        height: 1px;
+    }
+
+    .choice-body {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 0.25rem 0.75rem;
+        align-items: baseline;
+        height: 100%;
+        padding: 1rem 1.125rem;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-sm);
+        background-color: var(--surface);
+        transition: border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+    }
+
+    .choice:hover .choice-body {
+        border-color: var(--line-strong);
+    }
+
+    .choice:active .choice-body {
+        transform: scale(0.99);
+    }
+
+    .choice-mark {
+        position: relative;
+        top: 0.1rem;
+        width: 0.875rem;
+        height: 0.875rem;
+        border: 1px solid var(--line-strong);
+        border-radius: 50%;
+    }
+
+    .choice-input[type='checkbox'] + .choice-body .choice-mark {
+        border-radius: 4px;
+    }
+
+    .choice-mark::after {
+        content: '';
+        position: absolute;
+        inset: 2px;
+        border-radius: inherit;
+        background-color: var(--fg);
+        transform: scale(0);
+        transition: transform var(--dur-fast) var(--ease);
+    }
+
+    .choice-title {
+        font-weight: 500;
+    }
+
+    .choice-meta {
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .choice-text {
+        grid-column: 2 / -1;
+    }
+
+    .choice-input:checked + .choice-body,
+    .choice-link[aria-current] .choice-body {
+        border-color: var(--fg);
+    }
+
+    .choice-input:checked + .choice-body .choice-mark::after,
+    .choice-link[aria-current] .choice-mark::after {
+        transform: scale(1);
+    }
+
+    .choice-input:focus-visible + .choice-body,
+    .choice-link:focus-visible .choice-body {
+        outline: 2px solid var(--signal);
+        outline-offset: 2px;
+    }
+
+    .choice-link:focus-visible {
+        outline: none;
+    }
+
+    /* Calculator */
+    .calc-group {
+        min-width: 0;
+    }
+
+    .calc-group legend span {
+        color: var(--muted);
+    }
+
+    .calc-result {
+        position: sticky;
+        top: calc(var(--header-h) + 1.5rem);
+    }
+
+    .calc-range {
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 500;
+        line-height: 1.05;
+        letter-spacing: -0.035em;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .calc-lines li {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding-block: 0.6rem;
+        border-bottom: 1px solid var(--line);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .calc-lines li:first-child {
+        border-top: 1px solid var(--line);
+    }
+
+    .calc.is-live .calc-server-line,
+    .calc.is-live .calc-nojs {
+        display: none;
+    }
+
+    .calc-email {
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--line);
+    }
+
+    /* Wizard progress */
+    .progress {
+        position: relative;
+    }
+
+    .progress-steps {
+        display: grid;
+        margin-top: 1rem;
+        border-top: 1px solid var(--line);
+    }
+
+    .progress-steps li {
+        display: flex;
+        gap: 1rem;
+        align-items: baseline;
+        padding-block: 0.75rem;
+        border-bottom: 1px solid var(--line);
+        color: var(--muted);
+    }
+
+    .progress-steps li.is-done,
+    .progress-steps li.is-current {
+        color: var(--fg);
+    }
+
+    .progress-steps li.is-current .progress-name {
+        font-weight: 500;
+    }
+
+    .progress-bar {
+        display: none;
+    }
+
+    @media (max-width: 63.99rem) {
+        .progress-steps li:not(.is-current) {
+            display: none;
+        }
+
+        .progress-steps {
+            border-top: 0;
+        }
+
+        .progress-steps li.is-current {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .progress-bar {
+            position: relative;
+            display: block;
+            height: 2px;
+            margin-top: 0.75rem;
+            background-color: var(--line);
+            overflow: hidden;
+            border-radius: 2px;
+        }
+
+        .progress-bar > span {
+            position: absolute;
+            inset: 0;
+            background-color: var(--fg);
+            transform-origin: left;
+            transition: transform var(--dur-slow) var(--ease);
+        }
+
+        .progress-bar[data-step='1'] > span { transform: scaleX(0.2); }
+        .progress-bar[data-step='2'] > span { transform: scaleX(0.4); }
+        .progress-bar[data-step='3'] > span { transform: scaleX(0.6); }
+        .progress-bar[data-step='4'] > span { transform: scaleX(0.8); }
+        .progress-bar[data-step='5'] > span { transform: scaleX(1); }
+    }
+
+    /* Appointments */
+    .notice {
+        max-width: 62ch;
+        padding: 1rem 1.25rem;
+        border: 1px solid var(--line-strong);
+        border-radius: var(--radius-sm);
+    }
+
+    .day-strip {
+        display: flex;
+        gap: 0.5rem;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+        scroll-snap-type: x proximity;
+        scrollbar-width: thin;
+    }
+
+    .day {
+        display: grid;
+        justify-items: center;
+        gap: 0.2rem;
+        min-width: 4.25rem;
+        padding: 0.75rem 0.5rem;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-sm);
+        scroll-snap-align: start;
+        transition: border-color var(--dur-fast) var(--ease);
+    }
+
+    .day:hover {
+        border-color: var(--line-strong);
+    }
+
+    .day[aria-current] {
+        border-color: var(--fg);
+        background-color: var(--card);
+    }
+
+    .day-num {
+        font-size: 1.5rem;
+        font-weight: 500;
+        line-height: 1;
+        letter-spacing: -0.03em;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .time-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+        gap: 0.5rem;
+        max-width: 48rem;
+    }
+
+    .time {
+        display: block;
+        padding: 0.8rem 0.5rem;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-sm);
+        text-align: center;
+        font-variant-numeric: tabular-nums;
+        transition: border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+    }
+
+    .time:hover {
+        border-color: var(--fg);
+    }
+
+    .time:active {
+        transform: scale(0.97);
+    }
+
+    .day:focus-visible,
+    .time:focus-visible {
+        outline: 2px solid var(--signal);
+        outline-offset: 2px;
+    }
+
+    .summary {
+        border-top: 1px solid var(--line);
+    }
+
+    .summary > div {
+        display: grid;
+        gap: 0.25rem;
+        padding-block: 0.9rem;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .summary[data-muted] dd {
+        color: var(--muted);
+    }
+
+    .cancel-box summary {
+        cursor: pointer;
+        list-style: none;
+        width: fit-content;
+    }
+
+    .cancel-box summary::-webkit-details-marker {
+        display: none;
+    }
+}

@@ -39,7 +39,7 @@ class BlockRenderer
         return match ($type) {
             'hero' => loc($data['headline'] ?? null) !== null,
             'services_overview', 'service_list' => Site::services(($data['mode'] ?? 'all') === 'selected' ? ($data['service_ids'] ?? []) : null)->isNotEmpty(),
-            'work_selection' => Site::projects(($data['mode'] ?? 'featured') === 'featured', ($data['mode'] ?? 'featured') === 'selected' ? ($data['project_ids'] ?? []) : null)->isNotEmpty(),
+            'work_selection' => (($data['mode'] ?? 'featured') === 'selected' ? Site::projects(false, $data['project_ids'] ?? []) : Site::highlights(1))->isNotEmpty(),
             'tech_marquee' => Site::stack()->count() >= 3,
             'stats' => collect($data['items'] ?? [])->contains(fn ($i) => is_numeric($i['value'] ?? null) && loc($i['label'] ?? null) !== null),
             'packages_table' => PackagePricing::rows()->isNotEmpty(),

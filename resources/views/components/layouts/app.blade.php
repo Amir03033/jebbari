@@ -89,6 +89,7 @@
     <link rel="preload" as="font" type="font/woff2" crossorigin href="{{ Vite::asset('resources/fonts/geist-mono-latin-400-normal.woff2') }}">
     <script src="{{ asset('js/motion-flag.js') }}"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('head')
     @foreach ($meta['jsonld'] as $schema)
         <script type="application/ld+json">{!! json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) !!}</script>
     @endforeach
@@ -109,5 +110,9 @@
     @include('partials.footer')
 
     @include('partials.command-menu')
+
+    @if (\App\Support\SiteOffline::isOn() && auth()->check())
+        @include('partials.offline-bar')
+    @endif
 </body>
 </html>

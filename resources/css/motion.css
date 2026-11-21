@@ -483,20 +483,30 @@ picture {
         }
     }
 
-    /* Theme switch: a plain cross-fade, no movement (see initTheme in motion.js). */
+    /* Theme switch: the new theme opens as a circle from the switch you pressed
+       (--tx, --ty, --tr from initTheme in motion.js). Clip-path only. Under
+       reduced motion the switch is instant (no view transition at all). */
     .theme-switching::view-transition-old(root),
-    .theme-switching::view-transition-new(root) {
+    .theme-switching::view-transition-new(root),
+    .theme-switching::view-transition-old(site-header),
+    .theme-switching::view-transition-new(site-header),
+    .theme-switching::view-transition-group(site-header) {
         animation: none;
         mix-blend-mode: normal;
     }
 
-    .theme-switching::view-transition-old(root) {
-        animation: theme-out 420ms var(--ease-inout) both;
+    .theme-switching::view-transition-new(root),
+    .theme-switching::view-transition-new(site-header) {
+        animation: theme-in 620ms var(--ease-inout) both;
     }
 
-    @keyframes theme-out {
+    @keyframes theme-in {
+        from {
+            clip-path: circle(0 at var(--tx, 100%) var(--ty, 0));
+        }
+
         to {
-            opacity: 0;
+            clip-path: circle(var(--tr, 150vmax) at var(--tx, 100%) var(--ty, 0));
         }
     }
 }

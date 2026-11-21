@@ -1,0 +1,712 @@
+/*
+ * Phase 6: UI upgrades (docs/UI-UPGRADES.md). Hero showcase, compact services,
+ * the even work grid, process cards, the floating header and the theme switch.
+ * Colours come only from tokens; only transform, opacity and clip-path animate;
+ * everything has a reduced-motion state that is still complete.
+ */
+
+@layer components {
+    /* ------------------------------------------------------------------
+       Hero showcase: real project images beside the headline (80rem and up)
+       ------------------------------------------------------------------ */
+    .hero-show {
+        display: none;
+    }
+
+    @media (min-width: 80rem) {
+        /* The headline makes room: it keeps seven of the twelve columns. */
+        .hero.has-show .hero-title {
+            max-width: min(16ch, 58%);
+            font-size: clamp(3.5rem, 0.6rem + 5.2vw, 7.25rem);
+        }
+
+        .hero-show {
+            display: block;
+            position: absolute;
+            z-index: 1;
+            top: calc(var(--header-h) + 2.5rem);
+            right: var(--margin);
+            bottom: 17rem;
+            width: 38%;
+            pointer-events: none;
+        }
+
+        .hero-shot {
+            position: absolute;
+            width: 68%;
+            /* Pointer lean (--gx, --gy from motion.js) and the spread as the page
+               scrolls away (--p), each image at its own depth. */
+            translate: calc(var(--gx, 0px) * var(--depth)) calc(var(--gy, 0px) * var(--depth) - var(--p, 0) * var(--rise));
+            transition: translate 900ms var(--ease);
+        }
+
+        .hero-shot-1 {
+            --depth: 0.5;
+            --rise: 40px;
+
+            z-index: 3;
+            top: 50%;
+            right: 3%;
+            rotate: 1.5deg;
+        }
+
+        .hero-shot-2 {
+            --depth: 0.32;
+            --rise: 110px;
+
+            z-index: 2;
+            top: 25%;
+            right: 32%;
+            rotate: -3.5deg;
+        }
+
+        .hero-shot-3 {
+            --depth: 0.18;
+            --rise: 170px;
+
+            z-index: 1;
+            top: 0;
+            right: 6%;
+            rotate: 4deg;
+        }
+
+        .hero-shot-inner {
+            aspect-ratio: 16 / 10;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-card);
+            background-color: var(--card);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        /* Entrance: after the headline has landed, back to front. */
+        .js .hero-show .hero-shot-inner {
+            opacity: 0;
+            transform: translateY(32px) scale(0.97);
+            transition:
+                opacity 900ms var(--ease) var(--in, 700ms),
+                transform 1100ms var(--ease) var(--in, 700ms);
+        }
+
+        .js .hero-show.is-in .hero-shot-inner {
+            opacity: 1;
+            transform: none;
+        }
+
+        .hero-shot-3 .hero-shot-inner { --in: 650ms; }
+        .hero-shot-2 .hero-shot-inner { --in: 780ms; }
+        .hero-shot-1 .hero-shot-inner { --in: 910ms; }
+    }
+
+    @media (min-width: 80rem) and (prefers-reduced-motion: reduce) {
+        .hero-shot {
+            translate: none;
+            transition: none;
+        }
+
+        .js .hero-show .hero-shot-inner {
+            transform: none;
+            transition: opacity 200ms linear;
+        }
+    }
+    /* ------------------------------------------------------------------
+       Services: a compact two-column index
+       ------------------------------------------------------------------ */
+    .svc-grid {
+        display: grid;
+        column-gap: clamp(1.5rem, 4vw, 4rem);
+    }
+
+    @media (min-width: 64rem) {
+        .svc-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    .svc-cell {
+        position: relative;
+    }
+
+    .svc-card {
+        display: grid;
+        align-content: start;
+        gap: 0.875rem;
+        height: 100%;
+        padding-block: clamp(1.75rem, 3vw, 2.5rem);
+    }
+
+    .svc-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .svc-title {
+        font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2.25rem);
+        line-height: 1.05;
+        letter-spacing: -0.04em;
+        font-weight: 500;
+        text-wrap: balance;
+        transition: transform var(--dur-slow) var(--ease);
+    }
+
+    .svc-summary {
+        display: block;
+        max-width: 46ch;
+        text-wrap: pretty;
+    }
+
+    .svc-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.375rem;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        .svc-card:hover .svc-title {
+            transform: translateX(0.375rem);
+        }
+    }
+
+    .svc-card:focus-visible {
+        border-radius: var(--radius-sm);
+        outline-offset: 0.25rem;
+    }
+
+    .svc-card:focus-visible .svc-title {
+        transform: translateX(0.375rem);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .svc-title,
+        .svc-card:hover .svc-title,
+        .svc-card:focus-visible {
+        border-radius: var(--radius-sm);
+        outline-offset: 0.25rem;
+    }
+
+    .svc-card:focus-visible .svc-title {
+            transform: none;
+        }
+    }
+    /* ------------------------------------------------------------------
+       Work grid: one frame ratio, two to a row; an odd first project leads
+       ------------------------------------------------------------------ */
+    .plate[data-lead] .plate-name-xl {
+        font-size: clamp(2rem, 1.2rem + 2.2vw, 3.5rem);
+    }
+
+    /* Project images keep their centre when the frame trims them. */
+    .plate-img img,
+    .case-visual img {
+        object-position: 50% 50%;
+    }
+    /* ------------------------------------------------------------------
+       Process: an index that stays, step cards that settle one by one
+       ------------------------------------------------------------------ */
+    .process-aside {
+        position: sticky;
+        top: calc(var(--header-h) + 2rem);
+        display: grid;
+        gap: clamp(2rem, 4vw, 3.5rem);
+    }
+
+    .process-index {
+        position: relative;
+        padding-left: 1.5rem;
+    }
+
+    .process-index-item {
+        display: flex;
+        align-items: baseline;
+        gap: 1rem;
+        padding-block: 0.5rem;
+        font-size: 1.125rem;
+        letter-spacing: -0.015em;
+        color: var(--muted);
+        transition: color var(--dur-base) var(--ease);
+    }
+
+    .process-index-item .t-label {
+        width: 1.75rem;
+    }
+
+    .process[data-active='1'] .process-index-item:nth-child(1),
+    .process[data-active='2'] .process-index-item:nth-child(2),
+    .process[data-active='3'] .process-index-item:nth-child(3),
+    .process[data-active='4'] .process-index-item:nth-child(4),
+    .process[data-active='5'] .process-index-item:nth-child(5),
+    .process[data-active='6'] .process-index-item:nth-child(6),
+    .process:not([data-active]) .process-index-item:nth-child(1) {
+        color: var(--fg);
+    }
+
+    .process-cards {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .process-card {
+        min-height: 15rem;
+        padding: clamp(1.5rem, 3vw, 2.75rem);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-card);
+        background-color: var(--card);
+    }
+
+    /* Laptop and up with room to spare: each card settles under the header,
+       slightly lower than the one before, and the next slides over it. */
+    @media (min-width: 48rem) and (min-height: 40rem) and (prefers-reduced-motion: no-preference) {
+        .process-cards {
+            gap: 2rem;
+            padding-bottom: 4rem;
+        }
+
+        .process-card-wrap {
+            position: sticky;
+            top: calc(var(--header-h) + 2rem + var(--i, 0) * 1rem);
+        }
+
+        .process-card-wrap:nth-child(2) { --i: 1; }
+        .process-card-wrap:nth-child(3) { --i: 2; }
+        .process-card-wrap:nth-child(4) { --i: 3; }
+        .process-card-wrap:nth-child(5) { --i: 4; }
+        .process-card-wrap:nth-child(6) { --i: 5; }
+
+        .process-card {
+            min-height: 20rem;
+            box-shadow: var(--shadow);
+        }
+    }
+    /* ------------------------------------------------------------------
+       Header: a floating bar once the page moves (tablet and up)
+       ------------------------------------------------------------------ */
+    @media (min-width: 48rem) {
+        .site-header:not([data-menu='true'])::before {
+            inset: 0.5rem max(0.5rem, calc(var(--margin) - 1rem));
+            border: 1px solid var(--line);
+            border-radius: var(--radius-pill);
+            box-shadow: var(--shadow);
+            transform: translateY(-0.5rem) scale(0.985);
+            transition:
+                opacity var(--dur-base) var(--ease),
+                transform var(--dur-slow) var(--ease);
+        }
+
+        .site-header[data-scrolled='true']:not([data-menu='true'])::before {
+            transform: none;
+        }
+
+        /* Reading progress runs along the bottom of the floating bar. */
+        .site-header .scroll-line {
+            inset-inline: calc(max(0.5rem, calc(var(--margin) - 1rem)) + 1.5rem);
+            bottom: 0.5rem;
+        }
+
+        /* The current page and the link you point at sit on a soft pill. It is
+           one shape, clipped to the link: only its clip-path moves (motion.js
+           writes --nx and --nw). */
+        .site-nav {
+            isolation: isolate;
+        }
+
+        .nav-line {
+            inset: 0.125rem -1rem;
+            left: -1rem;
+            bottom: 0.125rem;
+            z-index: -1;
+            width: auto;
+            height: auto;
+            border-radius: 0;
+            background-color: var(--card);
+            transform: none;
+            clip-path: inset(0 calc(100% - var(--nx, 0px) - var(--nw, 0) * 1px - 1.75rem) 0 calc(var(--nx, 0px) + 0.25rem) round var(--radius-pill));
+            transition:
+                clip-path 450ms var(--ease),
+                opacity var(--dur-fast) var(--ease);
+        }
+
+        .site-header[data-scrolled='true'] .nav-line {
+            background-color: color-mix(in srgb, var(--fg) 7%, transparent);
+        }
+    }
+
+    @media (min-width: 48rem) and (prefers-reduced-motion: reduce) {
+        .site-header::before,
+        .nav-line {
+            transform: none;
+            transition: opacity 200ms linear;
+        }
+    }
+    /* Long Dutch compounds in project names break at syllables, not mid-letter. */
+    .case-title,
+    .plate-name,
+    .plate-name-xl {
+        overflow-wrap: break-word;
+        -webkit-hyphens: auto;
+        hyphens: auto;
+        hyphenate-limit-chars: 12 5 5;
+    }
+
+    .case-title {
+        font-size: clamp(1.875rem, 1.2rem + 2.4vw, 3.5rem);
+    }
+}
+
+/* Outside the layer on purpose: a plate is also a Tailwind "block" utility,
+   which would otherwise win over this layout. */
+@media (min-width: 48rem) {
+    .plate[data-lead] {
+        display: grid;
+        grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+        align-items: end;
+        column-gap: clamp(1.5rem, 3vw, 3rem);
+    }
+
+    .plate[data-lead] .plate-caption {
+        flex-direction: column-reverse;
+        gap: 2rem;
+        padding-top: 0;
+        padding-bottom: 0.25rem;
+    }
+}
+
+/* ------------------------------------------------------------------
+   Offline notice for signed-in team members (the site is offline for visitors)
+   ------------------------------------------------------------------ */
+@layer components {
+    .offline-bar {
+        position: fixed;
+        z-index: 60;
+        left: 50%;
+        bottom: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem 1.25rem;
+        width: max-content;
+        max-width: calc(100vw - 2rem);
+        padding: 0.75rem 1.25rem;
+        border: 1px solid var(--panel-line);
+        border-radius: var(--radius-card);
+        background-color: var(--panel);
+        color: var(--panel-fg);
+        box-shadow: var(--shadow);
+        transform: translateX(-50%);
+    }
+
+    .offline-bar .t-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.625rem;
+    }
+
+    .offline-bar-dot {
+        width: 0.4375rem;
+        height: 0.4375rem;
+        border-radius: 50%;
+        background-color: var(--panel-signal);
+    }
+
+    .offline-bar a {
+        color: var(--panel-signal);
+    }
+}
+
+/* ------------------------------------------------------------------
+   Proposal pages (/nl/voorstel/{token})
+   ------------------------------------------------------------------ */
+@layer components {
+    .proposal-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem 2rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--line);
+    }
+
+    .proposal-print {
+        margin-left: auto;
+    }
+
+    .proposal-flash {
+        width: fit-content;
+        padding: 0.875rem 1.25rem;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-sm);
+        background-color: var(--card);
+    }
+
+    .proposal-row {
+        position: relative;
+        display: grid;
+        gap: 0.5rem 1.5rem;
+        padding-block: 1.5rem;
+    }
+
+    @media (min-width: 48rem) {
+        .proposal-row {
+            grid-template-columns: 4rem minmax(0, 5fr) minmax(0, 6fr);
+            align-items: baseline;
+        }
+    }
+
+    .proposal-prices {
+        width: 100%;
+        border-collapse: collapse;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .proposal-prices th,
+    .proposal-prices td {
+        padding: 1rem 0;
+        border-top: 1px solid var(--line);
+        text-align: left;
+        font-weight: 400;
+        vertical-align: baseline;
+    }
+
+    .proposal-prices td:last-child {
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .proposal-prices td:nth-child(2) {
+        padding-inline: 1rem;
+        white-space: nowrap;
+    }
+
+    .proposal-prices tfoot th,
+    .proposal-prices tfoot td {
+        border-top: 1px solid var(--fg);
+        font-size: 1.25rem;
+        font-weight: 500;
+    }
+
+    .proposal-prices tfoot td.t-label {
+        font-size: 0.75rem;
+    }
+
+    .proposal-decide {
+        padding: clamp(1.5rem, 3vw, 2.75rem);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-card);
+        background-color: var(--card);
+    }
+}
+
+@media print {
+    .proposal-print,
+    .proposal-decide form,
+    .proposal-decide details {
+        display: none;
+    }
+}
+
+/* ------------------------------------------------------------------
+   Website watch card on the scan report
+   ------------------------------------------------------------------ */
+@layer components {
+    .scan-watch {
+        display: grid;
+        gap: 2rem;
+        padding: clamp(1.5rem, 3vw, 2.75rem);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-card);
+        background-color: var(--card);
+    }
+
+    @media (min-width: 64rem) {
+        .scan-watch {
+            grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+            align-items: end;
+            gap: 3rem;
+        }
+    }
+
+    .scan-watch-note {
+        padding: 1rem 1.25rem;
+        border: 1px solid var(--line-strong);
+        border-radius: var(--radius-sm);
+        background-color: var(--surface);
+    }
+}
+
+@media print {
+    .scan-print,
+    .scan-watch-wrap,
+    #scan-cta {
+        display: none;
+    }
+}
+
+/* ------------------------------------------------------------------
+   Live uptime on case studies
+   ------------------------------------------------------------------ */
+@layer components {
+    .uptime-now {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+    }
+
+    .uptime-dot {
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 50%;
+        background-color: var(--signal);
+    }
+
+    .uptime-now[data-ok='false'] .uptime-dot {
+        background-color: transparent;
+        box-shadow: inset 0 0 0 1.5px var(--fg);
+    }
+}
+
+
+/* ------------------------------------------------------------------
+   Case study, calm version: a row of facts, plain lists, one progress list
+   ------------------------------------------------------------------ */
+@layer components {
+    .case-facts {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.5rem 2rem;
+        margin-top: clamp(1.5rem, 3vw, 2.5rem);
+        margin-bottom: clamp(2.5rem, 6vw, 5rem);
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--line);
+    }
+
+    @media (min-width: 64rem) {
+        .case-facts {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+
+    .case-facts dd {
+        margin-top: 0.375rem;
+    }
+
+    .case-facts-wide {
+        grid-column: 1 / -1;
+    }
+
+    .case-list {
+        border-top: 1px solid var(--line);
+    }
+
+    .case-list > li {
+        padding-block: 0.875rem;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .case-goals > li {
+        position: relative;
+        padding-left: 1.5rem;
+    }
+
+    /* A short tick drawn with two borders: a goal, not a bullet. */
+    .case-goals > li::before {
+        content: '';
+        position: absolute;
+        left: 0.125rem;
+        top: 1.2rem;
+        width: 0.7rem;
+        height: 0.375rem;
+        border-left: 1.5px solid var(--signal);
+        border-bottom: 1.5px solid var(--signal);
+        transform: rotate(-45deg);
+    }
+
+    .case-features {
+        display: grid;
+        column-gap: 2.5rem;
+    }
+
+    @media (min-width: 40rem) {
+        .case-features {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    .case-features > li {
+        display: grid;
+        grid-template-columns: 2rem minmax(0, 1fr);
+        align-items: baseline;
+        gap: 0.75rem;
+    }
+
+    .case-steps {
+        display: grid;
+        border-top: 1px solid var(--line);
+    }
+
+    .case-steps > li {
+        display: grid;
+        gap: 0.375rem 2rem;
+        padding-block: 1.25rem;
+        border-bottom: 1px solid var(--line);
+    }
+
+    @media (min-width: 48rem) {
+        .case-steps > li {
+            grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+            align-items: baseline;
+        }
+    }
+
+    .case-step-title {
+        font-size: 1.125rem;
+        font-weight: 500;
+        letter-spacing: -0.015em;
+    }
+
+    .case-releases > summary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 0.625rem 1rem;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-pill);
+        cursor: pointer;
+        list-style: none;
+        transition: border-color var(--dur-fast) var(--ease);
+    }
+
+    .case-releases > summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .case-releases > summary::after {
+        content: '+';
+        font-size: 1rem;
+        line-height: 1;
+    }
+
+    .case-releases[open] > summary::after {
+        content: '−';
+    }
+
+    .case-releases > summary:hover {
+        border-color: var(--line-strong);
+    }
+
+    .case-release {
+        display: grid;
+        gap: 0.5rem 2rem;
+        padding-block: 1rem;
+        border-top: 1px solid var(--line);
+    }
+
+    @media (min-width: 48rem) {
+        .case-release {
+            grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+        }
+    }
+}

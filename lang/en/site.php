@@ -52,6 +52,9 @@ return [
         'mail_intro' => 'Confirm your newsletter subscription by opening this link:',
         'mail_ignore' => 'Did not sign up? Then you do not have to do anything; without confirmation you receive nothing.',
         'mail_unsubscribe' => 'You can always unsubscribe here:',
+        'mail_read' => 'Read the article',
+        'mail_footer' => 'You are receiving this email because you signed up for the jebbari.nl newsletter.',
+        'mail_stop' => 'Unsubscribe',
     ],
     'cv' => [
         'print' => 'Save as PDF',
@@ -140,6 +143,9 @@ return [
     'work' => ['all' => 'All work', 'filter' => 'Filter by technology', 'filter_empty' => 'No projects with this technology.'],
 
     'project' => [
+        'what' => 'What it does',
+        'progress' => 'Progress',
+        'releases' => 'Releases (:count)',
         'timeline' => 'Timeline',
         'changelog' => 'Changelog',
         'demo' => 'Live demo',
@@ -155,6 +161,12 @@ return [
         'client' => 'Client',
         'stack' => 'Technology',
         'visit' => 'Visit',
+        'uptime_label' => 'Measured live',
+        'uptime_online' => 'Online now',
+        'uptime_offline' => 'Not reachable now',
+        'uptime_value' => ':uptime% uptime',
+        'uptime_ms' => 'average :ms ms',
+        'uptime_note' => 'Last 30 days, :checks measurements by jebbari.nl itself.',
         'brief' => 'The brief',
         'built' => 'What was built',
         'outcome' => 'Outcome',
@@ -294,5 +306,16 @@ return [
 
     'founder' => [
         'bio' => 'Amir Jebbari is the founder of Jebbari, based in Amsterdam and Zwolle, the Netherlands. He builds web applications with Laravel, Vue and TypeScript.',
+    ],
+    // Shown while the owner has taken the site offline (Admin > Site > Website online).
+    'offline' => [
+        'label' => 'Temporarily offline',
+        'title' => 'Not available right now',
+        'text' => 'The website is temporarily offline. Please come back later.',
+        'back' => 'Expected back: :time',
+        'format' => 'l j F, H:i',
+        'reach' => 'Questions? Email',
+        'banner' => 'The website is offline for visitors. You can see it because you are signed in.',
+        'banner_link' => 'Put back online',
     ],
 ];

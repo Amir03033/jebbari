@@ -90,3 +90,47 @@
 - [x] One address everywhere: Professor W.H. Keesomlaan 12, 1183 DJ Amstelveen, The Netherlands (`config/site.php` > address): footer, Organization `address` and `location` in JSON-LD, llms.txt, privacy draft. The CMS address field is gone.
 - [x] No VAT (BTW) number anywhere: removed from the footer, JSON-LD (`vatID`) and the CMS company settings.
 - [ ] Decide whether the copy "gevestigd in Amsterdam en Zwolle / based in Amsterdam and Zwolle" (bio, hero label, meeting line) should change now that the address is in Amstelveen.
+
+## Added in Phase 6 (UI upgrades)
+
+- [ ] Review the UI upgrades (`docs/UI-UPGRADES.md`, screenshots in `docs/screenshots/phase-6/`).
+- [ ] The homepage now fills the work section with the newest projects after the featured ones (up to 4). Switch the block to "Alleen mijn selectie" if you prefer a fixed choice.
+- [ ] Check the floating header, the circular theme switch and the step cards on iPhone Safari and a Mac.
+
+## Added with the website check (docs/SCAN.md)
+
+- [x] Privacy statement: proposed by `content:fill` (review and publish). Note: contact messages and leads with an email address are not deleted automatically; remove them after 12 months as the statement says.
+- [x] Privacy statement: website check (covered by `content:fill`).
+- [ ] Menu link to `/nl/scan` and `/en/scan` (Site > Navigation in the admin).
+- [ ] `PAGESPEED_API_KEY` in `.env` (without it Google's quota is very low and speed shows "not measured").
+- [ ] Turnstile: keys in `.env` if wanted. It adds the site's only third-party request, on the scan form only.
+- [ ] Run `php artisan migrate` on deploy (new `scans` table).
+
+## Added with the lead funnel (docs/LEADS.md)
+
+- [ ] Prices per calculator line (Admin > Prijzen & afspraken > Prijzen); the calculator stays "coming soon" until a project type has prices and is on.
+- [ ] Opening hours for appointments (Beschikbaarheid) and blocked days.
+- [ ] In-person meetings in Zwolle/Amsterdam: seeded off; switch on with a real address only if wanted.
+- [x] Privacy statement: calculator, request and appointment data and retention (covered by `content:fill`).
+- [ ] Menu links and buttons to `/nl/prijs` and `/nl/afspraak`.
+
+## Added in Phase 7 (docs/PHASE-7.md)
+
+- [ ] Run `php artisan migrate` on deploy (proposals, scan_watches, uptime_checks, two new columns).
+- [ ] Add a Plesk scheduled task for `schedule:run` every minute (uptime every 5 minutes, watch hourly, cleanup daily). Works without it, less regularly.
+- [ ] Switch on "Live meten" for the projects whose live site may be measured (and check the link is the public homepage).
+- [x] Privacy statement: website watch and proposals (covered by `content:fill`).
+- [ ] Publish the terms page so proposals link to it on acceptance.
+- [ ] Fix the menu: "Scan" and "Nu" in the Dutch header link to `/en/scan` and `/en/now` (Site > Navigation).
+
+## Content fill (docs/CONTENT-FILL.md)
+
+- [ ] After deploying, run `php artisan content:fill`, then review and publish in /admin: Over mij, Stack, Home, the seven services and the projects.
+- [ ] ReviewsPilot: add the technology and, if there is one, a link.
+- [ ] Irooni: add interface screenshots to the gallery.
+
+## Added in Phase 8 (docs/PHASE-8.md)
+
+- [ ] After deploying: look at the new dashboard and a case study page.
+- [ ] Send yourself a test newsletter (Inbox > Nieuwsbrieven > Testmail naar mij) to check mail delivery.
+

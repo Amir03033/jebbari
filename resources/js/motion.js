@@ -154,8 +154,9 @@ function initField() {
 
     const paint = () => {
         frame = 0;
-        field.style.setProperty('--gx', `${x.toFixed(1)}px`);
-        field.style.setProperty('--gy', `${y.toFixed(1)}px`);
+        // Written on the stage, so the light and the project showcase both read it.
+        stage.style.setProperty('--gx', `${x.toFixed(1)}px`);
+        stage.style.setProperty('--gy', `${y.toFixed(1)}px`);
     };
 
     stage.addEventListener('pointermove', (event) => {
@@ -564,78 +565,142 @@ function initFill() {
     });
 }
 
+/*
+ * Scroll engine. One passive listener and one animation frame for everything
+ * that follows the scroll position. Each job first measures (only reads layout),
+ * then all jobs write. Reading and writing in turn would make the browser
+ * recalculate the whole page for every element: that was the lag. Values are
+ * only written when they change.
+ */
+const scrollJobs = [];
+
+function onScrollFrame(measure, apply) {
+    scrollJobs.push({ measure, apply });
+}
+
+/** Writes a custom property only when its value changed (no needless style work). */
+const lastValues = new WeakMap();
+
+function setVar(el, name, value) {
+    let seen = lastValues.get(el);
+
+    if (!seen) {
+        seen = {};
+        lastValues.set(el, seen);
+    }
+
+    if (seen[name] !== value) {
+        seen[name] = value;
+        el.style.setProperty(name, value);
+    }
+}
+
+function startScrollEngine() {
+    if (!scrollJobs.length) {
+        return;
+    }
+
+    let frame = 0;
+
+    const run = () => {
+        frame = 0;
+        const vh = window.innerHeight;
+        const measured = scrollJobs.map((job) => job.measure(vh));
+
+        scrollJobs.forEach((job, i) => job.apply(measured[i]));
+    };
+
+    const schedule = () => (frame ||= requestAnimationFrame(run));
+
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule, { passive: true });
+    window.addEventListener('load', schedule);
+    run();
+}
+
+const clamp01 = (n) => Math.min(1, Math.max(0, n));
+
 /* Process timeline: steps light as they pass the 60% line of the viewport and
-   the hairline fills (--progress). One passive, rAF-throttled listener. */
+   the hairline fills (--progress). */
 function initProcess() {
-    const roots = document.querySelectorAll('[data-process]');
+    const roots = [...document.querySelectorAll('[data-process]')].map((root) => ({ root, steps: [...root.querySelectorAll('[data-step]')] }));
 
     if (!roots.length) {
         return;
     }
 
-    let frame = 0;
+    onScrollFrame(
+        (vh) => {
+            const line = vh * 0.6;
 
-    const update = () => {
-        frame = 0;
-        const line = window.innerHeight * 0.6;
+            return roots.map(({ root, steps }) => {
+                const rect = root.getBoundingClientRect();
 
-        roots.forEach((root) => {
-            let active = 1;
-
-            root.querySelectorAll('[data-step]').forEach((step, index) => {
-                const passed = step.getBoundingClientRect().top < line;
-                step.classList.toggle('is-passed', passed);
-                if (passed) {
-                    active = index + 1;
+                // Far from the screen nothing changes visibly: measure the steps only nearby.
+                if (rect.bottom < -vh || rect.top > vh * 2) {
+                    return null;
                 }
+
+                return { passed: steps.map((step) => step.getBoundingClientRect().top < line), progress: clamp01((line - rect.top) / rect.height) };
             });
+        },
+        (results) => {
+            results.forEach((result, r) => {
+                if (!result) {
+                    return;
+                }
 
-            root.dataset.active = String(active);
+                const { root, steps } = roots[r];
+                let active = 1;
 
-            const rect = root.getBoundingClientRect();
-            const progress = (line - rect.top) / rect.height;
-            root.style.setProperty('--progress', Math.min(1, Math.max(0, progress)).toFixed(4));
-        });
-    };
+                result.passed.forEach((passed, i) => {
+                    if (steps[i].classList.contains('is-passed') !== passed) {
+                        steps[i].classList.toggle('is-passed', passed);
+                    }
+                    if (passed) {
+                        active = i + 1;
+                    }
+                });
 
-    const schedule = () => (frame ||= requestAnimationFrame(update));
+                if (root.dataset.active !== String(active)) {
+                    root.dataset.active = String(active);
+                }
 
-    window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule, { passive: true });
-    update();
+                setVar(root, '--progress', result.progress.toFixed(3));
+            });
+        },
+    );
 }
 
 /*
- * Scroll-linked values. One passive, rAF-throttled listener writes --p (0 to 1)
- * on every [data-scroll] element. "exit": 0 at rest, 1 once it has scrolled
- * away. "enter": rises from 0 to 1 as it scrolls into view. "stack": 0 to 1 as
- * the next card covers this one. CSS only reads --p,
- * so every browser follows exactly the same curve. Skipped under reduced motion.
+ * Scroll-linked values: --p (0 to 1) on every [data-scroll] element. "exit": 0 at
+ * rest, 1 once it has scrolled away. "enter": rises from 0 to 1 as it scrolls
+ * into view. "stack": 0 to 1 as the next card covers this one. "read": through
+ * an article. [data-fill] gets --fill. Page progress (--page) goes only to the
+ * reading line in the header, not to the whole document. Skipped under reduced motion.
  */
 function initScrollLinked() {
-    const items = document.querySelectorAll('[data-scroll], [data-fill]');
-
     if (reduceQuery.matches) {
         return;
     }
 
-    let frame = 0;
+    const items = [...document.querySelectorAll('[data-scroll], [data-fill]')].map((el) => ({
+        el,
+        mode: el.dataset.scroll || 'fill',
+        prop: el.dataset.fill !== undefined && !el.dataset.scroll ? '--fill' : '--p',
+        next: el.dataset.scroll === 'stack' ? el.nextElementSibling : null,
+    }));
+    const lines = [...document.querySelectorAll('.scroll-line')];
 
-    // Progress 0 to 1 for each kind of scroll-linked element.
-    const progress = (el, rect, vh) => {
-        const mode = el.dataset.scroll || 'fill';
-
-        switch (mode) {
+    const progress = (item, rect, vh) => {
+        switch (item.mode) {
             case 'exit':
                 return -rect.top / Math.max(rect.height, 1);
             case 'read':
                 return (vh * 0.5 - rect.top) / Math.max(rect.height, 1);
-            case 'stack': {
+            case 'stack':
                 // How far the next card has slid over this one.
-                const next = el.nextElementSibling;
-
-                return next ? 1 - (next.getBoundingClientRect().top - rect.top) / Math.max(rect.height, 1) : 0;
-            }
+                return item.next ? 1 - (item.next.getBoundingClientRect().top - rect.top) / Math.max(rect.height, 1) : 0;
             case 'fill':
                 return (vh * 0.9 - rect.top) / (vh * 0.5 + rect.height);
             default:
@@ -643,38 +708,29 @@ function initScrollLinked() {
         }
     };
 
-    const update = () => {
-        frame = 0;
-        const vh = window.innerHeight;
-        const page = document.documentElement;
-        const max = page.scrollHeight - vh;
+    onScrollFrame(
+        (vh) => {
+            const max = document.documentElement.scrollHeight - vh;
+            const page = max > 0 ? clamp01(window.scrollY / max) : 0;
 
-        page.style.setProperty('--page', (max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0).toFixed(4));
+            const values = items.map((item) => {
+                const rect = item.el.getBoundingClientRect();
 
-        items.forEach((el) => {
-            const rect = el.getBoundingClientRect();
+                // Far from the screen only the end values matter: skip the work.
+                if (rect.bottom < -vh * 1.5 || rect.top > vh * 2.5) {
+                    return null;
+                }
 
-            // Far from the screen only the end values matter: skip the work.
-            if (rect.bottom < -vh * 1.5 || rect.top > vh * 2.5) {
-                return;
-            }
+                return clamp01(progress(item, rect, vh)).toFixed(3);
+            });
 
-            const value = Math.min(1, Math.max(0, progress(el, rect, vh))).toFixed(4);
-
-            if (el.dataset.fill !== undefined && !el.dataset.scroll) {
-                el.style.setProperty('--fill', value);
-            } else {
-                el.style.setProperty('--p', value);
-            }
-        });
-    };
-
-    const schedule = () => (frame ||= requestAnimationFrame(update));
-
-    window.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule, { passive: true });
-    window.addEventListener('load', schedule);
-    update();
+            return { page: page.toFixed(3), values };
+        },
+        ({ page, values }) => {
+            lines.forEach((line) => setVar(line, '--page', page));
+            values.forEach((value, i) => value !== null && setVar(items[i].el, items[i].prop, value));
+        },
+    );
 }
 
 /*
@@ -841,6 +897,15 @@ function initTheme() {
             return;
         }
 
+        // The circle grows from the centre of the switch to the farthest corner.
+        const box = event.target.closest('[data-theme-toggle]').getBoundingClientRect();
+        const x = box.left + box.width / 2;
+        const y = box.top + box.height / 2;
+        const r = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+
+        root.style.setProperty('--tx', `${x.toFixed(0)}px`);
+        root.style.setProperty('--ty', `${y.toFixed(0)}px`);
+        root.style.setProperty('--tr', `${r.toFixed(0)}px`);
         root.classList.add('theme-switching');
         document.startViewTransition(apply).finished.finally(() => root.classList.remove('theme-switching'));
     });
@@ -915,6 +980,7 @@ export function initMotion() {
     initFill();
     initProcess();
     initScrollLinked();
+    startScrollEngine();
     initLive();
     initImages();
     initTheme();

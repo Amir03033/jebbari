@@ -44,14 +44,14 @@ cd /var/www/vhosts/jebbari.nl
 ls -A httpdocs
 ```
 
-- **`httpdocs` already has a `.git` folder from this repository:** skip the clone, run `cd httpdocs && git fetch && git checkout claude/new-project-approach-7lh5u0 && git pull`, and go on to step 3 (your `.env` stays).
+- **`httpdocs` already has a `.git` folder from this repository:** skip the clone, run `cd httpdocs && git fetch && git checkout main && git pull`, and go on to step 3 (your `.env` stays).
 - **Anything else there** (Plesk's placeholder page, or an older copy of the site): back it up in the domain's `private` folder (not reachable from the web), empty `httpdocs`, and clone into it. The site user may not rename `httpdocs` itself, so it is emptied rather than moved:
 
 ```bash
 tar czf private/httpdocs-backup-$(date +%Y%m%d).tgz -C httpdocs .    # full backup
 cp httpdocs/.env private/env-backup 2>/dev/null || true               # keep an existing .env
 find httpdocs -mindepth 1 -delete                                     # empty httpdocs
-git clone --branch claude/new-project-approach-7lh5u0 https://github.com/Amir03033/jebbari.git httpdocs
+git clone --branch main https://github.com/Amir03033/jebbari.git httpdocs
 cd httpdocs
 cp ../private/env-backup .env 2>/dev/null || true
 ```
@@ -166,7 +166,7 @@ Until a page is published, its URL returns 404. That is by design: nothing goes 
 
 If the code was set up with Plesk's **Git** extension, `httpdocs` has no `.git` folder: Plesk keeps the repository in `~/git/` and copies the files. Then an update is:
 
-1. Plesk > Websites & Domains > jebbari.nl > **Git** > **Pull Updates** (and **Deploy** if deployment is set to manual). Branch: `claude/new-project-approach-7lh5u0`.
+1. Plesk > Websites & Domains > jebbari.nl > **Git** > **Pull Updates** (and **Deploy** if deployment is set to manual). Branch: `main` (set it under Git > Repository Settings; until 21 November 2026 this was `claude/new-project-approach-7lh5u0`).
 2. As the site user: `cd ~/httpdocs && PHP=/opt/plesk/php/8.4/bin/php ./deploy.sh` (it sees there is no `.git` and skips the pull).
 
 One click instead: in the Git settings, tick **Enable additional deployment actions** and enter

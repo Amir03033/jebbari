@@ -52,6 +52,9 @@ return [
         'mail_intro' => 'Bevestig je aanmelding voor de nieuwsbrief door deze link te openen:',
         'mail_ignore' => 'Heb je je niet aangemeld? Dan hoef je niets te doen; zonder bevestiging ontvang je niets.',
         'mail_unsubscribe' => 'Afmelden kan altijd via:',
+        'mail_read' => 'Lees het artikel',
+        'mail_footer' => 'Je krijgt deze e-mail omdat je je hebt aangemeld voor de nieuwsbrief van jebbari.nl.',
+        'mail_stop' => 'Afmelden',
     ],
     'cv' => [
         'print' => 'Opslaan als pdf',
@@ -140,6 +143,9 @@ return [
     'work' => ['all' => 'Al het werk', 'filter' => 'Filter op technologie', 'filter_empty' => 'Geen projecten met deze technologie.'],
 
     'project' => [
+        'what' => 'Wat het doet',
+        'progress' => 'Verloop',
+        'releases' => 'Versies (:count)',
         'timeline' => 'Tijdlijn',
         'changelog' => 'Changelog',
         'demo' => 'Live demo',
@@ -155,6 +161,12 @@ return [
         'client' => 'Klant',
         'stack' => 'Technologie',
         'visit' => 'Bekijk',
+        'uptime_label' => 'Live gemeten',
+        'uptime_online' => 'Nu online',
+        'uptime_offline' => 'Nu niet bereikbaar',
+        'uptime_value' => ':uptime% uptime',
+        'uptime_ms' => 'gemiddeld :ms ms',
+        'uptime_note' => 'Laatste 30 dagen, :checks metingen door jebbari.nl zelf.',
         'brief' => 'De opdracht',
         'built' => 'Wat is gebouwd',
         'outcome' => 'Resultaat',
@@ -276,5 +288,16 @@ return [
     // The standard short bio (docs/AI-VISIBILITY.md): use it word for word everywhere.
     'founder' => [
         'bio' => 'Amir Jebbari is de oprichter van Jebbari, gevestigd in Amsterdam en Zwolle. Hij bouwt webapplicaties met Laravel, Vue en TypeScript.',
+    ],
+    // Shown while the owner has taken the site offline (Admin > Site > Website online).
+    'offline' => [
+        'label' => 'Tijdelijk offline',
+        'title' => 'Even niet bereikbaar',
+        'text' => 'De website is tijdelijk offline. Kom later nog eens terug.',
+        'back' => 'Verwacht terug: :time',
+        'format' => 'l j F, H:i',
+        'reach' => 'Vragen? Mail naar',
+        'banner' => 'De website staat offline voor bezoekers. Jij ziet hem omdat je bent ingelogd.',
+        'banner_link' => 'Zet weer online',
     ],
 ];

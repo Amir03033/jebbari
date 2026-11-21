@@ -2,15 +2,28 @@
 
 namespace App\Providers;
 
+use App\Jobs\CheckUptime;
+use App\Jobs\PruneOldRecords;
+use App\Jobs\RunDueWatches;
 use App\Listeners\SanitizeUploadedImage;
+use App\Models\Appointment;
+use App\Models\AppointmentType;
+use App\Models\AvailabilityRule;
+use App\Models\BlockedDate;
 use App\Models\Inquiry;
+use App\Models\Lead;
 use App\Models\MediaAsset;
 use App\Models\NavigationItem;
+use App\Models\Newsletter;
 use App\Models\Page;
 use App\Models\Post;
 use App\Models\PostCategory;
 use App\Models\Preview;
+use App\Models\PriceItem;
 use App\Models\Project;
+use App\Models\Proposal;
+use App\Models\Scan;
+use App\Models\ScanWatch;
 use App\Models\Service;
 use App\Models\Subscriber;
 use App\Models\Testimonial;
@@ -25,6 +38,7 @@ use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
@@ -54,6 +68,16 @@ class AppServiceProvider extends ServiceProvider
             User::class => OwnerOnlyPolicy::class,
             Subscriber::class => OwnerOnlyPolicy::class,
             Preview::class => OwnerOnlyPolicy::class,
+            Scan::class => OwnerOnlyPolicy::class,
+            ScanWatch::class => OwnerOnlyPolicy::class,
+            Proposal::class => OwnerOnlyPolicy::class,
+            Newsletter::class => OwnerOnlyPolicy::class,
+            Lead::class => InquiryPolicy::class,
+            Appointment::class => InquiryPolicy::class,
+            PriceItem::class => OwnerOnlyPolicy::class,
+            AppointmentType::class => OwnerOnlyPolicy::class,
+            AvailabilityRule::class => OwnerOnlyPolicy::class,
+            BlockedDate::class => OwnerOnlyPolicy::class,
             Activity::class => ActivityPolicy::class,
         ] as $model => $policy) {
             Gate::policy($model, $policy);
@@ -65,11 +89,42 @@ class AppServiceProvider extends ServiceProvider
             Limit::perHour(30)->by($request->ip()),
         ]);
 
+        // Without a scheduler: after a web request has been answered, queue the
+        // website-watch runs (hourly) and the uptime measurements (every 10 minutes).
+        $this->app->terminating(function () {
+            if ($this->app->runningInConsole() || $this->app->runningUnitTests()) {
+                return;
+            }
+
+            if (Cache::add('scan-watch.tick', true, 3600)) {
+                RunDueWatches::dispatch();
+            }
+
+            // Retention (privacy statement): once a day.
+            if (Cache::add('prune.tick', true, 86400)) {
+                PruneOldRecords::dispatch();
+            }
+
+            // Live uptime: at most every 10 minutes (every 5 with the scheduler).
+            if (Cache::add('uptime.tick', true, 600)) {
+                CheckUptime::dispatch();
+            }
+        });
+
         // Contact form: 3 a minute and 10 an hour per address.
         RateLimiter::for('contact', fn (Request $request) => [
             Limit::perMinute(3)->by($request->ip()),
             Limit::perHour(10)->by($request->ip()),
         ]);
+
+        // Lead funnel forms (calculator, request wizard, appointments): generous for real people, tight for scripts.
+        RateLimiter::for('leads', fn (Request $request) => [
+            Limit::perMinute(20)->by($request->ip()),
+            Limit::perHour(120)->by($request->ip()),
+        ]);
+
+        // Website check form: a burst limit; the daily limit per visitor is in ScanController.
+        RateLimiter::for('scan', fn (Request $request) => Limit::perMinute(10)->by($request->ip()));
 
         Event::listen(MediaHasBeenAddedEvent::class, SanitizeUploadedImage::class);
 

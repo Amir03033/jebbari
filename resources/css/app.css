@@ -2,6 +2,7 @@
 @import './fonts.css';
 @import './motion.css';
 @import './site.css';
+@import './polish.css';
 
 @source '../../storage/framework/views/*.php';
 

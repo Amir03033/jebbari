@@ -28,7 +28,7 @@ class WorkSelectionBlock extends Block
         return [
             Translated::text('label', 'Sectielabel', true),
             Translated::textarea('intro', 'Inleiding (optioneel)'),
-            Select::make('mode')->label('Welke projecten')->options(['featured' => 'Uitgelichte projecten', 'selected' => 'Alleen mijn selectie'])->default('featured')->live(),
+            Select::make('mode')->label('Welke projecten')->options(['featured' => 'Uitgelichte projecten eerst, aangevuld met de nieuwste', 'selected' => 'Alleen mijn selectie'])->default('featured')->live(),
             Select::make('project_ids')->label('Selectie')->multiple()->options(fn () => BlockOptions::projects())->visible(fn ($get) => $get('mode') === 'selected'),
             TextInput::make('limit')->label('Maximaal aantal')->numeric()->minValue(1)->maxValue(4)->default(4),
         ];

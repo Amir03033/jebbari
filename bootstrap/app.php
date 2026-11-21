@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\OfflineGate;
 use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -13,7 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->web(append: [SecurityHeaders::class]);
+        $middleware->web(append: [SecurityHeaders::class, OfflineGate::class]);
         // The preview subdomain compares this cookie as plain text (scripts/preview-deploy.sh).
         $middleware->encryptCookies(except: ['jebbari_preview']);
         $middleware->redirectGuestsTo(fn () => route('filament.admin.auth.login'));

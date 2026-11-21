@@ -33,6 +33,8 @@ class PreviewWork extends Command
             '--queue' => 'previews',
             '--stop-when-empty' => true,
             '--max-time' => 55,
+            // The builds run in their own process; this only guards the worker itself.
+            '--memory' => 512,
         ]);
     }
 }

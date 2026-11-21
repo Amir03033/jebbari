@@ -25,6 +25,22 @@ class Locale
         'faq' => ['nl' => 'veelgestelde-vragen', 'en' => 'faq'],
     ];
 
+    /** Slugs of the lead funnel (price calculator, request wizard, appointments). */
+    public const LEAD_SLUGS = [
+        'price' => ['nl' => 'prijs', 'en' => 'pricing'],
+        'request' => ['nl' => 'aanvraag', 'en' => 'request'],
+        'step' => ['nl' => 'stap', 'en' => 'step'],
+        'resume' => ['nl' => 'verder', 'en' => 'continue'],
+        'sent' => ['nl' => 'verzonden', 'en' => 'sent'],
+        'appointment' => ['nl' => 'afspraak', 'en' => 'appointment'],
+        'manage' => ['nl' => 'beheer', 'en' => 'manage'],
+        'cancel' => ['nl' => 'annuleren', 'en' => 'cancel'],
+        'calendar' => ['nl' => 'agenda', 'en' => 'calendar'],
+        'proposal' => ['nl' => 'voorstel', 'en' => 'proposal'],
+        'accept' => ['nl' => 'akkoord', 'en' => 'accept'],
+        'decline' => ['nl' => 'afwijzen', 'en' => 'decline'],
+    ];
+
     /** Old paths that moved, answered with a 301 (the NL About page used to be "over-ons"). */
     public const MOVED = ['nl/over-ons' => '/nl/over-mij'];
 

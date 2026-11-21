@@ -110,19 +110,31 @@ class HomepageTest extends TestCase
         $this->get('/nl')->assertOk()->assertDontSee('service-row', false)->assertDontSee('/ DIENSTEN');
     }
 
-    public function test_selected_work_shows_published_featured_projects_only(): void
+    public function test_selected_work_leads_with_featured_projects_and_fills_up_with_other_published_ones(): void
     {
         $this->publishSite();
-        $this->makeProject(['title' => ['nl' => 'Uitgelicht', 'en' => 'Featured']]);
         $this->makeProject(['title' => ['nl' => 'Niet uitgelicht', 'en' => 'Not featured'], 'is_featured' => false]);
+        $this->makeProject(['title' => ['nl' => 'Uitgelicht', 'en' => 'Featured']]);
         $this->makeProject(['title' => ['nl' => 'Nog concept', 'en' => 'Still draft']], publish: false);
 
         $home = $this->body('/nl');
         $this->assertStringContainsString('Uitgelicht', $home);
-        $this->assertStringNotContainsString('Niet uitgelicht', $home);
+        $this->assertStringContainsString('Niet uitgelicht', $home);
+        $this->assertLessThan(strpos($home, 'Niet uitgelicht'), strpos($home, '>Uitgelicht<'));
         $this->assertStringNotContainsString('Nog concept', $home);
 
         $this->get('/nl/werk')->assertSee('Uitgelicht')->assertSee('Niet uitgelicht')->assertDontSee('Nog concept');
+    }
+
+    public function test_the_homepage_shows_at_most_four_projects(): void
+    {
+        $this->publishSite();
+
+        foreach (range(1, 6) as $n) {
+            $this->makeProject(['title' => ['nl' => "Project nummer $n", 'en' => "Project number $n"], 'is_featured' => $n === 1]);
+        }
+
+        $this->assertSame(4, substr_count($this->body('/nl'), 'class="stack-item"'));
     }
 
     public function test_serverscope_appears_with_only_its_verified_facts(): void
@@ -240,5 +252,35 @@ class HomepageTest extends TestCase
 
         $this->get('/nl')->assertSee('Jebbari Testbedrijf')->assertSee('KvK 12345678')->assertDontSee('NL000000000B01')->assertDontSee('BTW')
             ->assertSee('LinkedIn')->assertSee('https://linkedin.example.test/jebbari', false);
+    }
+
+    public function test_the_hero_shows_project_images_only_when_there_are_at_least_two(): void
+    {
+        $this->publishSite();
+        $this->makeProject(['title' => ['nl' => 'Met beeld', 'en' => 'With image'], 'cover_media_id' => $this->makeImage()->id]);
+
+        $this->assertStringNotContainsString('hero-show', $this->body('/nl'));
+
+        $this->makeProject(['title' => ['nl' => 'Ook met beeld', 'en' => 'Also with image'], 'cover_media_id' => $this->makeImage()->id]);
+        $home = $this->body('/nl');
+
+        // Decorative: hidden from assistive technology, images without alt text, never eager.
+        $this->assertMatchesRegularExpression('/<div class="hero-show" aria-hidden="true"/', $home);
+        $this->assertSame(2, substr_count($home, 'class="hero-shot '));
+        $show = substr($home, strpos($home, 'hero-show'), 4000);
+        $this->assertStringContainsString('alt=""', $show);
+        $this->assertStringNotContainsString('fetchpriority', substr($show, 0, strpos($show, 'hero-body')));
+    }
+
+    public function test_services_and_process_steps_are_headings_under_their_section(): void
+    {
+        $this->publishSite();
+        $this->makeService();
+        $home = $this->body('/nl');
+
+        $this->assertMatchesRegularExpression('/<h3 class="svc-title">/', $home);
+        $this->assertMatchesRegularExpression('/<h3 class="t-h2 rise mt-6"[^>]*>Praten<\/h3>/', $home);
+        // The step index beside the cards repeats the titles, so it is hidden from screen readers.
+        $this->assertMatchesRegularExpression('/md:block" aria-hidden="true">\s*<div class="process-aside"/', $home);
     }
 }

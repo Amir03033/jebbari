@@ -4,14 +4,26 @@ namespace App\Models;
 
 use App\Enums\InquiryStatus;
 use App\Models\Concerns\AuditsChanges;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Inquiry extends Model
 {
     use AuditsChanges;
+    use Prunable;
 
     protected $guarded = ['id'];
+
+    /** Contact messages go config('leads.contact_months') after the last activity (message or note), as the privacy statement promises. */
+    public function prunable(): Builder
+    {
+        $cutoff = now()->subMonths(config('leads.contact_months'));
+
+        return static::query()->where('updated_at', '<', $cutoff)
+            ->whereDoesntHave('notes', fn (Builder $n) => $n->where('created_at', '>=', $cutoff));
+    }
 
     protected function casts(): array
     {

@@ -1,10 +1,16 @@
 <?php
 
+use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\PreviewReviewController;
+use App\Http\Controllers\PriceController;
+use App\Http\Controllers\ProposalController;
+use App\Http\Controllers\RequestController;
+use App\Http\Controllers\ScanController;
+use App\Http\Controllers\ScanWatchController;
 use App\Http\Controllers\ShareImageController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\SitemapController;
@@ -12,6 +18,7 @@ use App\Http\Controllers\StyleController;
 use App\Http\Middleware\CountPageView;
 use App\Http\Middleware\SetLocale;
 use App\Support\Locale;
+use App\Support\SiteOffline;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -38,6 +45,10 @@ Route::get('/share/{locale}/{type}/{slug}.png', ShareImageController::class)->wh
 Route::get('/newsletter/confirm/{subscriber}', [NewsletterController::class, 'confirm'])->middleware('signed')->name('newsletter.confirm');
 Route::get('/newsletter/unsubscribe/{subscriber}', [NewsletterController::class, 'unsubscribe'])->middleware('signed')->name('newsletter.unsubscribe');
 
+// Website watch: links from the watch emails. Signed, so they cannot be guessed.
+Route::get('/scan-watch/{watch}/confirm', [ScanWatchController::class, 'confirm'])->middleware('signed')->whereNumber('watch')->name('scan.watch.confirm');
+Route::get('/scan-watch/{watch}/stop', [ScanWatchController::class, 'stop'])->middleware('signed')->whereNumber('watch')->name('scan.watch.stop');
+
 foreach (Locale::all() as $locale) {
     Route::prefix($locale)->middleware([SetLocale::class.':'.$locale, CountPageView::class])->group(function () use ($locale) {
         // System pages (content comes from the CMS).
@@ -62,6 +73,37 @@ foreach (Locale::all() as $locale) {
         Route::get(Locale::slug('blog', $locale).'/'.Locale::CATEGORY_SEGMENT[$locale].'/{slug}', [SiteController::class, 'category'])->name($locale.'.blog.category');
         Route::get(Locale::slug('blog', $locale).'/{slug}', [SiteController::class, 'post'])->name($locale.'.blog.show');
 
+        // Free website check: form, request (rate limited per visitor in the controller) and report.
+        Route::get('scan', [ScanController::class, 'create'])->name($locale.'.scan');
+        Route::post('scan', [ScanController::class, 'store'])->middleware('throttle:scan')->name($locale.'.scan.store');
+        Route::get('scan/{scan}', [ScanController::class, 'show'])->where('scan', '[A-Za-z0-9]{40}')->name($locale.'.scan.show');
+        Route::post('scan/{scan}/watch', [ScanWatchController::class, 'store'])->where('scan', '[A-Za-z0-9]{40}')->middleware('throttle:leads')->name($locale.'.scan.watch');
+        Route::get('scan/{scan}/status', [ScanController::class, 'status'])->where('scan', '[A-Za-z0-9]{40}')->name($locale.'.scan.status');
+
+        // Lead funnel: price calculator, request wizard, appointments (docs/LEADS.md).
+        $slug = Locale::LEAD_SLUGS;
+        Route::get($slug['price'][$locale], [PriceController::class, 'show'])->name($locale.'.price');
+        Route::post($slug['price'][$locale], [PriceController::class, 'save'])->middleware('throttle:leads')->name($locale.'.price.save');
+
+        Route::get($slug['request'][$locale], [RequestController::class, 'start'])->name($locale.'.request');
+        Route::get($slug['request'][$locale].'/'.$slug['step'][$locale].'/{step}', [RequestController::class, 'step'])->whereNumber('step')->where('step', '[1-5]')->name($locale.'.request.step');
+        Route::post($slug['request'][$locale].'/'.$slug['step'][$locale].'/{step}', [RequestController::class, 'save'])->where('step', '[1-5]')->middleware('throttle:leads')->name($locale.'.request.save');
+        Route::get($slug['request'][$locale].'/'.$slug['resume'][$locale].'/{lead}', [RequestController::class, 'resume'])->where('lead', '[A-Za-z0-9]{40}')->name($locale.'.request.resume');
+        Route::get($slug['request'][$locale].'/'.$slug['sent'][$locale], [RequestController::class, 'done'])->name($locale.'.request.done');
+
+        Route::get($slug['appointment'][$locale], [AppointmentController::class, 'index'])->name($locale.'.appointment');
+        Route::get($slug['appointment'][$locale].'/'.$slug['manage'][$locale].'/{appointment}', [AppointmentController::class, 'manage'])->where('appointment', '[A-Za-z0-9]{40}')->name($locale.'.appointment.manage');
+        Route::post($slug['appointment'][$locale].'/'.$slug['manage'][$locale].'/{appointment}/'.$slug['cancel'][$locale], [AppointmentController::class, 'cancel'])->where('appointment', '[A-Za-z0-9]{40}')->middleware('throttle:leads')->name($locale.'.appointment.cancel');
+        Route::get($slug['appointment'][$locale].'/'.$slug['manage'][$locale].'/{appointment}/'.$slug['calendar'][$locale].'.ics', [AppointmentController::class, 'ics'])->where('appointment', '[A-Za-z0-9]{40}')->name($locale.'.appointment.ics');
+        Route::get($slug['appointment'][$locale].'/{type}', [AppointmentController::class, 'pick'])->whereNumber('type')->name($locale.'.appointment.pick');
+        Route::get($slug['appointment'][$locale].'/{type}/{slot}', [AppointmentController::class, 'details'])->whereNumber('type')->where('slot', '\d{4}-\d{2}-\d{2}T\d{2}:\d{2}')->name($locale.'.appointment.details');
+        Route::post($slug['appointment'][$locale].'/{type}/{slot}', [AppointmentController::class, 'book'])->whereNumber('type')->where('slot', '\d{4}-\d{2}-\d{2}T\d{2}:\d{2}')->middleware('throttle:leads')->name($locale.'.appointment.book');
+
+        // Personal proposals: private token links made in the admin (docs/PROPOSALS.md).
+        Route::get($slug['proposal'][$locale].'/{proposal}', [ProposalController::class, 'show'])->where('proposal', '[A-Za-z0-9]{40}')->name($locale.'.proposal.show');
+        Route::post($slug['proposal'][$locale].'/{proposal}/'.$slug['accept'][$locale], [ProposalController::class, 'accept'])->where('proposal', '[A-Za-z0-9]{40}')->middleware('throttle:leads')->name($locale.'.proposal.accept');
+        Route::post($slug['proposal'][$locale].'/{proposal}/'.$slug['decline'][$locale], [ProposalController::class, 'decline'])->where('proposal', '[A-Za-z0-9]{40}')->middleware('throttle:leads')->name($locale.'.proposal.decline');
+
         // Legal pages (privacy, terms) live at the slug the owner gives them. Must stay last.
         Route::get('{slug}', [SiteController::class, 'legal'])->where('slug', '[a-z0-9\-]+')->name($locale.'.legal');
     });
@@ -74,6 +116,18 @@ Route::prefix('review/{token}')->where(['token' => '[A-Za-z0-9]{64}'])->name('re
     Route::post('approve', [PreviewReviewController::class, 'approve'])->middleware('throttle:review')->name('approve');
     Route::post('changes', [PreviewReviewController::class, 'changes'])->middleware('throttle:review')->name('changes');
 });
+
+// The offline page as visitors would see it, for the owner (Admin > Site > Website online).
+Route::get('/offline-preview', function (Request $request) {
+    $locale = Locale::preferred($request);
+    app()->setLocale($locale);
+
+    return response()->view('errors.offline', [
+        'locale' => $locale,
+        'message' => SiteOffline::message($locale),
+        'back' => SiteOffline::backAt(),
+    ])->header('X-Robots-Tag', 'noindex');
+})->middleware('auth')->name('offline.preview');
 
 // Design-token test page. Not part of the public site.
 Route::get('/_style', StyleController::class)

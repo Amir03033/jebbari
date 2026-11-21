@@ -9,6 +9,9 @@
     $primary = Site::cta($data, 'cta');
     $secondary = Site::cta($data, 'cta2');
     $now = now(config('site.timezone'))->format('H:i');
+    // Up to three project images for the showcase beside the headline (large screens only).
+    $shots = Site::highlights(6)->filter(fn ($p) => $p->cover)->take(3)->values();
+    $show = $shots->count() >= 2;
 @endphp
 
 {{--
@@ -17,12 +20,30 @@
     a fine grid: it leans toward the pointer and settles as the page scrolls
     away. All motion is transform and opacity (motion.css, motion.js).
 --}}
-<section class="hero" aria-labelledby="hero-title" data-scroll="exit">
+<section @class(['hero', 'has-show' => $show]) aria-labelledby="hero-title" data-scroll="exit">
     <div class="hero-field" data-field aria-hidden="true">
         <span class="hero-grid"></span>
         <span class="hero-glow"></span>
         <span class="hero-glow hero-glow-2"></span>
     </div>
+
+    @if ($show)
+        {{--
+            A loose stack of real project images beside the headline. Decorative:
+            the same projects are linked, with names, in the work section below,
+            so this is hidden from assistive technology and keyboard order.
+            Shown from 80rem up only, so phones never load these images.
+        --}}
+        <div class="hero-show" aria-hidden="true" data-reveal="group">
+            @foreach ($shots as $shot)
+                <div class="hero-shot hero-shot-{{ $loop->iteration }}">
+                    <div class="hero-shot-inner">
+                        <x-picture :asset="$shot->cover" alt="" sizes="(min-width: 80rem) 34vw, 1px" />
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
 
     <div class="hero-body page-wide" data-reveal="group" data-hero>
         @if ($label)
