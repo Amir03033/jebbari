@@ -272,9 +272,16 @@ The log shows the step and the error. Common causes:
 | `has no public/ folder` | The repository is not a Laravel-style project; the document root is `httpdocs/public` |
 | Status stays *In de wachtrij* | The preview worker (step 4) is not running |
 
-## Not verified
+## Verified on the server
 
-The build environment of this project runs as root and cannot reach Plesk, so
-`scripts/preview-deploy.sh` was checked for syntax and tested through the job with a stand-in
-script. It has not yet run against a real repository. Run the first test above before you send a
-link to a client.
+Checked by the owner on the Strato/Plesk server (21 November 2026):
+
+- The server steps above are done; the preview worker runs as `previews:work`.
+- A private repository (`Amir03033/Ranjkar`) clones with the fine-grained token, builds and runs
+  on preview.jebbari.nl.
+- The client page shows the site in the frame under the "Preview, niet definitief" bar.
+- Visitors without the client link get the 403 page.
+
+Not yet confirmed on the server: an automatic update after a push, with the database kept. The
+build environment of this project runs as root and cannot reach Plesk, so those parts are
+covered by the tests only (with a stand-in script and a faked GitHub response).
