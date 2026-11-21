@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Mail\PreviewApproved;
 use App\Mail\PreviewChangesRequested;
 use App\Models\Preview;
+use App\Support\Seo;
 use App\Support\Settings;
+use App\Support\ShareImage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\Mail;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Throwable;
 
 /**
@@ -39,6 +42,20 @@ class PreviewReviewController extends Controller
             config('preview.cookie'), $preview->access_key, $minutes, '/', config('preview.cookie_domain') ?: null,
             secure: str_starts_with((string) config('preview.url'), 'https://'), httpOnly: true, raw: true, sameSite: 'lax',
         ));
+    }
+
+    /** The image in the link preview when the link is shared (WhatsApp, iMessage, mail). */
+    public function shareImage(string $token): BinaryFileResponse|RedirectResponse
+    {
+        $preview = $this->find($token);
+
+        $path = $preview->isViewable()
+            ? ShareImage::for('review-'.$preview->getKey().'-'.app()->getLocale(), __('site.review.share_image_title', ['name' => $preview->client_name]), __('site.review.share_label'))
+            : null;
+
+        return $path
+            ? response()->file($path, ['Content-Type' => 'image/png'])
+            : redirect(asset(Seo::DEFAULT_IMAGE));
     }
 
     public function approve(string $token): RedirectResponse

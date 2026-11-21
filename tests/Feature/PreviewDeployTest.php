@@ -482,6 +482,25 @@ SH);
         $this->assertDoesNotMatchRegularExpression('/<script(?![^>]*\ssrc=)[^>]*>/', $html);
     }
 
+    public function test_the_shared_link_shows_a_preview_with_title_text_and_image(): void
+    {
+        $preview = $this->preview(['client_name' => 'Sam Ranjkar']);
+
+        $this->get('/review/'.$preview->token)->assertOk()
+            ->assertSee('<meta property="og:title" content="Je nieuwe website, Sam Ranjkar: het prototype">', false)
+            ->assertSee('Ontworpen en gebouwd door Jebbari.', false)
+            ->assertSee('<meta property="og:image" content="'.route('review.share', $preview->token).'">', false)
+            ->assertSee('<meta name="twitter:card" content="summary_large_image">', false);
+
+        $image = $this->get('/review/'.$preview->token.'/share.png')->assertOk();
+        $this->assertSame('image/png', $image->headers->get('Content-Type'));
+        $this->assertSame(1200, getimagesize($image->baseResponse->getFile()->getPathname())[0]);
+
+        // A cleared preview shares the plain Jebbari image, without the name.
+        $preview->update(['status' => PreviewStatus::Cleared]);
+        $this->get('/review/'.$preview->token.'/share.png')->assertRedirect(asset('og/default.png'));
+    }
+
     public function test_other_pages_do_not_frame_the_preview(): void
     {
         $csp = $this->get('/_style')->headers->get('Content-Security-Policy');
