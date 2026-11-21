@@ -44,6 +44,20 @@ return [
             'transaction_mode' => 'DEFERRED',
         ],
 
+        // The preview site's database (config/preview.php), used to empty it.
+        'preview' => [
+            'driver' => 'mysql',
+            'host' => env('PREVIEW_DB_HOST', '127.0.0.1'),
+            'port' => env('PREVIEW_DB_PORT', '3306'),
+            'database' => env('PREVIEW_DB_DATABASE'),
+            'username' => env('PREVIEW_DB_USERNAME'),
+            'password' => env('PREVIEW_DB_PASSWORD'),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+        ],
+
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),

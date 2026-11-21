@@ -149,6 +149,8 @@ Do not create it under Tools & Settings > Scheduled Tasks: those run as root.
 
 Optional, monthly: a "Run a command" task under the same domain with `cd ~/httpdocs && /opt/plesk/php/8.4/bin/php artisan activitylog:clean` (applies the 24-month audit retention).
 
+Client website previews on preview.jebbari.nl use a second worker on their own queue: see `docs/PREVIEW-DEPLOY.md`, step 4.
+
 ### 6. Log in and publish
 
 1. Open **https://jebbari.nl/admin**, log in, and set up the authenticator app. Store the recovery codes safely.

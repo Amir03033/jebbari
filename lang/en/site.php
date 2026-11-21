@@ -209,6 +209,27 @@ return [
         'scheduled' => 'Scheduled',
     ],
 
+    'review' => [
+        'label' => 'Preview, not final',
+        'title' => 'Preview for :name',
+        'valid_until' => 'valid until :date',
+        'approve' => 'Approve',
+        'request_changes' => 'Request changes',
+        'changes_label' => 'What should change?',
+        'changes_hint' => 'Name the page and what needs to be different.',
+        'send' => 'Send',
+        'approved_now' => 'Thank you. The preview is approved.',
+        'approved_on' => 'Approved on :date',
+        'changes_sent' => 'Your changes have been sent.',
+        'open_short' => 'New tab',
+        'open' => 'Open in a new tab',
+        'new_tab' => '(opens in a new tab)',
+        'frame' => 'Preview of the website of :name',
+        'unavailable_title' => 'This preview is no longer available.',
+        'unavailable_text' => 'The preview was replaced or cleared. Ask for a new link if you still want to see it.',
+        'expired_text' => 'The link has expired. Ask for a new link if you still want to see the preview.',
+    ],
+
     'contact' => [
         'label' => 'Contact',
         'name' => 'Name',

@@ -44,6 +44,17 @@ return [
             'after_commit' => false,
         ],
 
+        // Preview builds (composer, npm) take minutes: their own queue, released
+        // to another worker only long after the build timeout. See config/preview.php.
+        'previews' => [
+            'driver' => 'database',
+            'connection' => env('DB_QUEUE_CONNECTION'),
+            'table' => env('DB_QUEUE_TABLE', 'jobs'),
+            'queue' => 'previews',
+            'retry_after' => (int) env('PREVIEW_TIMEOUT', 1500) + 300,
+            'after_commit' => false,
+        ],
+
         'beanstalkd' => [
             'driver' => 'beanstalkd',
             'host' => env('BEANSTALKD_QUEUE_HOST', 'localhost'),
