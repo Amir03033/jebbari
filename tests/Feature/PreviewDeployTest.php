@@ -373,6 +373,39 @@ SH);
         Queue::assertPushed(DeployPreview::class, 1);
     }
 
+    public function test_the_update_button_deploys_only_when_there_is_a_new_commit(): void
+    {
+        Queue::fake();
+        $this->actingAs($this->owner());
+        $github = Http::response(str_repeat('a', 40));
+        Http::fake(function () use (&$github) {
+            return $github;
+        });
+        $preview = $this->preview(['commit_sha' => str_repeat('a', 40)]);
+
+        // Nothing new.
+        Livewire::test(ViewPreview::class, ['record' => $preview->getKey()])->callAction('update')
+            ->assertNotified('Al bijgewerkt: de nieuwste commit (aaaaaaa) staat live.');
+        Queue::assertNothingPushed();
+
+        // New commit: deployed, database kept.
+        $github = Http::response(str_repeat('b', 40));
+        Livewire::test(ViewPreview::class, ['record' => $preview->getKey()])->callAction('update');
+        $this->assertSame(PreviewStatus::Pending, $preview->fresh()->status);
+        $this->assertSame(str_repeat('b', 40), $preview->fresh()->commit_sha);
+        Queue::assertPushed(DeployPreview::class, 1);
+
+        // A build is queued: the button is disabled.
+        Livewire::test(ViewPreview::class, ['record' => $preview->getKey()])->assertActionDisabled('update');
+
+        // GitHub does not answer: a warning, nothing queued.
+        $preview->refresh()->forceFill(['status' => PreviewStatus::Ready])->save();
+        $github = Http::response('Bad credentials', 401);
+        [$result] = app(PreviewUpdates::class)->update($preview->fresh());
+        $this->assertSame('unknown', $result);
+        Queue::assertPushed(DeployPreview::class, 1);
+    }
+
     public function test_no_automatic_update_when_switched_off_expired_cleared_or_github_fails(): void
     {
         Queue::fake();

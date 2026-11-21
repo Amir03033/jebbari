@@ -8,6 +8,7 @@ use App\Filament\Resources\Previews\Pages\EditPreview;
 use App\Filament\Resources\Previews\Pages\ListPreviews;
 use App\Filament\Resources\Previews\Pages\ViewPreview;
 use App\Models\Preview;
+use App\Support\PreviewUpdates;
 use BackedEnum;
 use Closure;
 use Filament\Actions\Action;
@@ -125,16 +126,37 @@ class PreviewResource extends Resource
                     ->color(fn (Preview $r) => $r->isExpired() ? 'danger' : null),
             ])
             ->defaultSort('created_at', 'desc')
-            ->recordActions([ViewAction::make(), static::deployAction()]);
+            ->recordActions([ViewAction::make(), static::updateAction()]);
+    }
+
+    /** "Bijwerken": checks GitHub and deploys again only when the branch has a new commit. */
+    public static function updateAction(): Action
+    {
+        return Action::make('update')->label('Bijwerken')->icon('heroicon-o-arrow-path')->color('primary')
+            ->tooltip('Haalt de nieuwste versie van GitHub op als die er is. De database blijft staan.')
+            ->disabled(fn () => Preview::busy())
+            ->action(function (Preview $record) {
+                [$result, $message] = app(PreviewUpdates::class)->update($record);
+
+                $notification = Notification::make()->title($message);
+                match ($result) {
+                    'queued' => $notification->success(),
+                    'current' => $notification->info(),
+                    default => $notification->warning(),
+                };
+                $notification->send();
+            });
     }
 
     /** "Deploy": puts this preview on the subdomain, replacing whatever is there. */
     public static function deployAction(): Action
     {
-        return Action::make('deploy')->label('Deploy')->icon('heroicon-o-rocket-launch')->color('primary')
+        return Action::make('deploy')->label('Opnieuw deployen')->icon('heroicon-o-rocket-launch')->color('gray')
             ->requiresConfirmation()
-            ->modalHeading('Deze preview deployen?')
-            ->modalDescription('De huidige preview op de subdomain wordt vervangen en de database wordt opnieuw opgebouwd. Andere klantlinks stoppen met werken.')
+            ->modalHeading('Deze preview opnieuw deployen?')
+            ->modalDescription(fn (Preview $record) => 'De preview wordt opnieuw gebouwd vanaf de nieuwste code, ook als er niets nieuws is. '
+                .($record->keepsDatabase() ? 'De database blijft staan.' : 'De database wordt leeggemaakt en opnieuw gevuld.')
+                .' Klantlinks van andere previews stoppen met werken.')
             ->disabled(fn () => Preview::busy())
             ->action(function (Preview $record) {
                 if (Preview::busy()) {

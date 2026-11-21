@@ -66,7 +66,12 @@ deployed again, with its database kept. So after you push to the branch, the pre
 date within a few minutes. The client's approval is reset, because they have not seen the new
 version yet. Nothing is set up per repository; it uses `PREVIEW_GITHUB_TOKEN` for private ones.
 
-A commit whose build failed is not retried; the next push is, or click Deploy. Expired and cleared
+**By hand:** the **Bijwerken** button (in the list and on the preview's page) asks GitHub for the
+newest commit and deploys only when it is not live yet; otherwise it says the preview is up to
+date. The database is kept. **Opnieuw deployen** always rebuilds, even without a new commit (for
+example after changing the `.env` template).
+
+A commit whose build failed is not retried automatically; the next push is, or click Bijwerken. Expired and cleared
 previews are not updated.
 
 ### The 403 page
