@@ -238,6 +238,38 @@ class PhaseFiveTest extends TestCase
         $this->get('/nl/nu')->assertNotFound();
     }
 
+    public function test_dnscheck_and_stackfinder_are_proposed_as_draft_projects_once(): void
+    {
+        $this->publishSite();
+        $this->seed(PersonalBrandSeeder::class);
+        $this->seed(PersonalBrandSeeder::class);
+
+        foreach (['dnscheck' => 'https://dnscheck.info', 'stackfinder' => 'https://stackfinder.nl'] as $slug => $url) {
+            $project = Project::where('slug_en', $slug)->sole();
+            $this->assertSame('draft', $project->status->value);
+            $this->assertSame($url, $project->url);
+            $this->assertSame([], $project->publishIssues(), $slug);
+            $this->assertNull($project->outcome);
+
+            // Nothing goes live by itself; once published, the case study renders.
+            $this->get('/nl/werk/'.$slug)->assertNotFound();
+            $project->publish();
+            $this->get('/nl/werk/'.$slug)->assertOk()->assertSee($project->title['nl']);
+            $this->get('/en/work/'.$slug)->assertOk()->assertSee($project->summary['en']);
+        }
+    }
+
+    public function test_the_project_proposals_run_on_their_own_without_touching_pages(): void
+    {
+        $this->publishSite();
+        $before = Page::query()->get()->map(fn ($p) => [$p->key, $p->draft_data])->all();
+
+        $this->artisan('db:seed', ['--class' => 'ProjectProposalsSeeder', '--force' => true])->assertSuccessful();
+
+        $this->assertSame(2, Project::whereIn('slug_en', ['dnscheck', 'stackfinder'])->where('status', 'draft')->count());
+        $this->assertSame($before, Page::query()->get()->map(fn ($p) => [$p->key, $p->draft_data])->all());
+    }
+
     public function test_articles_and_projects_can_be_shared_and_articles_name_the_author(): void
     {
         $this->publishSite();

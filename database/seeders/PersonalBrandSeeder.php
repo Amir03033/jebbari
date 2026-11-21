@@ -392,6 +392,8 @@ class PersonalBrandSeeder extends Seeder
             ]);
             self::$report[] = 'project ChinaSupply: aangemaakt als concept (alleen de naam)';
         }
+
+        self::$report = [...self::$report, ...ProjectProposalsSeeder::propose()];
     }
 
     /** "Over ons" becomes "Over mij" in the menus, unless the owner already renamed it. */
