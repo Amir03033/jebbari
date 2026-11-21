@@ -4,6 +4,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FeedController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\PreviewController;
+use App\Http\Controllers\PreviewReviewController;
 use App\Http\Controllers\ShareImageController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\SitemapController;
@@ -65,6 +66,13 @@ foreach (Locale::all() as $locale) {
         Route::get('{slug}', [SiteController::class, 'legal'])->where('slug', '[a-z0-9\-]+')->name($locale.'.legal');
     });
 }
+
+// Client preview of a website on the preview subdomain: the long random token is the key.
+Route::prefix('review/{token}')->where(['token' => '[A-Za-z0-9]{64}'])->name('review.')->group(function () {
+    Route::get('/', [PreviewReviewController::class, 'show'])->name('show');
+    Route::post('approve', [PreviewReviewController::class, 'approve'])->middleware('throttle:review')->name('approve');
+    Route::post('changes', [PreviewReviewController::class, 'changes'])->middleware('throttle:review')->name('changes');
+});
 
 // Design-token test page. Not part of the public site.
 Route::get('/_style', StyleController::class)

@@ -24,26 +24,38 @@ class SecurityHeaders
 
         $isAdmin = $request->is('admin', 'admin/*', 'livewire*', 'livewire-*');
         $isPreview = $request->is('preview/*');
+        $isReview = $request->is('review/*');
 
         // Skip while the Vite dev server is running (it needs a looser policy).
         if (! file_exists(public_path('hot'))) {
-            $response->headers->set('Content-Security-Policy', $isAdmin ? self::ADMIN_CSP : self::PUBLIC_CSP.$this->frames());
+            $response->headers->set('Content-Security-Policy', $isAdmin ? self::ADMIN_CSP : self::PUBLIC_CSP.($isReview ? $this->previewFrame() : $this->frames()));
         }
 
         $response->headers->set('X-Content-Type-Options', 'nosniff');
-        $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
+        // The client's review link carries its secret: never send it on, not even to the preview.
+        $response->headers->set('Referrer-Policy', $isReview ? 'no-referrer' : 'strict-origin-when-cross-origin');
         $response->headers->set('X-Frame-Options', 'DENY');
 
         if ($request->isSecure()) {
             $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
         }
 
-        if ($isAdmin || $isPreview) {
+        if ($isAdmin || $isPreview || $isReview) {
             $response->headers->set('X-Robots-Tag', 'noindex, nofollow');
             $response->headers->set('Cache-Control', 'no-store, private');
         }
 
         return $response;
+    }
+
+    /** The client review page frames the preview subdomain, and nothing else. */
+    private function previewFrame(): string
+    {
+        $parts = parse_url((string) config('preview.url'));
+
+        return isset($parts['scheme'], $parts['host'])
+            ? '; frame-src '.$parts['scheme'].'://'.$parts['host'].(isset($parts['port']) ? ':'.$parts['port'] : '')
+            : '';
     }
 
     /** Live demos on case studies may be embedded, and nothing else: only the hosts the owner entered. */

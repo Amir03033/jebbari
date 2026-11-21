@@ -9,6 +9,7 @@ use App\Models\NavigationItem;
 use App\Models\Page;
 use App\Models\Post;
 use App\Models\PostCategory;
+use App\Models\Preview;
 use App\Models\Project;
 use App\Models\Service;
 use App\Models\Subscriber;
@@ -52,10 +53,17 @@ class AppServiceProvider extends ServiceProvider
             NavigationItem::class => OwnerOnlyPolicy::class,
             User::class => OwnerOnlyPolicy::class,
             Subscriber::class => OwnerOnlyPolicy::class,
+            Preview::class => OwnerOnlyPolicy::class,
             Activity::class => ActivityPolicy::class,
         ] as $model => $policy) {
             Gate::policy($model, $policy);
         }
+
+        // Preview review buttons: a few clicks a minute per address.
+        RateLimiter::for('review', fn (Request $request) => [
+            Limit::perMinute(5)->by($request->ip()),
+            Limit::perHour(30)->by($request->ip()),
+        ]);
 
         // Contact form: 3 a minute and 10 an hour per address.
         RateLimiter::for('contact', fn (Request $request) => [

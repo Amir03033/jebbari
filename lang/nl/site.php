@@ -209,6 +209,27 @@ return [
         'scheduled' => 'Gepland',
     ],
 
+    'review' => [
+        'label' => 'Preview, niet definitief',
+        'title' => 'Preview voor :name',
+        'valid_until' => 'geldig tot :date',
+        'approve' => 'Goedkeuren',
+        'request_changes' => 'Wijzigingen aanvragen',
+        'changes_label' => 'Wat wil je anders?',
+        'changes_hint' => 'Noem de pagina en wat er moet veranderen.',
+        'send' => 'Verstuur',
+        'approved_now' => 'Dank je. De preview is goedgekeurd.',
+        'approved_on' => 'Goedgekeurd op :date',
+        'changes_sent' => 'Je wijzigingen zijn doorgegeven.',
+        'open_short' => 'Nieuw tabblad',
+        'open' => 'Open in nieuw tabblad',
+        'new_tab' => '(opent in een nieuw tabblad)',
+        'frame' => 'Preview van de website van :name',
+        'unavailable_title' => 'Deze preview is niet meer beschikbaar.',
+        'unavailable_text' => 'De preview is vervangen of gewist. Vraag om een nieuwe link als je hem nog wilt bekijken.',
+        'expired_text' => 'De link is verlopen. Vraag om een nieuwe link als je de preview nog wilt bekijken.',
+    ],
+
     'contact' => [
         'label' => 'Contact',
         'name' => 'Naam',
