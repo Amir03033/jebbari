@@ -15,6 +15,7 @@ class ViewPreview extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            PreviewResource::updateAction(),
             PreviewResource::deployAction(),
             Action::make('open')->label('Klantpagina')->icon('heroicon-o-arrow-top-right-on-square')->color('gray')
                 ->url(fn () => $this->getRecord()->reviewUrl(), true),

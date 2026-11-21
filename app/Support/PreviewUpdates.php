@@ -42,6 +42,36 @@ class PreviewUpdates
         return 'New commit '.substr($latest, 0, 7).' on '.$preview->branch.': preview "'.$preview->client_name.'" queued.';
     }
 
+    /**
+     * The "Bijwerken" button: deploy this preview again if its branch has a
+     * commit that is not live yet.
+     *
+     * @return array{0: string, 1: string} [result, message] with result
+     *                                     'queued', 'current', 'busy' or 'unknown'
+     */
+    public function update(Preview $preview): array
+    {
+        if (Preview::busy()) {
+            return ['busy', 'Er loopt al een build. Wacht tot die klaar is.'];
+        }
+
+        $latest = $this->latestCommit($preview);
+
+        if ($latest === null) {
+            return ['unknown', 'GitHub gaf geen antwoord over branch "'.$preview->branch.'". Controleer de repository, de branch en PREVIEW_GITHUB_TOKEN.'];
+        }
+
+        if ($latest === $preview->commit_sha && $preview->status === PreviewStatus::Ready) {
+            return ['current', 'Al bijgewerkt: de nieuwste commit ('.substr($latest, 0, 7).') staat live.'];
+        }
+
+        $from = $preview->commit_sha ? substr($preview->commit_sha, 0, 7) : 'onbekend';
+        $preview->forceFill(['commit_sha' => $latest])->saveQuietly();
+        $preview->deploy();
+
+        return ['queued', 'Nieuwe versie gevonden ('.$from.' → '.substr($latest, 0, 7).'). De build start binnen een minuut.'];
+    }
+
     /** The full hash of the branch's newest commit, or null if GitHub cannot tell. */
     public function latestCommit(Preview $preview): ?string
     {
