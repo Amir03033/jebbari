@@ -18,6 +18,8 @@
 #   PREVIEW_COOKIE        cookie name
 #   PREVIEW_FRAME_ORIGIN  origin allowed to show the preview in a frame (https://jebbari.nl)
 #   PREVIEW_DEV           1 installs composer dev packages too (seeders that use Faker)
+#   PREVIEW_FRESH         1 empties and seeds the database (default); 0 keeps it, with the
+#                         same APP_KEY and uploads, and only runs new migrations
 #   PREVIEW_PHP, PREVIEW_COMPOSER, PREVIEW_NPM   tools (optional)
 #   JEBBARI_ROOT          Jebbari's own folder, which must never be touched
 #   GIT_CONFIG_*          GitHub token header for private repositories (optional)
@@ -158,6 +160,7 @@ step "Cloning $REPO ($BRANCH)"
 GIT_TERMINAL_PROMPT=0 git clone --depth 1 --single-branch --branch "$BRANCH" --no-tags -- "$REPO" "$BUILD/src"
 cd "$BUILD/src"
 echo "Commit $(git rev-parse --short HEAD): $(git log -1 --format=%s)"
+echo "Commit-SHA: $(git rev-parse HEAD)"
 rm -rf -- .git
 
 [[ -d public ]] || fail "the repository has no public/ folder (the document root is httpdocs/public)"
@@ -187,6 +190,22 @@ fi
 
 # ---------------------------------------------------------------- move in
 step "Replacing the preview"
+
+# Keeping the database: keep what belongs with it too. The app key (encrypted
+# values such as two-factor secrets need it) and uploaded files.
+FRESH="${PREVIEW_FRESH:-1}"
+OLD_KEY=""
+if [[ "$FRESH" == "0" ]]; then
+    if [[ -f "$TARGET/.env" ]]; then
+        OLD_KEY="$(grep -m1 '^APP_KEY=' -- "$TARGET/.env" | cut -d= -f2- | tr -d "\"'" || true)"
+        [[ "$OLD_KEY" =~ ^base64:[A-Za-z0-9+/=]{20,}$ ]] || OLD_KEY=""
+    fi
+    if [[ -d "$TARGET/storage/app" ]]; then
+        mv -- "$TARGET/storage/app" "$BUILD/kept-storage-app"
+        echo "Keeping uploaded files (storage/app)."
+    fi
+fi
+
 empty_target
 shopt -s dotglob nullglob
 for entry in "$BUILD/src"/*; do
@@ -200,8 +219,27 @@ done
 shopt -u dotglob nullglob
 cd "$TARGET"
 
-printf '%s\n' "$PREVIEW_ENV" > .env
+if [[ -d "$BUILD/kept-storage-app" ]]; then
+    mkdir -p storage
+    rm -rf -- storage/app
+    mv -- "$BUILD/kept-storage-app" storage/app
+fi
+
+if [[ -n "$OLD_KEY" ]]; then
+    # The template's APP_KEY line gets the key the database was made with.
+    while IFS= read -r line; do
+        if [[ "$line" == APP_KEY=* ]]; then printf 'APP_KEY=%s\n' "$OLD_KEY"; else printf '%s\n' "$line"; fi
+    done <<< "$PREVIEW_ENV" > .env
+    grep -q '^APP_KEY=' .env || printf 'APP_KEY=%s\n' "$OLD_KEY" >> .env
+else
+    printf '%s\n' "$PREVIEW_ENV" > .env
+fi
 chmod 600 .env
+
+# The page strangers get instead of the site (served with status 403).
+if [[ -n "${JEBBARI_ROOT:-}" && -f "$JEBBARI_ROOT/resources/preview/403.html" ]]; then
+    cp -- "$JEBBARI_ROOT/resources/preview/403.html" public/__jebbari-403.html
+fi
 
 # Only visitors with the cookie from the client's link get in. Headers for every response.
 HTACCESS="public/.htaccess"
@@ -213,6 +251,7 @@ ORIGINAL=""
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteCond %{REQUEST_URI} !^/robots\.txt$
+    RewriteCond %{REQUEST_URI} !^/__jebbari-403\.html$
     RewriteCond %{REQUEST_URI} !^/\.well-known/
     RewriteCond %{HTTP_COOKIE} !(^|;\s*)${PREVIEW_COOKIE}=${PREVIEW_ACCESS_KEY}(;|$)
     RewriteRule ^ - [F,L]
@@ -220,6 +259,7 @@ ORIGINAL=""
 <IfModule !mod_rewrite.c>
     Require all denied
 </IfModule>
+ErrorDocument 403 /__jebbari-403.html
 EOF
     headers_block
     echo "# --- end Jebbari preview ---"
@@ -231,8 +271,16 @@ write_robots public
 
 if [[ -f artisan ]]; then
     step "Laravel: key, database, storage"
-    "$PHP" artisan key:generate --force --no-interaction
-    "$PHP" artisan migrate:fresh --seed --force --no-interaction
+    if [[ -n "$OLD_KEY" ]]; then
+        echo "Keeping the app key."
+    else
+        "$PHP" artisan key:generate --force --no-interaction
+    fi
+    if [[ "$FRESH" == "0" ]]; then
+        "$PHP" artisan migrate --force --no-interaction
+    else
+        "$PHP" artisan migrate:fresh --seed --force --no-interaction
+    fi
     "$PHP" artisan storage:link --force --no-interaction || "$PHP" artisan storage:link --no-interaction
     "$PHP" artisan optimize:clear --no-interaction >/dev/null 2>&1 || true
 else

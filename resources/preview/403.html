@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Nog even geduld · 403</title>
+<!--
+  Shown by preview.jebbari.nl to visitors without the access cookie (403).
+  Self-contained on purpose: the site's own files are behind the same check.
+  Copied into place by scripts/preview-deploy.sh. Colours follow the Jebbari tokens.
+-->
+<style>
+    :root {
+        --paper: #fafaf8;
+        --card: #f1f1ee;
+        --ink: #0b0c0e;
+        --muted: #5d5e64;
+        --line: rgba(11, 12, 14, 0.1);
+        --signal: #2b4ef5;
+        --hole: #0b0c0e;
+        --eye: #fafaf8;
+        --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --paper: #0b0c0e;
+            --card: #15161a;
+            --ink: #f3f3f1;
+            --muted: #a3a4aa;
+            --line: rgba(243, 243, 241, 0.12);
+            --signal: #8ea2ff;
+            --hole: #000000;
+            --eye: #f3f3f1;
+        }
+    }
+    * { box-sizing: border-box; margin: 0; }
+    html { color-scheme: light dark; }
+    body {
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 48px 24px;
+        background: var(--paper);
+        color: var(--ink);
+        font: 400 18px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+        -webkit-font-smoothing: antialiased;
+    }
+    main { width: 100%; max-width: 640px; margin: 0 auto; }
+    .label {
+        font: 400 12px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+    }
+    .label b { font-weight: 400; color: var(--signal); }
+    h1 {
+        margin-top: 20px;
+        font-size: clamp(2.5rem, 8vw, 4.25rem);
+        font-weight: 500;
+        line-height: 1;
+        letter-spacing: -0.04em;
+        text-wrap: balance;
+    }
+    h1 span { color: var(--signal); }
+    p { margin-top: 20px; max-width: 34em; color: var(--muted); text-wrap: pretty; }
+    p strong { color: var(--ink); font-weight: 500; }
+    .door {
+        display: block;
+        width: 112px;
+        height: auto;
+        margin-bottom: 40px;
+    }
+    .door .frame { fill: var(--card); stroke: var(--line); }
+    .door .panel { fill: none; stroke: var(--line); }
+    .door .knob { fill: var(--muted); }
+    .door .hole { fill: var(--hole); }
+    .door .eye { fill: var(--eye); transform-origin: 74px 76px; animation: peek 6s var(--ease) infinite; }
+    .door .pupil { fill: var(--hole); transform-origin: 74px 76px; animation: look 6s var(--ease) infinite; }
+    @keyframes peek {
+        0%, 8% { transform: scaleY(0); }
+        14%, 44% { transform: scaleY(1); }
+        47% { transform: scaleY(0.1); }
+        50%, 80% { transform: scaleY(1); }
+        86%, 100% { transform: scaleY(0); }
+    }
+    @keyframes look {
+        0%, 20% { transform: translateX(0); }
+        28%, 40% { transform: translateX(-1.5px); }
+        54%, 70% { transform: translateX(1.5px); }
+        78%, 100% { transform: translateX(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .door .eye, .door .pupil { animation: none; }
+    }
+    .en {
+        margin-top: 48px;
+        padding-top: 20px;
+        border-top: 1px solid var(--line);
+        font-size: 15px;
+    }
+    footer {
+        margin-top: 48px;
+        font: 400 12px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--muted);
+    }
+    a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
+    a:hover, a:focus-visible { border-bottom-color: var(--signal); }
+    a:focus-visible { outline: 2px solid var(--signal); outline-offset: 3px; }
+</style>
+</head>
+<body>
+<main>
+    <svg class="door" viewBox="0 0 112 140" role="img" aria-label="Een dichte deur met iemand die door het sleutelgat terugkijkt">
+        <rect class="frame" x="8" y="4" width="96" height="132" rx="4"/>
+        <rect class="panel" x="22" y="18" width="68" height="40" rx="2"/>
+        <rect class="panel" x="22" y="92" width="68" height="30" rx="2"/>
+        <circle class="knob" cx="86" cy="68" r="4"/>
+        <circle class="hole" cx="74" cy="76" r="7"/>
+        <ellipse class="eye" cx="74" cy="76" rx="5" ry="3.2"/>
+        <circle class="pupil" cx="74" cy="76" r="1.6"/>
+    </svg>
+
+    <p class="label"><b>&#9679;</b> 403 · Verboden toegang</p>
+    <h1>Hier wordt nog gebouwd<span>.</span></h1>
+    <p>Achter deze deur staat een website die nog niet af is. De verf is nat, de meubels zitten nog in plastic en er hangen draadjes uit het plafond. We laten hem graag zien, maar pas als hij klaar is.</p>
+    <p>Tot die tijd mag alleen <strong>de klant</strong> binnenkijken, met een persoonlijke link. Heb je zo'n link gekregen? Open hem dan opnieuw. Geen link? Dan is dit ons geheimpje. Wel netjes dat je even aanklopte.</p>
+
+    <p class="en" lang="en">This website is still being built and is only open to the client, through a personal link. If you have one, open it again. If not: nothing to see here yet, but thanks for knocking.</p>
+
+    <footer>Gebouwd door <a href="https://jebbari.nl">jebbari.</a></footer>
+</main>
+</body>
+</html>

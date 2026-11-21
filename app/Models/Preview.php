@@ -29,6 +29,9 @@ class Preview extends Model
         return [
             'status' => PreviewStatus::class,
             'dev_dependencies' => 'boolean',
+            'keep_database' => 'boolean',
+            'auto_update' => 'boolean',
+            'owns_database' => 'boolean',
             'deployed_at' => 'datetime',
             'approved_at' => 'datetime',
             'change_requested_at' => 'datetime',
@@ -75,19 +78,17 @@ class Preview extends Model
 
     /**
      * Queues a build of this preview. It becomes the only one: every other
-     * preview is marked cleared, so their client links stop working. A new
-     * access key means old cookies no longer open the subdomain.
+     * preview is marked cleared, so their client links stop working. Each
+     * preview has its own access key, so their cookies no longer open the
+     * subdomain either. The key stays the same across redeploys of one
+     * preview, so a client who is looking keeps access after an update.
      */
     public function deploy(): void
     {
         static::query()->whereKeyNot($this->getKey())->where('status', '!=', PreviewStatus::Cleared)
             ->update(['status' => PreviewStatus::Cleared]);
 
-        $this->forceFill([
-            'status' => PreviewStatus::Pending,
-            'access_key' => Str::random(64),
-            'log' => null,
-        ])->save();
+        $this->forceFill(['status' => PreviewStatus::Pending, 'log' => null])->save();
 
         DeployPreview::dispatch($this);
     }
@@ -96,8 +97,21 @@ class Preview extends Model
     public static function clearServer(): void
     {
         static::query()->where('status', '!=', PreviewStatus::Cleared)->update(['status' => PreviewStatus::Cleared]);
+        static::query()->update(['owns_database' => false]);
 
         ClearPreview::dispatch();
+    }
+
+    /** The next build keeps the database only if asked and if it still holds this preview's data. */
+    public function keepsDatabase(): bool
+    {
+        return $this->keep_database && $this->owns_database;
+    }
+
+    /** owner/repo, from the stored clone URL. */
+    public function repoPath(): ?string
+    {
+        return preg_match(self::REPO_PATTERN, (string) $this->repo_url, $m) ? $m[1].'/'.$m[2] : null;
     }
 
     public function isExpired(): bool

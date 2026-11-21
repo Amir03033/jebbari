@@ -12,7 +12,9 @@ use App\Mail\PreviewApproved;
 use App\Mail\PreviewChangesRequested;
 use App\Models\Preview;
 use App\Support\PreviewServer;
+use App\Support\PreviewUpdates;
 use App\Support\Settings;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\RateLimiter;
@@ -63,6 +65,8 @@ echo "repo=\$PREVIEW_REPO branch=\$PREVIEW_BRANCH"
 echo "db=\${DB_DATABASE:-unset} appkey=\${APP_KEY:-unset}"
 echo "secret=preview_user:p@ss\$'word\" token=github_pat_SECRET"
 echo "git=\${GIT_CONFIG_KEY_0:-none}"
+echo "fresh=\$PREVIEW_FRESH"
+echo "Commit-SHA: 0123456789abcdef0123456789abcdef01234567"
 printf '%s' "\$PREVIEW_ENV" > "{$this->dir}/env.out"
 exit {$exit}
 SH);
@@ -181,7 +185,8 @@ SH);
 
         $this->assertSame(PreviewStatus::Cleared, $old->fresh()->status);
         $this->assertSame(PreviewStatus::Pending, $new->fresh()->status);
-        $this->assertNotSame($oldKey, $new->fresh()->access_key);
+        // The key stays: a client who is looking keeps access after an update.
+        $this->assertSame($oldKey, $new->fresh()->access_key);
         Queue::assertPushed(DeployPreview::class, 1);
 
         // A build is queued: a second deploy is refused.
@@ -276,7 +281,7 @@ SH);
         $preview = $this->preview(['status' => PreviewStatus::Pending]);
         (new DeployPreview($preview))->handle(new class extends PreviewServer
         {
-            public function run(string $mode, ?Preview $preview, callable $output): int
+            public function run(string $mode, ?Preview $preview, callable $output, bool $fresh = true): int
             {
                 Preview::query()->whereKey($preview->id)->update(['status' => PreviewStatus::Cleared]);
 
@@ -296,6 +301,121 @@ SH);
         $this->assertSame('previews', $job->queue);
         $this->assertGreaterThan(config('preview.timeout'), $job->timeout);
         $this->assertGreaterThan($job->timeout, config('queue.connections.previews.retry_after'));
+    }
+
+    // ------------------------------------------------------------ keeping the database, automatic updates
+
+    public function test_the_database_is_kept_only_for_a_redeploy_of_the_preview_that_owns_it(): void
+    {
+        $this->fakeScript();
+        $a = $this->preview(['status' => PreviewStatus::Pending]);
+
+        // First build: always empty and seeded. Afterwards it owns the database.
+        (new DeployPreview($a))->handle(app(PreviewServer::class));
+        $a->refresh();
+        $this->assertStringContainsString('fresh=1', $a->log);
+        $this->assertTrue($a->owns_database);
+        $this->assertSame('0123456789abcdef0123456789abcdef01234567', $a->commit_sha);
+
+        // Redeploy of the same preview: kept.
+        Queue::fake();
+        $a->deploy();
+        (new DeployPreview($a->fresh()))->handle(app(PreviewServer::class));
+        $this->assertStringContainsString('fresh=0', $a->fresh()->log);
+        $this->assertStringContainsString('Database: kept', $a->fresh()->log);
+
+        // Another preview takes the database: A starts over next time.
+        $b = $this->preview(['status' => PreviewStatus::Failed]);
+        $b->deploy();
+        (new DeployPreview($b->fresh()))->handle(app(PreviewServer::class));
+        $this->assertStringContainsString('fresh=1', $b->fresh()->log);
+        $this->assertFalse($a->fresh()->owns_database);
+        $this->assertTrue($b->fresh()->owns_database);
+
+        // Switched off: emptied even when it owns the database.
+        $b->update(['keep_database' => false]);
+        $b->deploy();
+        (new DeployPreview($b->fresh()))->handle(app(PreviewServer::class));
+        $this->assertStringContainsString('fresh=1', $b->fresh()->log);
+
+        // Clearing: nobody owns it any more.
+        Preview::clearServer();
+        $this->assertSame(0, Preview::where('owns_database', true)->count());
+    }
+
+    public function test_a_failed_fresh_build_leaves_the_database_without_owner(): void
+    {
+        $this->fakeScript(1);
+        $a = $this->preview(['status' => PreviewStatus::Pending, 'keep_database' => false, 'owns_database' => true]);
+
+        (new DeployPreview($a))->handle(app(PreviewServer::class));
+
+        $this->assertFalse($a->fresh()->owns_database);
+    }
+
+    public function test_a_new_commit_on_the_branch_redeploys_the_live_preview(): void
+    {
+        Queue::fake();
+        Http::fake(['api.github.com/repos/klant/website/commits/main' => Http::response(str_repeat('b', 40))]);
+        $preview = $this->preview(['commit_sha' => str_repeat('a', 40)]);
+
+        $message = app(PreviewUpdates::class)->check();
+
+        $this->assertStringContainsString('bbbbbbb', $message);
+        $this->assertSame(PreviewStatus::Pending, $preview->fresh()->status);
+        $this->assertSame(str_repeat('b', 40), $preview->fresh()->commit_sha);
+        Queue::assertPushed(DeployPreview::class, 1);
+        Http::assertSent(fn ($request) => $request->hasHeader('Authorization', 'Bearer github_pat_SECRET'));
+
+        // Same commit (or a build already queued): nothing happens.
+        $preview->forceFill(['status' => PreviewStatus::Ready])->save();
+        $this->assertNull(app(PreviewUpdates::class)->check());
+        Queue::assertPushed(DeployPreview::class, 1);
+    }
+
+    public function test_no_automatic_update_when_switched_off_expired_cleared_or_github_fails(): void
+    {
+        Queue::fake();
+        $github = Http::response(str_repeat('c', 40));
+        Http::fake(function () use (&$github) {
+            return $github;
+        });
+
+        $off = $this->preview(['auto_update' => false, 'commit_sha' => str_repeat('a', 40)]);
+        $this->assertNull(app(PreviewUpdates::class)->check());
+
+        $off->update(['auto_update' => true, 'expires_at' => now()->subMinute()]);
+        $this->assertNull(app(PreviewUpdates::class)->check());
+
+        $off->update(['expires_at' => now()->addDay(), 'status' => PreviewStatus::Cleared]);
+        $this->assertNull(app(PreviewUpdates::class)->check());
+
+        $github = Http::response('Not Found', 404);
+        $off->update(['status' => PreviewStatus::Ready]);
+        $this->assertNull(app(PreviewUpdates::class)->check());
+
+        Queue::assertNothingPushed();
+    }
+
+    public function test_the_worker_command_checks_for_updates_and_runs_the_previews_queue(): void
+    {
+        Http::fake(['api.github.com/*' => Http::response('', 500)]);
+        $this->preview();
+
+        $this->artisan('previews:work')->assertSuccessful();
+    }
+
+    public function test_strangers_get_a_friendly_403_page(): void
+    {
+        $page = file_get_contents(resource_path('preview/403.html'));
+        $this->assertStringContainsString('<meta name="robots" content="noindex, nofollow">', $page);
+        $this->assertStringContainsString('Hier wordt nog gebouwd', $page);
+        $this->assertStringContainsString('prefers-reduced-motion', $page);
+        $this->assertStringNotContainsString('<script', $page);
+
+        $script = file_get_contents(base_path('scripts/preview-deploy.sh'));
+        $this->assertStringContainsString('ErrorDocument 403 /__jebbari-403.html', $script);
+        $this->assertStringContainsString('RewriteCond %{REQUEST_URI} !^/__jebbari-403\\.html$', $script);
     }
 
     // ------------------------------------------------------------ client page

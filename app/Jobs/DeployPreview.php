@@ -48,8 +48,18 @@ class DeployPreview implements ShouldQueue
 
         $preview->forceFill(['status' => PreviewStatus::Building, 'log' => '['.now()->timezone('Europe/Amsterdam')->format('d-m-Y H:i:s').'] Build started'.PHP_EOL])->saveQuietly();
 
+        // Keep the database only when it still holds this preview's data; otherwise
+        // it is rebuilt, and until that succeeds no preview owns it.
+        $fresh = ! $preview->keepsDatabase();
+        $preview->appendLog($fresh ? 'Database: emptied and seeded'.PHP_EOL : 'Database: kept, new migrations only'.PHP_EOL);
+
         try {
             $server->assertConfigured();
+
+            if ($fresh) {
+                Preview::query()->update(['owns_database' => false]);
+                $preview->owns_database = false;
+            }
 
             $buffer = '';
             $flushed = microtime(true);
@@ -60,7 +70,7 @@ class DeployPreview implements ShouldQueue
                     $buffer = '';
                     $flushed = microtime(true);
                 }
-            });
+            }, $fresh);
             $preview->appendLog($buffer);
         } catch (Throwable $e) {
             $this->finish($preview, PreviewStatus::Failed, 'Stopped: '.$e->getMessage());
@@ -68,8 +78,13 @@ class DeployPreview implements ShouldQueue
             return;
         }
 
+        // The script prints the full commit hash; remembered so automatic updates know what is live.
+        if (preg_match('/^Commit-SHA: ([0-9a-f]{40})$/m', (string) $preview->log, $m)) {
+            $preview->forceFill(['commit_sha' => $m[1]])->saveQuietly();
+        }
+
         $exit === 0
-            ? $this->finish($preview, PreviewStatus::Ready, 'Ready.', ['deployed_at' => now(), 'approved_at' => null])
+            ? $this->finish($preview, PreviewStatus::Ready, 'Ready.', ['deployed_at' => now(), 'approved_at' => null, 'owns_database' => true])
             : $this->finish($preview, PreviewStatus::Failed, 'The script stopped with exit code '.$exit.'.');
     }
 

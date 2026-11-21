@@ -19,12 +19,14 @@ changes). Either click sends you an e-mail.
 | `.env` of the preview site | `resources/preview/env.template` |
 | Settings | `config/preview.php` (all values come from Jebbari's `.env`) |
 
-**Creating a preview deploys it right away.** You can deploy it again later with the Deploy
-button (for example after the client's changes). A deploy does this:
+**Creating a preview deploys it right away.** After that it is deployed again by itself when its
+branch gets a new commit (see *Automatic updates*), or by hand with the Deploy button. A deploy
+does this:
 
-1. Every other preview is marked *Gewist* (cleared), so its client link stops working.
-2. The preview gets a new access key, so older cookies stop opening the subdomain.
-3. The job is queued. The preview worker (below) starts it within a minute and writes the
+1. Every other preview is marked *Gewist* (cleared), so its client link stops working. Each preview
+   has its own access key, so their cookies stop opening the subdomain too. The key of the preview
+   itself stays the same, so a client who is looking keeps access after an update.
+2. The job is queued. The preview worker (below) starts it within a minute and writes the
    output to the log, which you can follow on the preview's page in the admin.
 
 The script then:
@@ -35,10 +37,45 @@ The script then:
 3. runs `npm ci && npm run build` if there is a `package.json`, then removes `node_modules`
 4. empties `httpdocs` (it keeps `.htaccess` and `.well-known`) and moves the build in
 5. writes `.env` from the template
-6. adds the access check and noindex headers to `public/.htaccess` and writes a `robots.txt`
-7. runs `key:generate`, `migrate:fresh --seed --force` and `storage:link`
+6. adds the access check, the 403 page and the noindex headers to `public/.htaccess`, and writes a
+   `robots.txt`
+7. builds the database (see below) and runs `storage:link`
 
 The old preview stays up until step 4.
+
+### The database: emptied or kept
+
+- **First deploy of a preview:** always `key:generate` and `migrate:fresh --seed`: an empty
+  database with the project's seed data.
+- **Redeploy of the same preview, with *Database behouden* on (default):** only `migrate` for new
+  migrations. Content, accounts and uploads (`storage/app`) stay, and so does the app key, which
+  encrypted values such as two-factor secrets need. Publish the pages once in the preview's own
+  admin, and they survive every update.
+- **Database behouden off,** or when another preview used the database in between, or after
+  *Preview wissen*: emptied and seeded again.
+
+Jebbari tracks which preview the database belongs to (`owns_database`). A fresh build that fails
+leaves it without an owner, so the next deploy starts clean again. Keeping never mixes two
+clients' data.
+
+### Automatic updates
+
+With *Automatisch bijwerken* on (default), the preview worker asks GitHub every minute for the
+newest commit on the live preview's branch. If it differs from the last build, the preview is
+deployed again, with its database kept. So after you push to the branch, the preview is up to
+date within a few minutes. The client's approval is reset, because they have not seen the new
+version yet. Nothing is set up per repository; it uses `PREVIEW_GITHUB_TOKEN` for private ones.
+
+A commit whose build failed is not retried; the next push is, or click Deploy. Expired and cleared
+previews are not updated.
+
+### The 403 page
+
+Strangers who open preview.jebbari.nl without the cookie get a page of its own
+(`resources/preview/403.html`, copied to `public/__jebbari-403.html`), still with status 403: a
+closed door with someone peeking back through the keyhole, and a short note that the site is
+still being built. It is self-contained (no files from the site, which are behind the same check)
+and follows the light or dark setting of the visitor.
 
 **Preview wissen** (clear) empties the subdomain and leaves a plain "Geen preview" page. It also
 drops every table in the preview database.
@@ -152,9 +189,14 @@ one, under the domain: Websites & Domains > jebbari.nl > **Scheduled Tasks** > A
 | Task type | **Run a PHP script** |
 | Script path | `/var/www/vhosts/jebbari.nl/httpdocs/artisan` |
 | Use PHP version | **8.4** (Jebbari's version) |
-| Arguments | `queue:work previews --queue=previews --stop-when-empty --max-time=55` |
+| Arguments | `previews:work` |
 | Run | Cron style `* * * * *` (every minute) |
 | Notify | Errors only |
+
+`previews:work` first checks the live preview for a new commit (automatic updates), then does
+the same as `queue:work previews --queue=previews --stop-when-empty --max-time=55`. A task set
+up earlier with those `queue:work` arguments still runs builds, but without automatic updates:
+change its arguments to `previews:work`.
 
 Keep the existing image worker as it is: it does not touch the `previews` queue. The job sets its
 own timeout (25 minutes) and its own number of tries, so do not add `--timeout` or `--tries`. A

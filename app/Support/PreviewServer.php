@@ -68,9 +68,10 @@ class PreviewServer
 
     /**
      * @param  callable(string): void  $output  receives the script's output as it comes
+     * @param  bool  $fresh  empty and reseed the preview database (otherwise only new migrations run)
      * @return int the exit code
      */
-    public function run(string $mode, ?Preview $preview, callable $output): int
+    public function run(string $mode, ?Preview $preview, callable $output, bool $fresh = true): int
     {
         $env = [
             'PREVIEW_PATH' => (string) config('preview.path'),
@@ -89,6 +90,7 @@ class PreviewServer
                 'PREVIEW_ACCESS_KEY' => $preview->access_key,
                 'PREVIEW_COOKIE' => (string) config('preview.cookie'),
                 'PREVIEW_DEV' => $preview->dev_dependencies ? '1' : '0',
+                'PREVIEW_FRESH' => $fresh ? '1' : '0',
                 'PREVIEW_ENV' => $this->envFile(),
             ];
         }
