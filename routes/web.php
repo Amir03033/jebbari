@@ -70,6 +70,7 @@ foreach (Locale::all() as $locale) {
 // Client preview of a website on the preview subdomain: the long random token is the key.
 Route::prefix('review/{token}')->where(['token' => '[A-Za-z0-9]{64}'])->name('review.')->group(function () {
     Route::get('/', [PreviewReviewController::class, 'show'])->name('show');
+    Route::get('share.png', [PreviewReviewController::class, 'shareImage'])->name('share');
     Route::post('approve', [PreviewReviewController::class, 'approve'])->middleware('throttle:review')->name('approve');
     Route::post('changes', [PreviewReviewController::class, 'changes'])->middleware('throttle:review')->name('changes');
 });

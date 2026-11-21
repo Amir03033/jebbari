@@ -11,6 +11,19 @@
     <meta name="robots" content="noindex, nofollow">
     <meta name="referrer" content="no-referrer">
     <title>{{ __('site.review.title', ['name' => $preview->client_name]) }} · {{ config('site.name') }}</title>
+    {{-- The link preview when the client's link is shared. --}}
+    <meta name="description" content="{{ __('site.review.share_description') }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ config('site.name') }}">
+    <meta property="og:title" content="{{ __('site.review.share_title', ['name' => $preview->client_name]) }}">
+    <meta property="og:description" content="{{ __('site.review.share_description') }}">
+    <meta property="og:image" content="{{ route('review.share', $preview->token) }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ __('site.review.share_title', ['name' => $preview->client_name]) }}">
+    <meta name="twitter:description" content="{{ __('site.review.share_description') }}">
+    <meta name="twitter:image" content="{{ route('review.share', $preview->token) }}">
     <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
     <script src="{{ asset('js/motion-flag.js') }}"></script>
     @vite(['resources/css/app.css'])
