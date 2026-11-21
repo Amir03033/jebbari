@@ -65,6 +65,10 @@ class PreviewResource extends Resource
                     ->default(fn () => now()->addDays(config('preview.lifetime_days'))),
                 Toggle::make('dev_dependencies')->label('Composer dev-pakketten installeren')
                     ->helperText('Nodig als de seeders factories of Faker gebruiken.'),
+                Toggle::make('keep_database')->label('Database behouden bij een nieuwe deploy')->default(true)
+                    ->helperText('Inhoud, accounts en uploads blijven staan; alleen nieuwe migraties draaien. De eerste deploy begint altijd met een lege database.'),
+                Toggle::make('auto_update')->label('Automatisch bijwerken')->default(true)
+                    ->helperText('Binnen een minuut na een nieuwe commit op deze branch wordt de preview opnieuw gedeployd.'),
             ]),
         ]);
     }
@@ -83,6 +87,12 @@ class PreviewResource extends Resource
                 TextEntry::make('deployed_at')->label('Laatst gedeployd')->dateTime('d-m-Y H:i')->timezone('Europe/Amsterdam')->placeholder('—'),
                 TextEntry::make('expires_at')->label('Geldig tot')->dateTime('d-m-Y H:i')->timezone('Europe/Amsterdam')
                     ->color(fn (Preview $record) => $record->isExpired() ? 'danger' : null),
+                TextEntry::make('commit_sha')->label('Commit')->placeholder('—')
+                    ->formatStateUsing(fn (?string $state) => $state ? substr($state, 0, 7) : null)
+                    ->url(fn (Preview $record) => $record->commit_sha && $record->repoPath() ? 'https://github.com/'.$record->repoPath().'/commit/'.$record->commit_sha : null, true),
+                TextEntry::make('options')->label('Bij een nieuwe deploy')
+                    ->state(fn (Preview $record) => ($record->keepsDatabase() ? 'database blijft staan' : 'database wordt leeggemaakt')
+                        .($record->auto_update ? ' · automatisch bij een nieuwe commit' : ' · alleen handmatig')),
             ]),
             Section::make('Reactie van de klant')->columns(['default' => 1, 'md' => 2])->schema([
                 TextEntry::make('approved_at')->label('Goedgekeurd')->dateTime('d-m-Y H:i')->timezone('Europe/Amsterdam')->placeholder('Nog niet'),
